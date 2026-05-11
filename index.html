@@ -2196,9 +2196,7 @@ async function loadAll() {
   S.broadAvails = avails;
   S.shiftAvails = shiftAvails;
   S.weekNotes   = weekNotes || [];
-  // Réhydrater shift.status depuis localStorage (colonne absente en DB)
-  const _confirmedShiftIds = JSON.parse(localStorage.getItem('sr_confirmed_shifts')||'{}');
-  S.shifts = shifts.map(sh => ({...sh, status: _confirmedShiftIds[sh.id] || null}));
+  S.shifts = shifts;
   // Masquer l'overlay de chargement
   if (_lov) { _lov.classList.add('hidden'); setTimeout(()=>{ _lov.style.display='none'; },350); }
 }
@@ -3556,13 +3554,7 @@ async function adminAssignShift(shiftId, personId) {
     if (sh) {
       sh.person_id = val;
       if (personId) { sh.assignment_published = false; }
-      else {
-        sh.status = null; sh.assignment_published = null;
-        // Effacer aussi la confirmation locale si on retire l'assignation
-        const _map = JSON.parse(localStorage.getItem('sr_confirmed_shifts')||'{}');
-        delete _map[shiftId];
-        localStorage.setItem('sr_confirmed_shifts', JSON.stringify(_map));
-      }
+      else { sh.status = null; sh.assignment_published = null; }
     }
     renderDisposAdmin();
     renderCreneauxGrid();
@@ -4872,18 +4864,18 @@ async function saveShiftNote() {
   } catch(e) { toast('Erreur : '+e.message, 'err'); }
 }
 
-// ── Confirmation d'un shift par l'user (stocké en localStorage — pas de colonne DB) ──
+// ── Confirmation d'un shift par l'user ──
 async function confirmShift(shiftId) {
-  const sh = (S.shifts||[]).find(s => s.id === shiftId);
-  if (!sh || sh.person_id !== S.user?.id) { toast('Action non autorisée','err'); return; }
-  sh.status = 'confirmed';
-  const _map = JSON.parse(localStorage.getItem('sr_confirmed_shifts')||'{}');
-  _map[shiftId] = 'confirmed';
-  localStorage.setItem('sr_confirmed_shifts', JSON.stringify(_map));
-  toast('Shift confirmé ✓', 'ok');
-  renderFlowShifts();
-  renderFlowNotifs();
-  if (S._flowDispoView === 'month') renderFlowShiftsMonth();
+  try {
+    const sh = (S.shifts||[]).find(s => s.id === shiftId);
+    if (!sh || sh.person_id !== S.user?.id) { toast('Action non autorisée','err'); return; }
+    await API.patch('shifts', shiftId, { status: 'confirmed' });
+    sh.status = 'confirmed';
+    toast('Shift confirmé ✓', 'ok');
+    renderFlowShifts();
+    renderFlowNotifs();
+    if (S._flowDispoView === 'month') renderFlowShiftsMonth();
+  } catch(e) { toast('Erreur lors de la confirmation : ' + e.message, 'err'); }
 }
 
 
