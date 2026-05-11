@@ -1054,6 +1054,7 @@ function loadGuideColors() {
     <button class="tab on" onclick="ftab('planning')" id="ft-planning">MON PLANNING</button>
     <button class="tab"    onclick="ftab('dispos')"   id="ft-dispos">MES DISPOS</button>
     <button class="tab"    onclick="ftab('global')"   id="ft-global">📅 SANT-ROCH</button>
+    <button onclick="omo('mo-faq')" style="background:none;border:1.5px solid var(--beige-d);border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:900;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px" title="Aide & FAQ">?</button>
   </div>
 
   <!-- Navigation bottom mobile (flow users) -->
@@ -1066,6 +1067,9 @@ function loadGuideColors() {
     </button>
     <button class="mnb"    id="mnb-global"   onclick="ftab('global')">
       <span class="mni">👥</span><span>ÉQUIPE</span>
+    </button>
+    <button class="mnb" onclick="omo('mo-faq')">
+      <span class="mni">❓</span><span>AIDE</span>
     </button>
   </div>
 
@@ -1092,6 +1096,16 @@ function loadGuideColors() {
       <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button>
       <span class="wlbl" id="fdispo-month-lbl">—</span>
       <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button>
+    </div>
+
+    <!-- Aide contextuelle dispos -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:11px">
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(100,95,95,.75)"></span><span style="color:var(--muted)">Pas répondu</span></span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(42,122,75,.90)"></span><span style="color:var(--muted)">Dispo</span></span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,40,40,.86)"></span><span style="color:var(--muted)">Pas dispo</span></span>
+        <button onclick="omo('mo-faq')" style="background:none;border:1px solid var(--beige-d);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700">❓ Comment ça marche ?</button>
+      </div>
     </div>
 
     <!-- Vue shifts semaine -->
@@ -1450,6 +1464,154 @@ function loadGuideColors() {
 </div>
 
 <!-- Modal Event Flow -->
+<!-- ══════════════════════════════════════════
+     WELCOME ONBOARDING (flow users)
+════════════════════════════════════════════ -->
+<div class="mo hidden" id="mo-welcome">
+  <div class="modal" style="max-width:400px;padding:0;overflow:hidden">
+    <!-- Progress dots -->
+    <div id="wlc-dots" style="display:flex;justify-content:center;gap:8px;padding:16px 0 0;background:var(--creme)"></div>
+
+    <!-- Slides container -->
+    <div id="wlc-slides" style="overflow:hidden">
+
+      <!-- Slide 1 -->
+      <div class="wlc-slide" style="padding:24px 28px 20px">
+        <div style="font-size:48px;text-align:center;margin-bottom:16px">👋</div>
+        <h2 style="font-size:20px;font-weight:900;color:var(--bordeaux);text-align:center;margin-bottom:10px">Bienvenue sur<br>Sant Roch Planning</h2>
+        <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6">Cette app te permet de gérer tes disponibilités et de suivre tes shifts à Sant Roch. C'est simple — 3 choses à retenir.</p>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="wlc-slide hidden" style="padding:24px 28px 20px">
+        <div style="font-size:40px;text-align:center;margin-bottom:12px">🏊</div>
+        <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">C'est quoi un shift ?</h3>
+        <div style="background:var(--creme);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--fg)">
+          <p style="margin-bottom:10px">Un <strong>shift</strong> = un créneau de présence à la piscine qui peut contenir <strong>une ou plusieurs séances</strong> :</p>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">☀️</span><span><strong>Séance freeflow</strong> — baignade libre, surveillance générale</span></div>
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">👤</span><span><strong>Séance guidée</strong> — accompagnement d'un groupe avec un guide</span></div>
+          </div>
+          <p style="margin-top:10px;font-size:12px;color:var(--muted)">Ex : un shift 10h–15h peut couvrir une freeflow le matin + une guidée l'après-midi.</p>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="wlc-slide hidden" style="padding:24px 28px 20px">
+        <div style="font-size:40px;text-align:center;margin-bottom:12px">📋</div>
+        <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">Déclare tes dispos</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(42,122,75,.1);border-radius:8px;padding:10px 12px">
+            <span style="font-size:20px;width:28px;text-align:center">✅</span>
+            <div><strong style="color:var(--green)">Dispo</strong> — tu es disponible sur tout le créneau</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(180,40,40,.08);border-radius:8px;padding:10px 12px">
+            <span style="font-size:20px;width:28px;text-align:center">❌</span>
+            <div><strong style="color:#b02020">Pas dispo</strong> — tu peux laisser une note si tu es dispo sur une partie du créneau</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.04);border-radius:8px;padding:10px 12px">
+            <span style="font-size:20px;width:28px;text-align:center">⬜</span>
+            <div><strong style="color:var(--muted)">Pas répondu</strong> — pense à répondre !</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4 -->
+      <div class="wlc-slide hidden" style="padding:24px 28px 20px">
+        <div style="font-size:40px;text-align:center;margin-bottom:12px">⏳</div>
+        <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">Confirme tes shifts</h3>
+        <div style="background:var(--creme);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--fg)">
+          <p style="margin-bottom:10px">Quand l'admin t'assigne un shift, il apparaît dans <strong>MON PLANNING</strong> en orange :</p>
+          <div style="background:rgba(180,100,0,.15);border-left:4px solid #b06000;border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#7a4000;font-weight:700">⏳ En attente de confirmation</div>
+          <p>Clique sur <strong>"✔ CONFIRMER MON SHIFT"</strong> pour valider ta présence. L'admin voit en temps réel qui a confirmé.</p>
+        </div>
+      </div>
+
+    </div><!-- /slides -->
+
+    <!-- Footer nav -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px 20px;border-top:1px solid var(--beige-d)">
+      <button id="wlc-prev" onclick="wlcPrev()" class="btn btn-g btn-sm" style="visibility:hidden">◀ Précédent</button>
+      <button id="wlc-help" onclick="cmo('mo-welcome');omo('mo-faq')" class="btn btn-g btn-sm" style="font-size:11px;display:none">❓ Voir le guide</button>
+      <button id="wlc-next" onclick="wlcNext()" class="btn btn-p" style="min-width:120px">Suivant ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FAQ / GUIDE
+════════════════════════════════════════════ -->
+<div class="mo hidden" id="mo-faq">
+  <div class="modal" style="max-width:440px">
+    <div class="mhd"><h3>❓ GUIDE & FAQ</h3><button class="mcl" onclick="cmo('mo-faq')">×</button></div>
+    <div class="mbd" style="font-size:13px;line-height:1.65">
+
+      <div style="background:rgba(108,20,18,.06);border-left:4px solid var(--bordeaux);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:18px">
+        <strong style="font-size:12px;color:var(--bordeaux);letter-spacing:.04em">C'EST QUOI UN SHIFT ?</strong>
+        <p style="margin-top:6px;color:var(--fg)">Un shift est un <strong>créneau de présence</strong> à la piscine. Il peut contenir une ou plusieurs séances :</p>
+        <ul style="margin:8px 0 0 16px;color:var(--fg)">
+          <li><strong>☀️ Freeflow</strong> — baignade libre, tu surveilles et accompagnes les nageurs</li>
+          <li><strong>👤 Guidée</strong> — séance encadrée avec un groupe et un guide</li>
+        </ul>
+        <p style="margin-top:8px;font-size:12px;color:var(--muted)">Exemple : shift 10h–15h30 = freeflow 10h–12h + guidée 13h–15h30</p>
+      </div>
+
+      <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden">
+        <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Comment déclarer mes dispos ? <span>▾</span></summary>
+        <div style="padding:12px 14px">
+          <p>Va dans l'onglet <strong>MES DISPOS</strong>. Pour chaque shift de la semaine, tape sur le créneau :</p>
+          <ul style="margin:8px 0 0 16px">
+            <li><strong style="color:var(--green)">✓ Dispo</strong> → tu es disponible sur tout le créneau</li>
+            <li><strong style="color:#b02020">✗ Pas dispo</strong> → tu n'es pas disponible. Tu peux ajouter une note pour préciser (ex : "dispo seulement de 10h à 13h")</li>
+          </ul>
+          <p style="margin-top:8px;font-size:12px;color:var(--muted)">💡 Si tu appuies à nouveau sur "✓ Dispo", ça réinitialise ta réponse.</p>
+        </div>
+      </details>
+
+      <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden">
+        <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Je suis dispo seulement sur une partie du shift <span>▾</span></summary>
+        <div style="padding:12px 14px">
+          <ol style="margin:0 0 0 16px">
+            <li>Appuie sur <strong style="color:#b02020">✗ Pas dispo</strong></li>
+            <li>Appuie sur <strong>📝 Laisser une note à l'admin</strong></li>
+            <li>Ajuste les horaires (De / À) pour indiquer ta plage disponible</li>
+            <li>Ajoute un commentaire si besoin, puis <strong>Enregistrer</strong></li>
+          </ol>
+          <p style="margin-top:8px;font-size:12px;color:var(--muted)">L'admin verra ta note directement dans le planning et pourra adapter le créneau.</p>
+        </div>
+      </details>
+
+      <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden">
+        <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Comment confirmer un shift ? <span>▾</span></summary>
+        <div style="padding:12px 14px">
+          <p>Quand l'admin te confirme sur un shift, tu reçois une notification dans <strong>MON PLANNING</strong>. Le shift apparaît en orange avec le bouton :</p>
+          <div style="background:rgba(255,255,255,.95);border:1px solid #b06000;border-radius:5px;padding:7px 12px;font-size:11px;font-weight:900;color:#b06000;text-align:center;margin:8px 0">✔ CONFIRMER MON SHIFT</div>
+          <p>Appuie dessus pour valider ta présence. Il passe ensuite en vert ✓.</p>
+        </div>
+      </details>
+
+      <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden">
+        <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Où voir mon planning complet ? <span>▾</span></summary>
+        <div style="padding:12px 14px">
+          <p>Dans l'onglet <strong>MON PLANNING</strong> — tu vois tous tes shifts assignés et séances à venir. Tu peux basculer entre vue semaine et vue mois.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--muted)">L'onglet <strong>📅 SANT-ROCH</strong> montre le planning global de toute l'équipe.</p>
+        </div>
+      </details>
+
+      <details style="border:1px solid var(--beige-d);border-radius:8px;overflow:hidden">
+        <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Je n'ai pas reçu de notification <span>▾</span></summary>
+        <div style="padding:12px 14px">
+          <p>Les notifications apparaissent en haut de l'onglet <strong>MON PLANNING</strong> à chaque ouverture de l'app. Pense à rafraîchir la page si tu ne les vois pas.</p>
+        </div>
+      </details>
+
+    </div>
+    <div class="mft">
+      <button class="btn btn-p" onclick="cmo('mo-faq')">C'est compris 👍</button>
+    </div>
+  </div>
+</div>
+
 <div class="mo hidden" id="mo-event">
   <div class="modal">
     <div class="mhd" id="mo-ev-hdr"><h3 id="mo-ev-title">SÉANCE</h3><button class="mcl" onclick="cmo('mo-event')">×</button></div>
@@ -5715,6 +5877,52 @@ async function initFlowView() {
   else flowPlanView('cal');
 
   renderFlowNotifs();
+
+  // ── Welcome onboarding (1 seule fois par user) ──
+  const wlcKey = 'sr_welcomed_' + (S.user?.id || 'x');
+  if (!localStorage.getItem(wlcKey)) {
+    setTimeout(() => { wlcInit(); omo('mo-welcome'); }, 600);
+  }
+}
+
+// ── Welcome slides ──
+let _wlcStep = 0;
+const _wlcTotal = 4;
+
+function wlcInit() {
+  _wlcStep = 0;
+  wlcRender();
+}
+
+function wlcRender() {
+  const slides = document.querySelectorAll('.wlc-slide');
+  slides.forEach((s, i) => s.classList.toggle('hidden', i !== _wlcStep));
+  // Dots
+  const dots = document.getElementById('wlc-dots');
+  if (dots) dots.innerHTML = Array.from({length: _wlcTotal}, (_, i) =>
+    '<span style="width:8px;height:8px;border-radius:50%;background:'+(i===_wlcStep?'var(--bordeaux)':'var(--beige-d)')+';display:inline-block;transition:background .2s"></span>'
+  ).join('');
+  // Prev
+  const prev = document.getElementById('wlc-prev');
+  if (prev) prev.style.visibility = _wlcStep > 0 ? 'visible' : 'hidden';
+  // Next / Terminer
+  const next = document.getElementById('wlc-next');
+  if (next) next.textContent = _wlcStep < _wlcTotal - 1 ? 'Suivant ▶' : '✓ C\'est parti !';
+  // Help button
+  const help = document.getElementById('wlc-help');
+  if (help) help.style.display = _wlcStep === _wlcTotal - 1 ? 'inline-flex' : 'none';
+}
+
+function wlcNext() {
+  if (_wlcStep < _wlcTotal - 1) { _wlcStep++; wlcRender(); }
+  else {
+    localStorage.setItem('sr_welcomed_' + (S.user?.id || 'x'), '1');
+    cmo('mo-welcome');
+  }
+}
+
+function wlcPrev() {
+  if (_wlcStep > 0) { _wlcStep--; wlcRender(); }
 }
 
 async function loadFlowDispos() {
