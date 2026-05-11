@@ -250,8 +250,10 @@ body.flow-mode #mob-flow-nav{display:flex}
   transition:color .15s;-webkit-tap-highlight-color:transparent;
 }
 .mnb .mni{font-size:22px;line-height:1;transition:transform .15s}
-.mnb.on{color:var(--bordeaux)}
-.mnb.on .mni{transform:scale(1.1)}
+.mnb.on{color:var(--bordeaux);background:rgba(108,20,18,.07);border-radius:10px}
+.mnb.on .mni{transform:scale(1.15)}
+.mnb.on::after{content:'';display:block;width:20px;height:3px;background:var(--bordeaux);border-radius:2px;position:absolute;bottom:4px;left:50%;transform:translateX(-50%)}
+.mnb{position:relative}
 
 /* ── MOBILE RESPONSIVE (flow user side) ── */
 @media(max-width:768px){
@@ -593,9 +595,17 @@ body.cut-mode .cren-col-hint{cursor:default}
 /* Today button */
 .btn-today{font-size:10px;padding:4px 8px;border-radius:4px;background:var(--bordeaux);color:var(--creme);border:none;cursor:pointer;font-weight:700;letter-spacing:.04em}
 .btn-today:hover{opacity:.85}
-/* Loading spinner */
+/* Loading spinner (inline) */
 .saving-spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* Password error shake */
+@keyframes errShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.err-shake{animation:errShake .35s ease}
+/* App loading overlay */
+#app-loading{position:fixed;inset:0;background:var(--creme);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .3s}
+#app-loading.hidden{opacity:0;pointer-events:none}
+#app-loading .al-spin{width:38px;height:38px;border:4px solid rgba(108,20,18,.15);border-top-color:var(--bordeaux);border-radius:50%;animation:spin .7s linear infinite}
+#app-loading .al-txt{font-size:13px;font-weight:700;color:var(--bordeaux);letter-spacing:.05em;opacity:.75}
 
 /* ── NOTE HEBDOMADAIRE FLOW ── */
 #flow-week-note-panel{width:196px;flex-shrink:0;background:var(--white);border:1px solid var(--beige-d);border-radius:8px;padding:14px;position:sticky;top:80px}
@@ -605,6 +615,12 @@ body.cut-mode .cren-col-hint{cursor:default}
 </style>
 </head>
 <body>
+
+<!-- LOADING OVERLAY -->
+<div id="app-loading">
+  <div class="al-spin"></div>
+  <div class="al-txt">CHARGEMENT…</div>
+</div>
 
 <!-- CONFIG -->
 <script>
@@ -662,7 +678,9 @@ function loadGuideColors() {
           <button class="btn btn-g btn-sm" onclick="cancelPassStep()">← RETOUR</button>
           <button class="btn btn-p" style="flex:1" onclick="loginFlowPass()">CONNEXION</button>
         </div>
-        <div id="fperr" class="hidden text-red text-sm mt8">Mot de passe incorrect</div>
+        <div id="fperr" class="hidden mt8" style="background:rgba(192,57,43,.1);border:1.5px solid rgba(192,57,43,.4);border-radius:6px;padding:10px 12px;font-size:12px;color:#c0392b;font-weight:600">
+          🔐 Mot de passe incorrect. Contactez l'administrateur si vous avez oublié votre mot de passe.
+        </div>
       </div>
     </div>
     <div id="lp-admin" class="hidden">
@@ -672,7 +690,9 @@ function loadGuideColors() {
           onkeydown="if(event.key==='Enter')loginAdmin()">
       </div>
       <button class="btn btn-p w100" onclick="loginAdmin()">CONNEXION</button>
-      <div id="aerr" class="hidden text-red text-sm mt8">Mot de passe incorrect</div>
+      <div id="aerr" class="hidden mt8" style="background:rgba(192,57,43,.1);border:1.5px solid rgba(192,57,43,.4);border-radius:6px;padding:10px 12px;font-size:12px;color:#c0392b;font-weight:600">
+        🔐 Mot de passe admin incorrect.
+      </div>
     </div>
   </div>
 </div>
@@ -953,6 +973,12 @@ function loadGuideColors() {
       </div>
       <button class="btn mt12" style="background:#c0392b;color:#fff" onclick="resetUserProfiles()">🗑 RÉINITIALISER LES PROFILS</button>
     </div>
+    <!-- Statut des confirmations -->
+    <div class="card mt16">
+      <div class="card-hdr"><span class="card-title">📋 Statut des confirmations (séances à venir)</span></div>
+      <p class="text-muted text-sm mb8">Vue globale des séances avec un flow assigné et leur statut de confirmation.</p>
+      <div id="read-status-table"></div>
+    </div>
   </div>
 
   <!-- ── CRÉNEAUX DISPO ── -->
@@ -1075,7 +1101,6 @@ function loadGuideColors() {
 
   <!-- ── DISPOS FLOW V2 ── -->
   <div class="panel" id="fp-dispos">
-    <div id="flow-notifs"></div>
 
     <!-- Toggle vue semaine/mois + nav -->
     <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
@@ -1102,7 +1127,7 @@ function loadGuideColors() {
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
       <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:11px">
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(100,95,95,.75)"></span><span style="color:var(--muted)">Pas répondu</span></span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(42,122,75,.90)"></span><span style="color:var(--muted)">Dispo</span></span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(0,135,115,.90)"></span><span style="color:var(--muted)">Dispo déclarée</span></span>
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,40,40,.86)"></span><span style="color:var(--muted)">Pas dispo</span></span>
         <button onclick="omo('mo-faq')" style="background:none;border:1px solid var(--beige-d);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700">❓ Comment ça marche ?</button>
       </div>
@@ -1155,6 +1180,9 @@ function loadGuideColors() {
 
   <!-- ── PLANNING FLOW ── -->
   <div class="panel on" id="fp-planning">
+
+    <!-- Notifications shifts (confirmations en attente) -->
+    <div id="flow-notifs"></div>
 
     <!-- Toolbar mode vue -->
     <div class="toolbar">
@@ -2079,7 +2107,7 @@ function loginFlowPass() {
   const id = S._pendingLoginId; if(!id) return;
   const passwords = JSON.parse(localStorage.getItem('sr_flow_passwords')||'{}');
   if (document.getElementById('fpass').value !== passwords[id]) {
-    document.getElementById('fperr').classList.remove('hidden'); return;
+    const _fe=document.getElementById('fperr'); _fe.classList.remove('hidden'); _fe.classList.remove('err-shake'); void _fe.offsetWidth; _fe.classList.add('err-shake'); return;
   }
   document.getElementById('lp-pass-step').classList.add('hidden');
   doLoginFlow(id);
@@ -2104,7 +2132,7 @@ function doLoginAdmin() {
 }
 function loginAdmin() {
   if (document.getElementById('apass').value !== CFG.ADMIN_PASS) {
-    document.getElementById('aerr').classList.remove('hidden'); return;
+    const _ae=document.getElementById('aerr'); _ae.classList.remove('hidden'); _ae.classList.remove('err-shake'); void _ae.offsetWidth; _ae.classList.add('err-shake'); return;
   }
   doLoginAdmin();
 }
@@ -2149,6 +2177,9 @@ async function initAdmin() {
   atab('creneaux');
 }
 async function loadAll() {
+  // Afficher l'overlay de chargement
+  const _lov = document.getElementById('app-loading');
+  if (_lov) _lov.classList.remove('hidden');
   // Fenêtre de données : 3 mois en arrière, 6 mois en avant
   const _dfrom = iso(addD(new Date(), -90));
   const _dto   = iso(addD(new Date(), 180));
@@ -2166,6 +2197,8 @@ async function loadAll() {
   S.shifts      = shifts;
   S.shiftAvails = shiftAvails;
   S.weekNotes   = weekNotes || [];
+  // Masquer l'overlay de chargement
+  if (_lov) { _lov.classList.add('hidden'); setTimeout(()=>{ _lov.style.display='none'; },350); }
 }
 function populateSelects() {
   // Initialiser les couleurs guide dès le chargement (palette stable)
@@ -2728,8 +2761,8 @@ async function saveSession() {
   // ── RÈGLE ÉTAT : seul le flow peut passer en 'confirmed' via son espace ──
   // Admin crée/modifie → toujours 'draft' sauf si le flow avait déjà confirmé ET n'a pas changé
   const old=id?S.sessions.find(s=>s.id===id):null;
-  const flowUnchanged = old && old.flow_id===flowId && flowId;
-  const keepConfirmed = flowUnchanged && old.status==='confirmed';
+  // Admin édite → toujours draft (flow_id remis à null ; le flow devra reconfirmer)
+  const keepConfirmed = false;
   // Les types custom et event ne sont pas acceptés par la contrainte DB → on stocke 'guidee' + info dans title
   const isEvent = type==='event';
   const isCustomType = !['guidee','freeflow','event'].includes(type);
@@ -4573,9 +4606,9 @@ function renderFlowShifts() {
 
       // ── Couleurs selon statut ──
       let shiftBg, shiftBorder;
-      if      (assignedToMe && isConfirmed)  { shiftBg='rgba(42,122,75,.92)';  shiftBorder='#1a5c38'; }
+      if      (assignedToMe && isConfirmed)  { shiftBg='rgba(42,122,75,.92)';  shiftBorder='#1a5c38'; } // vert foncé = confirmé
       else if (assignedToMe)                 { shiftBg='rgba(180,100,0,.90)';  shiftBorder='#b06000'; }
-      else if (myStatus==='dispo')           { shiftBg='rgba(42,122,75,.90)';  shiftBorder='#1a5c38'; }
+      else if (myStatus==='dispo')           { shiftBg='rgba(0,135,115,.90)';  shiftBorder='#007a68'; } // teal = dispo déclarée (non confirmé)
       else if (myStatus==='nodispo')         { shiftBg='rgba(180,40,40,.86)';  shiftBorder='#b02020'; }
       else                                   { shiftBg='rgba(100,95,95,.75)';  shiftBorder='#7a7070'; }
 
@@ -4638,8 +4671,8 @@ function renderFlowShifts() {
           const dActive = myStatus==='dispo';
           inner += '<div data-act="dispo" data-sh="'+sh.id+'" '
             +'style="flex:1;text-align:center;padding:4px 2px;border-radius:4px;font-size:9px;font-weight:800;cursor:pointer;'
-            +'background:'+(dActive?'rgba(42,122,75,.95)':'rgba(255,255,255,.15)')+';'
-            +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(42,122,75,.5)':'rgba(255,255,255,.2)')+'">'
+            +'background:'+(dActive?'rgba(0,135,115,.95)':'rgba(255,255,255,.15)')+';'
+            +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(0,135,115,.5)':'rgba(255,255,255,.2)')+'">'
             +(dActive?'✓ Dispo':'✓ Dispo')+'</div>';
           inner += '</div>';
           // Bouton note si pas dispo
@@ -4708,7 +4741,7 @@ function renderFlowShifts() {
   leg.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11px;padding:0 2px';
   leg.innerHTML = ''
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(42,122,75,.9)"></span>Mon shift assigné</span>'
-    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(42,122,75,.90)"></span>✓ Dispo</span>'
+    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(0,135,115,.90)"></span>✓ Dispo déclarée</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,40,40,.86)"></span>✗ Pas dispo</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(100,95,95,.75)"></span>Pas répondu</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:5px;height:12px;border-radius:1px;background:#b5a88a"></span>Séances (fond)</span>';
@@ -5441,6 +5474,7 @@ async function saveShift() {
 async function deleteShiftFromModal() {
   const shiftId = document.getElementById('sh-id').value;
   if (!shiftId) return;
+  if (!confirm('Supprimer ce créneau ? Cette action est annulable pendant 6 secondes via le toast.')) return;
   cmo('mo-shift');
   await deleteShift(shiftId);
 }
@@ -7186,24 +7220,7 @@ function exportSessionToICal(sessOrId) {
   toast('Export .ics téléchargé','ok');
 }
 
-// ──────────────────────────────────────────────
-// CONFIRMER TOUT EN UN CLIC
-// ──────────────────────────────────────────────
-async function confirmAllPending() {
-  const uid=S.user?.id; if (!uid) return;
-  const pending=S.sessions.filter(s=>s.flow_id===uid&&s.status!=='confirmed'&&s.date>=iso(new Date()));
-  if (!pending.length) { toast('Aucune séance en attente','info'); return; }
-  let count=0;
-  for (const s of pending) {
-    await API.patch('sessions',s.id,{status:'confirmed'}).catch(()=>{});
-    s.status='confirmed'; count++;
-  }
-  renderFlowCal(); renderFlowSessionsList(); renderFlowNotifs();
-  toast(`✓ ${count} séance(s) confirmée(s) d'un coup !`,'ok');
-  // Email admin
-  const adminEmail=JSON.parse(localStorage.getItem('sr_ejs')||'{}').adminEmail||'';
-  if (adminEmail) await sendEmail(adminEmail,'Admin',{role:'Info',session_title:`${S.user.name} a tout confirmé (${count} séances)`,session_date:new Date().toLocaleDateString('fr-FR'),session_time:'—'});
-}
+// (confirmAllPending défini plus haut — doublon supprimé)
 
 // ──────────────────────────────────────────────
 // COPIER DISPOS SEMAINE PRÉCÉDENTE
