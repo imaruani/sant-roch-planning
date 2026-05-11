@@ -1458,6 +1458,26 @@ function loadGuideColors() {
   </div>
 </div>
 
+<!-- Modal note sur un shift (flow user) -->
+<div class="mo hidden" id="mo-shift-note">
+  <div class="modal" style="max-width:360px">
+    <div class="mhd"><h3>📝 NOTE SUR CE SHIFT</h3><button class="mcl" onclick="cmo('mo-shift-note')">×</button></div>
+    <div class="mbd">
+      <input type="hidden" id="sn-shift-id">
+      <div id="sn-shift-label" style="font-size:13px;font-weight:800;color:var(--bordeaux);margin-bottom:10px"></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Tu n'es pas disponible sur l'intégralité de ce créneau ? Laisse une note à l'admin (dispo partielle, contrainte horaire…)</p>
+      <div class="fg">
+        <label>TA NOTE</label>
+        <textarea id="sn-note-text" class="fc" rows="4" placeholder="Ex : Je suis dispo seulement de 10h à 13h, pas le soir…" style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-g" onclick="cmo('mo-shift-note')">ANNULER</button>
+      <button class="btn btn-p" onclick="saveShiftNote()">ENREGISTRER</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Édition disponibilité flow -->
 <div class="mo hidden" id="mo-edit-dispo">
   <div class="modal" style="max-width:380px">
@@ -2939,7 +2959,39 @@ function renderDisposAdmin() {
     return { fp, dispo, assigned };
   });
 
-  let statsHtml = '<div style="background:var(--creme);border:1px solid var(--beige-d);border-radius:8px;padding:12px 14px;margin-bottom:16px">';
+  // ── Alerte 0 dispo ──
+  let statsHtml = '';
+  if (nNone > 0) {
+    const zeroShifts = weekShifts.filter(sh => !(S.shiftAvails||[]).some(a => a.shift_id===sh.id && a.available));
+    const d = new Date(); const now = iso(d);
+    const futureZero = zeroShifts.filter(sh => sh.date >= now);
+    if (futureZero.length) {
+      statsHtml += '<div style="background:rgba(192,57,43,.95);border-left:6px solid #a93226;border-radius:8px;'
+        + 'padding:14px 16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(192,57,43,.35)">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
+        + '<span style="font-size:28px;line-height:1">⚠️</span>'
+        + '<div><div style="font-size:14px;font-weight:900;color:#fff;letter-spacing:.02em">'
+        + futureZero.length + ' SHIFT'+(futureZero.length>1?'S':'')+' SANS AUCUNE DISPO</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:2px">Aucun flow disponible — action requise</div>'
+        + '</div></div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:6px">'
+        + futureZero.map(sh => {
+            const dObj = new Date(sh.date+'T00:00:00');
+            const JOURS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+            const MOIS  = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+            // Check if there are notes
+            const hasNotes = (S.shiftAvails||[]).some(a => a.shift_id===sh.id && a.note);
+            return '<span onclick="document.getElementById(\'ds-sh-'+sh.id+'\')?.scrollIntoView({block:\'center\',behavior:\'smooth\'})" '
+              + 'style="cursor:pointer;display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.25);color:#fff;border-radius:5px;padding:4px 10px;font-size:11px;font-weight:800">'
+              + JOURS[dObj.getDay()]+' '+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)
+              + (hasNotes ? ' 📝' : '')
+              + '</span>';
+          }).join('')
+        + '</div></div>';
+    }
+  }
+
+  statsHtml += '<div style="background:var(--creme);border:1px solid var(--beige-d);border-radius:8px;padding:12px 14px;margin-bottom:16px">';
   // Progress bar
   statsHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">';
   statsHtml += '<div style="flex:1">';
@@ -3184,21 +3236,29 @@ function adminToggleShiftDispo_picker(shiftId) {
       + '</div></div>';
   }
 
-  // ── Liste des flows disponibles ──
-  const disponibles = flowPeople.filter(fp => shAvails.some(a => a.person_id===fp.id) && sh.person_id!==fp.id);
+  // ── Tous les avails du créneau (dispo + notes) ──
+  const allShAvails = (S.shiftAvails||[]).filter(a => a.shift_id===shiftId);
+  const disponibles = flowPeople.filter(fp => allShAvails.some(a => a.person_id===fp.id && a.available===true) && sh.person_id!==fp.id);
+  // Flows avec note mais pas dispo
+  const notesOnly   = flowPeople.filter(fp =>
+    allShAvails.some(a => a.person_id===fp.id && a.note && a.available!==true) && sh.person_id!==fp.id
+  );
 
   if (!assignedP || !isConf) {
     if (disponibles.length) {
       popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-bottom:6px">'
         + (assignedP ? 'RÉASSIGNER À' : 'FLOWS DISPONIBLES') + '</div>';
       disponibles.forEach(fp => {
+        const avNote = allShAvails.find(a => a.person_id===fp.id)?.note;
         popHtml += '<div onclick="adminAssignShift(\''+shiftId+'\',\''+fp.id+'\');_dsPopup?.remove();_dsPopup=null" '
-          + 'style="display:flex;align-items:center;justify-content:space-between;'
-          + 'background:var(--blue-l);border:1px solid rgba(42,95,165,.25);border-radius:7px;'
-          + 'padding:8px 12px;margin-bottom:5px;cursor:pointer;transition:background .15s" '
+          + 'style="background:var(--blue-l);border:1px solid rgba(42,95,165,.25);border-radius:7px;'
+          + 'padding:8px 12px;margin-bottom:5px;cursor:pointer" '
           + 'onmouseover="this.style.background=\'rgba(42,95,165,.18)\'" onmouseout="this.style.background=\'var(--blue-l)\'">'
+          + '<div style="display:flex;align-items:center;justify-content:space-between">'
           + '<span style="font-size:12px;font-weight:800;color:var(--blue)">● '+fp.name+'</span>'
           + '<span style="font-size:10px;color:var(--blue);opacity:.7;font-weight:700">Assigner →</span>'
+          + '</div>'
+          + (avNote ? '<div style="font-size:10px;color:var(--blue);opacity:.8;margin-top:3px;font-style:italic">📝 '+avNote+'</div>' : '')
           + '</div>';
       });
     } else {
@@ -3208,6 +3268,18 @@ function adminToggleShiftDispo_picker(shiftId) {
         + '<div style="font-size:10px;margin-top:2px">Les flows n\'ont pas encore<br>signalé leur disponibilité</div>'
         + '</div>';
     }
+  }
+
+  // ── Notes sans dispo ──
+  if (notesOnly.length) {
+    popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-top:10px;margin-bottom:6px">NOTES (PAS DISPO)</div>';
+    notesOnly.forEach(fp => {
+      const avNote = allShAvails.find(a => a.person_id===fp.id)?.note;
+      popHtml += '<div style="background:rgba(230,126,34,.08);border:1px solid rgba(230,126,34,.2);border-radius:7px;padding:8px 12px;margin-bottom:5px">'
+        + '<div style="font-size:11px;font-weight:800;color:var(--orange)">○ '+fp.name+'</div>'
+        + '<div style="font-size:10px;color:var(--fg);margin-top:3px;font-style:italic">📝 '+avNote+'</div>'
+        + '</div>';
+    });
   }
 
   popHtml += '</div>'; // padding wrapper
@@ -4300,7 +4372,8 @@ function renderFlowShifts() {
       const hPx   = Math.max((eMin - sMin) / 30 * slotH, 36);
 
       const myAvail    = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === uid);
-      const isDispo    = myAvail ? myAvail.available : null;
+      const isDispo    = myAvail ? (myAvail.available === true ? true : null) : null;
+      const myNote     = myAvail?.note || null;
       // Brouillon : assignment non encore publié → le flow ne voit pas qu'il est assigné
       const assignedToMe = sh.person_id === uid && sh.assignment_published !== false;
 
@@ -4387,6 +4460,18 @@ function renderFlowShifts() {
         inner += '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px">' + chips + '</div>';
       }
 
+      // Bouton note (visible si pas assigné) + affichage note existante
+      if (!assignedToMe && hPx >= 44) {
+        const noteBtnStyle = 'data-act="note" data-sh="'+sh.id+'" '
+          + 'style="position:absolute;bottom:4px;right:5px;background:rgba(255,255,255,.22);'
+          + 'border:none;border-radius:4px;padding:2px 5px;font-size:9px;cursor:pointer;color:#fff;font-weight:700;z-index:2"';
+        inner += '<div '+noteBtnStyle+'>'+(myNote ? '📝' : '+ note')+'</div>';
+        if (myNote) {
+          inner += '<div style="background:rgba(0,0,0,.25);border-radius:3px;padding:2px 5px;margin-top:3px;font-size:8px;color:rgba(255,255,255,.9);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
+            + '📝 ' + myNote + '</div>';
+        }
+      }
+
       band.innerHTML = inner;
 
       // Clic = action principale selon l'état
@@ -4394,7 +4479,8 @@ function renderFlowShifts() {
         const act = e.target.closest('[data-act]');
         if (act) {
           const sid = act.dataset.sh;
-          if (act.dataset.act === 'confirm') confirmShift(sid);
+          if (act.dataset.act === 'confirm') { confirmShift(sid); return; }
+          if (act.dataset.act === 'note')    { openShiftNote(sid); return; }
           return;
         }
         if (assignedToMe) return; // shift assigné : pas d'action au clic
@@ -4429,10 +4515,17 @@ async function toggleShiftAvail(shiftId, available) {
   const uid = S.user.id;
   const existing = (S.shiftAvails||[]).find(a => a.shift_id===shiftId && a.person_id===uid);
 
-  // available===null ou même valeur → supprimer (annuler la dispo)
+  // available===null ou même valeur → retirer la dispo
   if (existing && (available === null || existing.available === available)) {
-    await API.del('shift_availabilities', existing.id).catch(e=>toast('Erreur : '+e.message,'err'));
-    S.shiftAvails = S.shiftAvails.filter(a => a.id !== existing.id);
+    if (existing.note) {
+      // Il y a une note : on garde le record mais on passe available à false
+      await API.patch('shift_availabilities', existing.id, {available: false}).catch(e=>toast('Erreur : '+e.message,'err'));
+      existing.available = false;
+    } else {
+      // Pas de note : suppression complète
+      await API.del('shift_availabilities', existing.id).catch(e=>toast('Erreur : '+e.message,'err'));
+      S.shiftAvails = S.shiftAvails.filter(a => a.id !== existing.id);
+    }
     renderFlowShifts();
     return;
   }
@@ -4449,6 +4542,46 @@ async function toggleShiftAvail(shiftId, available) {
   }
   toast('Dispo enregistrée ✓', 'ok');
   renderFlowShifts();
+}
+
+// ── Note flow sur un shift ──
+function openShiftNote(shiftId) {
+  const uid = S.user.id;
+  const sh = (S.shifts||[]).find(s => s.id === shiftId); if (!sh) return;
+  const existing = (S.shiftAvails||[]).find(a => a.shift_id===shiftId && a.person_id===uid);
+  const d = new Date(sh.date+'T00:00:00');
+  const JOURS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  document.getElementById('sn-shift-id').value = shiftId;
+  document.getElementById('sn-shift-label').textContent = JOURS[d.getDay()] + ' ' + d.getDate() + ' — ' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
+  document.getElementById('sn-note-text').value = existing?.note || '';
+  omo('mo-shift-note');
+}
+
+async function saveShiftNote() {
+  const uid     = S.user.id;
+  const shiftId = document.getElementById('sn-shift-id').value;
+  const note    = document.getElementById('sn-note-text').value.trim();
+  const existing = (S.shiftAvails||[]).find(a => a.shift_id===shiftId && a.person_id===uid);
+  try {
+    if (existing) {
+      await API.patch('shift_availabilities', existing.id, {note: note || null});
+      existing.note = note || null;
+      if (!note && existing.available === false) {
+        // Plus de note ET pas dispo → supprimer le record
+        await API.del('shift_availabilities', existing.id);
+        S.shiftAvails = S.shiftAvails.filter(a => a.id !== existing.id);
+      }
+    } else if (note) {
+      // Créer un record note-only (pas de dispo déclarée)
+      const body = {shift_id: shiftId, person_id: uid, available: false, note};
+      const r = await API.post('shift_availabilities', body);
+      const row = Array.isArray(r) ? r[0] : r;
+      if (row) S.shiftAvails.push(row);
+    }
+    cmo('mo-shift-note');
+    toast(note ? '📝 Note enregistrée ✓' : 'Note supprimée', 'ok');
+    renderFlowShifts();
+  } catch(e) { toast('Erreur : '+e.message, 'err'); }
 }
 
 // ── Confirmation d'un shift par l'user ──
