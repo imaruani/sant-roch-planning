@@ -617,7 +617,7 @@ body.cut-mode .cren-col-hint{cursor:default}
 <body>
 
 <!-- LOADING OVERLAY -->
-<div id="app-loading">
+<div id="app-loading" class="hidden" style="display:none">
   <div class="al-spin"></div>
   <div class="al-txt">CHARGEMENT…</div>
 </div>
@@ -2179,7 +2179,7 @@ async function initAdmin() {
 async function loadAll() {
   // Afficher l'overlay de chargement
   const _lov = document.getElementById('app-loading');
-  if (_lov) _lov.classList.remove('hidden');
+  if (_lov) { _lov.style.display='flex'; void _lov.offsetWidth; _lov.classList.remove('hidden'); }
   // Fenêtre de données : 3 mois en arrière, 6 mois en avant
   const _dfrom = iso(addD(new Date(), -90));
   const _dto   = iso(addD(new Date(), 180));
