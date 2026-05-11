@@ -1561,7 +1561,10 @@ function loadGuideColors() {
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px 20px;border-top:1px solid var(--beige-d)">
       <button id="wlc-prev" onclick="wlcPrev()" class="btn btn-g btn-sm" style="visibility:hidden">◀ Précédent</button>
       <button id="wlc-help" onclick="cmo('mo-welcome');omo('mo-faq')" class="btn btn-g btn-sm" style="font-size:11px;display:none">❓ Voir le guide</button>
-      <button id="wlc-next" onclick="wlcNext()" class="btn btn-p" style="min-width:120px">Suivant ▶</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <button id="wlc-next" onclick="wlcNext()" class="btn btn-p" style="min-width:120px">Suivant ▶</button>
+        <button onclick="wlcDismiss()" style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0">Ne plus afficher</button>
+      </div>
     </div>
   </div>
 </div>
@@ -5955,6 +5958,10 @@ function wlcNext() {
   }
 }
 
+function wlcDismiss() {
+  localStorage.setItem('sr_welcomed_' + (S.user?.id || 'x'), '1');
+  cmo('mo-welcome');
+}
 function wlcPrev() {
   if (_wlcStep > 0) { _wlcStep--; wlcRender(); }
 }
