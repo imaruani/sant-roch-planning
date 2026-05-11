@@ -1464,11 +1464,17 @@ function loadGuideColors() {
     <div class="mhd"><h3>📝 NOTE SUR CE SHIFT</h3><button class="mcl" onclick="cmo('mo-shift-note')">×</button></div>
     <div class="mbd">
       <input type="hidden" id="sn-shift-id">
-      <div id="sn-shift-label" style="font-size:13px;font-weight:800;color:var(--bordeaux);margin-bottom:10px"></div>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Tu n'es pas disponible sur l'intégralité de ce créneau ? Laisse une note à l'admin (dispo partielle, contrainte horaire…)</p>
+      <div id="sn-shift-label" style="font-size:13px;font-weight:800;color:var(--bordeaux);margin-bottom:12px"></div>
+      <div class="fg" style="margin-bottom:14px">
+        <label>MA DISPONIBILITÉ SUR CE CRÉNEAU</label>
+        <div class="row2">
+          <div class="fg"><label>DE</label><select class="fc" id="sn-from"></select></div>
+          <div class="fg"><label>À</label><select class="fc" id="sn-to"></select></div>
+        </div>
+      </div>
       <div class="fg">
-        <label>TA NOTE</label>
-        <textarea id="sn-note-text" class="fc" rows="4" placeholder="Ex : Je suis dispo seulement de 10h à 13h, pas le soir…" style="resize:vertical"></textarea>
+        <label>NOTE COMPLÉMENTAIRE <span style="font-weight:400;color:var(--muted)">(optionnel)</span></label>
+        <textarea id="sn-note-text" class="fc" rows="3" placeholder="Ex : Je peux rester après si besoin, retard possible…" style="resize:vertical"></textarea>
       </div>
     </div>
     <div class="mft">
@@ -4385,7 +4391,7 @@ function renderFlowShifts() {
       let shiftBg, shiftBorder;
       if      (assignedToMe && isConfirmed)  { shiftBg='rgba(42,122,75,.92)';  shiftBorder='#1a5c38'; }
       else if (assignedToMe)                 { shiftBg='rgba(180,100,0,.90)';  shiftBorder='#b06000'; }
-      else if (myStatus==='dispo')           { shiftBg='rgba(42,95,165,.88)';  shiftBorder='#1a4fa5'; }
+      else if (myStatus==='dispo')           { shiftBg='rgba(42,122,75,.90)';  shiftBorder='#1a5c38'; }
       else if (myStatus==='nodispo')         { shiftBg='rgba(55,55,65,.84)';   shiftBorder='#333340'; }
       else                                   { shiftBg='rgba(90,80,80,.78)';   shiftBorder='#6c5050'; }
 
@@ -4448,8 +4454,8 @@ function renderFlowShifts() {
           const dActive = myStatus==='dispo';
           inner += '<div data-act="dispo" data-sh="'+sh.id+'" '
             +'style="flex:1;text-align:center;padding:4px 2px;border-radius:4px;font-size:9px;font-weight:800;cursor:pointer;'
-            +'background:'+(dActive?'rgba(42,120,200,.95)':'rgba(255,255,255,.15)')+';'
-            +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(42,120,200,.5)':'rgba(255,255,255,.2)')+'">'
+            +'background:'+(dActive?'rgba(42,122,75,.95)':'rgba(255,255,255,.15)')+';'
+            +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(42,122,75,.5)':'rgba(255,255,255,.2)')+'">'
             +(dActive?'✓ Dispo':'✓ Dispo')+'</div>';
           inner += '</div>';
           // Bouton note si pas dispo
@@ -4518,7 +4524,7 @@ function renderFlowShifts() {
   leg.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11px;padding:0 2px';
   leg.innerHTML = ''
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(42,122,75,.9)"></span>Mon shift assigné</span>'
-    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(42,95,165,.88)"></span>✓ Dispo</span>'
+    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(42,122,75,.90)"></span>✓ Dispo</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(55,55,65,.84)"></span>✗ Pas dispo</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(90,80,80,.78)"></span>Pas répondu</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:5px;height:12px;border-radius:1px;background:#b5a88a"></span>Séances (fond)</span>';
@@ -4570,28 +4576,66 @@ function openShiftNote(shiftId) {
   const existing = (S.shiftAvails||[]).find(a => a.shift_id===shiftId && a.person_id===uid);
   const d = new Date(sh.date+'T00:00:00');
   const JOURS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const MOIS  = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+
   document.getElementById('sn-shift-id').value = shiftId;
-  document.getElementById('sn-shift-label').textContent = JOURS[d.getDay()] + ' ' + d.getDate() + ' — ' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
-  document.getElementById('sn-note-text').value = existing?.note || '';
+  document.getElementById('sn-shift-label').textContent =
+    JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()] + ' — ' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
+
+  // Peupler les selects de temps (par tranche 30 min entre time_from et time_to)
+  const fromMin = t2m(sh.time_from.slice(0,5));
+  const toMin   = t2m(sh.time_to.slice(0,5));
+  const selFrom = document.getElementById('sn-from');
+  const selTo   = document.getElementById('sn-to');
+  selFrom.innerHTML = '';
+  selTo.innerHTML   = '';
+  for (let m = fromMin; m <= toMin; m += 30) {
+    const opt = `<option value="${m}">${m2t(m)}</option>`;
+    selFrom.innerHTML += opt;
+    selTo.innerHTML   += opt;
+  }
+
+  // Lire les valeurs existantes depuis la note "HH:MM–HH:MM · texte"
+  let savedFrom = fromMin, savedTo = toMin, savedText = '';
+  if (existing?.note) {
+    const match = existing.note.match(/^(\d{2}:\d{2})–(\d{2}:\d{2})\s*·?\s*(.*)/s);
+    if (match) { savedFrom = t2m(match[1]); savedTo = t2m(match[2]); savedText = match[3].trim(); }
+    else { savedText = existing.note; }
+  }
+  selFrom.value = savedFrom;
+  selTo.value   = savedTo;
+  document.getElementById('sn-note-text').value = savedText;
   omo('mo-shift-note');
 }
 
 async function saveShiftNote() {
   const uid     = S.user.id;
   const shiftId = document.getElementById('sn-shift-id').value;
-  const note    = document.getElementById('sn-note-text').value.trim();
+  const fromVal = parseInt(document.getElementById('sn-from').value);
+  const toVal   = parseInt(document.getElementById('sn-to').value);
+  const freeText = document.getElementById('sn-note-text').value.trim();
+  const sh = (S.shifts||[]).find(s => s.id === shiftId);
+
+  if (toVal <= fromVal) { toast('L\'heure de fin doit être après le début', 'err'); return; }
+
+  // Construire la note : "10:00–13:00 · texte libre"
+  const shFrom = sh ? t2m(sh.time_from.slice(0,5)) : fromVal;
+  const shTo   = sh ? t2m(sh.time_to.slice(0,5))   : toVal;
+  const isFullShift = fromVal === shFrom && toVal === shTo;
+  let note = '';
+  if (!isFullShift) note = m2t(fromVal) + '–' + m2t(toVal);
+  if (freeText)     note = note ? note + ' · ' + freeText : freeText;
+
   const existing = (S.shiftAvails||[]).find(a => a.shift_id===shiftId && a.person_id===uid);
   try {
     if (existing) {
       await API.patch('shift_availabilities', existing.id, {note: note || null});
       existing.note = note || null;
       if (!note && existing.available === false) {
-        // Plus de note ET pas dispo → supprimer le record
         await API.del('shift_availabilities', existing.id);
         S.shiftAvails = S.shiftAvails.filter(a => a.id !== existing.id);
       }
     } else if (note) {
-      // Créer un record note-only (pas de dispo déclarée)
       const body = {shift_id: shiftId, person_id: uid, available: false, note};
       const r = await API.post('shift_availabilities', body);
       const row = Array.isArray(r) ? r[0] : r;
