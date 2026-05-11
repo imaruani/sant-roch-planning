@@ -2983,7 +2983,7 @@ function renderDisposAdmin() {
     + 'style="flex-shrink:0;padding:6px 14px;background:'+(nDrafts?'var(--bordeaux)':'rgba(0,0,0,.08)')+';color:'+(nDrafts?'#fff':'var(--muted)')+';'
     + 'border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.04em;'
     + 'transition:all .2s" title="Rendre visibles les assignations brouillon">'
-    + '📢 Publier' + (nDrafts ? ' ('+nDrafts+')' : '') + '</button>';
+    + '📢 Publier tout' + (nDrafts ? ' ('+nDrafts+')' : '') + '</button>';
   statsHtml += '</div>';
   statsHtml += '</div>';
 
@@ -3137,50 +3137,83 @@ function adminToggleShiftDispo_picker(shiftId) {
   if (_dsPopup) { _dsPopup.remove(); _dsPopup = null; }
   const sh = (S.shifts||[]).find(s => s.id===shiftId); if (!sh) return;
   const flowPeople = S.people.filter(p => p.can_be_flow);
-  const shAvails = (S.shiftAvails||[]).filter(a => a.shift_id===shiftId);
+  // Seules les dispos confirmées (available===true)
+  const shAvails = (S.shiftAvails||[]).filter(a => a.shift_id===shiftId && a.available);
   const assignedP = sh.person_id ? S.people.find(p=>p.id===sh.person_id) : null;
+  const isDraft   = assignedP && sh.assignment_published === false;
+  const isConf    = sh.status === 'confirmed';
+
   const el = document.getElementById('ds-sh-'+shiftId); if (!el) return;
   const rect = el.getBoundingClientRect();
+  const popTop  = Math.min(rect.top, window.innerHeight - 380);
+  const popLeft = rect.right + 8 + 272 > window.innerWidth ? rect.left - 280 : rect.right + 8;
 
   const pop = document.createElement('div');
-  pop.style.cssText = 'position:fixed;z-index:999;background:#fff;border:1px solid var(--beige-d);'
-    + 'border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:14px 16px;min-width:200px;max-width:260px;'
-    + 'top:'+Math.min(rect.top+window.scrollY, window.innerHeight+window.scrollY-340)+'px;'
-    + 'left:'+Math.min(rect.right+8, window.innerWidth-272)+'px';
+  pop.style.cssText = 'position:fixed;z-index:9999;background:#fff;border:1px solid var(--beige-d);'
+    + 'border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.22);padding:0;min-width:240px;max-width:280px;overflow:hidden;'
+    + 'top:'+Math.max(8, popTop)+'px;left:'+popLeft+'px';
 
-  let popHtml = '<div style="font-size:12px;font-weight:800;margin-bottom:10px;color:var(--bordeaux)">'
-    + sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div>';
-  popHtml += '<div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px">DISPOS / ASSIGNATION</div>';
+  // ── Header ──
+  const d = new Date(sh.date+'T00:00:00');
+  const JOURS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const MOIS  = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  let popHtml = '<div style="background:var(--bordeaux);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">'
+    + '<div><div style="font-size:13px;font-weight:900">'+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div>'
+    + '<div style="font-size:10px;opacity:.8">'+JOURS[d.getDay()]+' '+d.getDate()+' '+MOIS[d.getMonth()]+'</div></div>'
+    + '<button onclick="_dsPopup?.remove();_dsPopup=null" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>'
+    + '</div>';
+  popHtml += '<div style="padding:12px 14px">';
 
-  flowPeople.forEach(fp => {
-    const avail = shAvails.find(a => a.person_id===fp.id);
-    const isDispo = !!(avail && avail.available);
-    const isAssigned = sh.person_id===fp.id;
-    const isDraft = isAssigned && sh.assignment_published === false;
-    let bg, col;
-    if (isAssigned && !isDraft) { bg='var(--green-l)'; col='var(--green)'; }
-    else if (isAssigned && isDraft) { bg='rgba(230,126,34,.12)'; col='var(--orange)'; }
-    else if (isDispo) { bg='var(--blue-l)'; col='var(--blue)'; }
-    else { bg='rgba(0,0,0,.04)'; col='#444'; }
-    const ico = (isAssigned && !isDraft) ? '✓ ' : isDraft ? '✏ ' : isDispo ? '● ' : '○ ';
-    const label = (isAssigned && !isDraft) ? fp.name.split(' ')[0] + ' <span style="font-size:8px;opacity:.7">(publié)</span>'
-                : isDraft                  ? fp.name.split(' ')[0] + ' <span style="font-size:8px;color:var(--orange)">(brouillon)</span>'
-                : fp.name.split(' ')[0];
-    popHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.05);background:'+bg+';border-radius:4px;padding:5px 6px;margin-bottom:2px">'
-      + '<span style="font-size:11px;font-weight:700;color:'+col+'">'+ico+label+'</span>'
-      + '<div style="display:flex;gap:4px">'
-      + '<button onclick="adminToggleShiftDispo(\''+shiftId+'\',\''+fp.id+'\','+isDispo+');_dsPopup?.remove();_dsPopup=null;renderDisposAdmin()" '
-      + 'style="font-size:9px;padding:2px 6px;border:1px solid '+(isDispo?'var(--orange)':'rgba(42,122,75,.5)')+';background:'+(isDispo?'rgba(230,126,34,.1)':'rgba(42,122,75,.08)')+';color:'+(isDispo?'var(--orange)':'var(--green)')+';border-radius:3px;cursor:pointer;font-weight:700">'
-      + (isDispo ? '− Dispo' : '+ Dispo') + '</button>'
-      + (!isAssigned ? '<button onclick="adminAssignShift(\''+shiftId+'\',\''+fp.id+'\');_dsPopup?.remove();_dsPopup=null" style="font-size:9px;padding:2px 6px;border:1px solid var(--bordeaux);background:rgba(108,20,18,.08);color:var(--bordeaux);border-radius:3px;cursor:pointer;font-weight:700">Assigner</button>' : '')
-      + (isAssigned ? '<button onclick="adminAssignShift(\''+shiftId+'\',\'\');_dsPopup?.remove();_dsPopup=null" style="font-size:9px;padding:2px 6px;border:1px solid var(--danger);background:var(--danger-l);color:var(--danger);border-radius:3px;cursor:pointer;font-weight:700">Retirer</button>' : '')
+  // ── Bloc assigné actuel ──
+  if (assignedP) {
+    const statusLabel = isConf ? '✓ Confirmé' : isDraft ? '✏ Brouillon' : '⏳ En attente';
+    const statusColor = isConf ? 'var(--green)' : isDraft ? 'var(--orange)' : 'var(--muted)';
+    const blockBg     = isConf ? 'var(--green-l)' : isDraft ? 'rgba(230,126,34,.1)' : 'var(--beige)';
+    popHtml += '<div style="background:'+blockBg+';border-radius:8px;padding:10px 12px;margin-bottom:12px">'
+      + '<div style="font-size:9px;font-weight:800;color:'+statusColor+';letter-spacing:.05em;margin-bottom:4px">'+statusLabel+'</div>'
+      + '<div style="font-size:14px;font-weight:900;color:var(--fg)">'+assignedP.name+'</div>'
+      + '<div style="display:flex;gap:6px;margin-top:8px">'
+      + (isDraft
+        ? '<button onclick="publishOneAssignment(\''+shiftId+'\');_dsPopup?.remove();_dsPopup=null" '
+          + 'style="flex:1;padding:6px;background:var(--bordeaux);color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.04em">📢 Publier</button>'
+        : '')
+      + (!isConf
+        ? '<button onclick="adminAssignShift(\''+shiftId+'\',\'\');_dsPopup?.remove();_dsPopup=null" '
+          + 'style="padding:6px 10px;background:var(--danger-l);color:var(--danger);border:1px solid var(--danger);border-radius:6px;font-size:10px;font-weight:800;cursor:pointer">Retirer</button>'
+        : '')
       + '</div></div>';
-  });
-  popHtml += '<button onclick="_dsPopup?.remove();_dsPopup=null" style="margin-top:10px;width:100%;padding:5px;background:var(--beige);border:none;border-radius:4px;cursor:pointer;font-size:10px;font-weight:700;color:var(--muted)">Fermer</button>';
+  }
+
+  // ── Liste des flows disponibles ──
+  const disponibles = flowPeople.filter(fp => shAvails.some(a => a.person_id===fp.id) && sh.person_id!==fp.id);
+
+  if (!assignedP || !isConf) {
+    if (disponibles.length) {
+      popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-bottom:6px">'
+        + (assignedP ? 'RÉASSIGNER À' : 'FLOWS DISPONIBLES') + '</div>';
+      disponibles.forEach(fp => {
+        popHtml += '<div onclick="adminAssignShift(\''+shiftId+'\',\''+fp.id+'\');_dsPopup?.remove();_dsPopup=null" '
+          + 'style="display:flex;align-items:center;justify-content:space-between;'
+          + 'background:var(--blue-l);border:1px solid rgba(42,95,165,.25);border-radius:7px;'
+          + 'padding:8px 12px;margin-bottom:5px;cursor:pointer;transition:background .15s" '
+          + 'onmouseover="this.style.background=\'rgba(42,95,165,.18)\'" onmouseout="this.style.background=\'var(--blue-l)\'">'
+          + '<span style="font-size:12px;font-weight:800;color:var(--blue)">● '+fp.name+'</span>'
+          + '<span style="font-size:10px;color:var(--blue);opacity:.7;font-weight:700">Assigner →</span>'
+          + '</div>';
+      });
+    } else {
+      popHtml += '<div style="text-align:center;padding:16px 10px;background:var(--beige);border-radius:8px;color:var(--muted)">'
+        + '<div style="font-size:20px;margin-bottom:4px">○</div>'
+        + '<div style="font-size:11px;font-weight:700">Aucune dispo déclarée</div>'
+        + '<div style="font-size:10px;margin-top:2px">Les flows n\'ont pas encore<br>signalé leur disponibilité</div>'
+        + '</div>';
+    }
+  }
+
+  popHtml += '</div>'; // padding wrapper
   pop.innerHTML = popHtml;
   document.body.appendChild(pop);
   _dsPopup = pop;
-  // Clic extérieur ferme
   setTimeout(() => document.addEventListener('click', function _dsPop(ev) {
     if (!pop.contains(ev.target)) { pop.remove(); _dsPopup=null; document.removeEventListener('click',_dsPop,true); }
   }, true), 10);
@@ -3228,6 +3261,18 @@ async function adminAssignShift(shiftId, personId) {
     renderCreneauxGrid();
     toast(personId ? '✏ Flow assigné (brouillon — cliquez Publier pour notifier)' : 'Flow retiré', personId ? 'info' : 'ok');
   } catch(e) { toast('Erreur assignation', 'err'); }
+}
+
+// Admin: publish a single draft assignment
+async function publishOneAssignment(shiftId) {
+  try {
+    await API.patch('shifts', shiftId, {assignment_published: true});
+    const sh = (S.shifts||[]).find(s => s.id === shiftId);
+    if (sh) sh.assignment_published = true;
+    renderDisposAdmin();
+    renderCreneauxGrid();
+    toast('📢 Assignation publiée !', 'ok');
+  } catch(e) { toast('Erreur publication', 'err'); }
 }
 
 // Admin: publish all draft shift assignments for the current week
