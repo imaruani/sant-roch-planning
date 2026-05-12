@@ -3455,10 +3455,15 @@ function adminToggleShiftDispo_picker(shiftId) {
         ? '<button onclick="publishOneAssignment(\''+shiftId+'\');_dsPopup?.remove();_dsPopup=null" '
           + 'style="flex:1;padding:6px;background:var(--bordeaux);color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.04em">📢 Publier</button>'
         : '')
+      + (!isDraft && !isConf
+        ? '<button onclick="adminConfirmShift(\''+shiftId+'\');_dsPopup?.remove();_dsPopup=null" '
+          + 'style="flex:1;padding:6px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;letter-spacing:.04em">✓ Confirmer</button>'
+        : '')
       + (!isConf
         ? '<button onclick="adminAssignShift(\''+shiftId+'\',\'\');_dsPopup?.remove();_dsPopup=null" '
           + 'style="padding:6px 10px;background:var(--danger-l);color:var(--danger);border:1px solid var(--danger);border-radius:6px;font-size:10px;font-weight:800;cursor:pointer">Retirer</button>'
-        : '')
+        : '<button onclick="adminUnconfirmShift(\''+shiftId+'\');_dsPopup?.remove();_dsPopup=null" '
+          + 'style="padding:6px 10px;background:var(--beige);color:var(--muted);border:1px solid var(--beige-d);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">↩ Annuler confirm.</button>')
       + '</div></div>';
   }
 
@@ -3563,6 +3568,30 @@ async function adminAssignShift(shiftId, personId) {
     renderCreneauxGrid();
     toast(personId ? '✏ Flow assigné (brouillon — cliquez Publier pour notifier)' : 'Flow retiré', personId ? 'info' : 'ok');
   } catch(e) { toast('Erreur assignation', 'err'); }
+}
+
+// Admin: confirmer un shift à la place du flow
+async function adminConfirmShift(shiftId) {
+  try {
+    await API.patch('shifts', shiftId, { status: 'confirmed' });
+    const sh = (S.shifts||[]).find(s => s.id === shiftId);
+    if (sh) sh.status = 'confirmed';
+    renderDisposAdmin();
+    renderCreneauxGrid();
+    toast('✓ Shift confirmé par l\'admin', 'ok');
+  } catch(e) { toast('Erreur confirmation : ' + e.message, 'err'); }
+}
+
+// Admin: annuler la confirmation d'un shift
+async function adminUnconfirmShift(shiftId) {
+  try {
+    await API.patch('shifts', shiftId, { status: null });
+    const sh = (S.shifts||[]).find(s => s.id === shiftId);
+    if (sh) sh.status = null;
+    renderDisposAdmin();
+    renderCreneauxGrid();
+    toast('↩ Confirmation annulée', 'info');
+  } catch(e) { toast('Erreur : ' + e.message, 'err'); }
 }
 
 // Admin: publish a single draft assignment
