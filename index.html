@@ -4665,10 +4665,16 @@ function renderFlowShifts() {
           +(isConfirmed ? '✓ Shift confirmé' : '⏳ En attente de confirmation')+'</div></div>'
           +(isConfirmed ? '<div style="font-size:16px">✓</div>' : '')
           +'</div>';
-        if (!isConfirmed && hPx>=56) {
-          inner += '<div data-sh="'+sh.id+'" data-act="confirm" '
-            +'style="text-align:center;background:rgba(255,255,255,.95);border-radius:5px;'
-            +'padding:5px;font-size:10px;font-weight:900;color:#b06000;cursor:pointer;margin-top:4px">✔ CONFIRMER</div>';
+        if (hPx>=56) {
+          if (!isConfirmed) {
+            inner += '<div data-sh="'+sh.id+'" data-act="confirm" '
+              +'style="text-align:center;background:rgba(255,255,255,.95);border-radius:5px;'
+              +'padding:5px;font-size:10px;font-weight:900;color:#b06000;cursor:pointer;margin-top:4px">✔ CONFIRMER</div>';
+          } else {
+            inner += '<div data-sh="'+sh.id+'" data-act="unconfirm" '
+              +'style="text-align:center;background:rgba(255,255,255,.15);border-radius:5px;'
+              +'padding:4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer;margin-top:4px">↩ Annuler</div>';
+          }
         }
       }
 
@@ -4751,7 +4757,8 @@ function renderFlowShifts() {
         if (!act) return;
         const sid = act.dataset.sh;
         switch(act.dataset.act) {
-          case 'confirm':  confirmShift(sid); break;
+          case 'confirm':    confirmShift(sid); break;
+          case 'unconfirm':  unconfirmShift(sid); break;
           case 'dispo':    setShiftStatus(sid, myStatus==='dispo' ? 'reset' : 'dispo'); break;
           case 'nodispo':  setShiftStatus(sid, myStatus==='nodispo' ? 'reset' : 'nodispo'); break;
           case 'note':     openShiftNote(sid); break;
@@ -4908,6 +4915,20 @@ async function confirmShift(shiftId) {
     renderFlowNotifs();
     if (S._flowDispoView === 'month') renderFlowShiftsMonth();
   } catch(e) { toast('Erreur lors de la confirmation : ' + e.message, 'err'); }
+}
+
+// ── Déconfirmation d'un shift par l'user ──
+async function unconfirmShift(shiftId) {
+  try {
+    const sh = (S.shifts||[]).find(s => s.id === shiftId);
+    if (!sh || sh.person_id !== S.user?.id) { toast('Action non autorisée','err'); return; }
+    await API.patch('shifts', shiftId, { status: null });
+    sh.status = null;
+    toast('↩ Confirmation annulée', 'info');
+    renderFlowShifts();
+    renderFlowNotifs();
+    if (S._flowDispoView === 'month') renderFlowShiftsMonth();
+  } catch(e) { toast('Erreur : ' + e.message, 'err'); }
 }
 
 
