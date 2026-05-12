@@ -2369,56 +2369,55 @@ function renderWeekCal() {
   });
 }
 
-// ── Séance en second plan : bloc bien visible dans toutes les vues grille ──
-// topPx/hPx = position absolue dans la colonne, startH = heure de début de la grille
-function buildSessBg(s, topPx, hPx) {
+// ── Séances en second plan : wash coloré pleine largeur + label flottant toujours visible ──
+// Le label (z-index:20, pointer-events:none) passe par-dessus les shifts tout en laissant les clics.
+function _sessBgParts(s, topPx, hPx) {
   const isFree = s.session_type === 'freeflow';
   const isEv   = isEventSess(s);
   const gc     = isFree ? '#9e8a60' : isEv ? '#c0651a' : (s.guide_id ? guideColor(s.guide_id) : '#6a6a6a');
   const guideP = S.people.find(p => p.id === s.guide_id);
   const typeL  = isFree ? '☀ Freeflow' : isEv ? (s.event_name || 'Événement') : '👁 Guidée';
   const who    = (!isFree && !isEv && guideP) ? guideP.name.split(' ')[0] : '';
-  const tf     = s.start_time.slice(0,5), tt = s.end_time.slice(0,5);
-  const dMin   = t2m(tt) - t2m(tf);
-  const durStr = dMin >= 60 ? (dMin%60===0 ? dMin/60+'h' : Math.floor(dMin/60)+'h'+String(dMin%60).padStart(2,'0')) : dMin+'min';
-
-  const el = document.createElement('div');
-  el.style.cssText = 'position:absolute;left:0;right:56%;top:'+topPx+'px;height:'+hPx+'px;'
-    + 'border-left:5px solid '+gc+';background:'+gc+'dd;'   // dd = 90% opacité
-    + 'pointer-events:none;z-index:2;overflow:hidden;padding:3px 4px 3px 6px;box-sizing:border-box';
-
-  let inner = '<div style="font-size:10px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
-    + 'text-shadow:0 1px 3px rgba(0,0,0,.5);line-height:1.2">'
-    + tf+'–'+tt
-    + (hPx >= 32 ? ' <span style="opacity:.75;font-weight:600">('+durStr+')</span>' : '')
-    + '</div>';
-  if (hPx >= 28) {
-    inner += '<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
-      + 'text-shadow:0 1px 3px rgba(0,0,0,.4);line-height:1.2">'
-      + typeL + (who ? ' · '+who : '') + '</div>';
-  }
-  el.innerHTML = inner;
-  return el;
+  const tf = s.start_time.slice(0,5), tt = s.end_time.slice(0,5);
+  const dMin = t2m(tt) - t2m(tf);
+  const durStr = dMin>=60 ? (dMin%60===0?dMin/60+'h':Math.floor(dMin/60)+'h'+String(dMin%60).padStart(2,'0')) : dMin+'min';
+  const chipH = Math.min(hPx, 26);
+  return { gc, typeL, who, tf, tt, durStr, chipH };
 }
 
-// Version HTML-string de buildSessBg (pour les vues innerHTML)
+// Version DOM — appende 2 éléments dans col
+function appendSessBg(col, s, topPx, hPx) {
+  const { gc, typeL, who, tf, tt, durStr, chipH } = _sessBgParts(s, topPx, hPx);
+  // 1. Wash semi-transparent pleine largeur
+  const wash = document.createElement('div');
+  wash.style.cssText = 'position:absolute;left:0;right:0;top:'+topPx+'px;height:'+hPx+'px;'
+    +'border-left:6px solid '+gc+';background:'+gc+'30;pointer-events:none;z-index:2;box-sizing:border-box';
+  col.appendChild(wash);
+  // 2. Label opaque flottant au-dessus de tout (z-index:20, pointer-events:none)
+  const label = document.createElement('div');
+  label.style.cssText = 'position:absolute;left:0;right:0;top:'+topPx+'px;height:'+chipH+'px;'
+    +'background:'+gc+';pointer-events:none;z-index:20;overflow:hidden;'
+    +'display:flex;align-items:center;padding:0 6px 0 8px;gap:6px;box-sizing:border-box';
+  label.innerHTML = '<span style="font-size:10px;font-weight:900;color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.4)">'
+    +tf+'–'+tt+' <span style="font-weight:500;opacity:.8">('+durStr+')</span></span>'
+    +'<span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.3)">'
+    +typeL+(who?' · '+who:'')+'</span>';
+  col.appendChild(label);
+}
+
+// Version HTML-string — retourne les 2 divs concaténées (pour renderDisposAdmin)
 function sessBgHtml(s, topPx, hPx) {
-  const isFree = s.session_type === 'freeflow';
-  const isEv   = isEventSess(s);
-  const gc     = isFree ? '#9e8a60' : isEv ? '#c0651a' : (s.guide_id ? guideColor(s.guide_id) : '#6a6a6a');
-  const guideP = S.people.find(p => p.id === s.guide_id);
-  const typeL  = isFree ? '☀ Freeflow' : isEv ? (s.event_name || 'Événement') : '👁 Guidée';
-  const who    = (!isFree && !isEv && guideP) ? guideP.name.split(' ')[0] : '';
-  const tf     = s.start_time.slice(0,5), tt = s.end_time.slice(0,5);
-  const dMin   = t2m(tt) - t2m(tf);
-  const durStr = dMin >= 60 ? (dMin%60===0 ? dMin/60+'h' : Math.floor(dMin/60)+'h'+String(dMin%60).padStart(2,'0')) : dMin+'min';
-  let inner = '<div style="font-size:10px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.5);line-height:1.2">'
-    + tf+'–'+tt+(hPx>=32?' <span style="opacity:.75;font-weight:600">('+durStr+')</span>':'')+'</div>';
-  if (hPx >= 28) inner += '<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.4);line-height:1.2">'
-    + typeL+(who?' · '+who:'')+'</div>';
-  return '<div style="position:absolute;left:0;right:56%;top:'+topPx+'px;height:'+hPx+'px;'
-    +'border-left:5px solid '+gc+';background:'+gc+'dd;'
-    +'pointer-events:none;z-index:2;overflow:hidden;padding:3px 4px 3px 6px;box-sizing:border-box">'+inner+'</div>';
+  const { gc, typeL, who, tf, tt, durStr, chipH } = _sessBgParts(s, topPx, hPx);
+  const washHtml = '<div style="position:absolute;left:0;right:0;top:'+topPx+'px;height:'+hPx+'px;'
+    +'border-left:6px solid '+gc+';background:'+gc+'30;pointer-events:none;z-index:2;box-sizing:border-box"></div>';
+  const labelHtml = '<div style="position:absolute;left:0;right:0;top:'+topPx+'px;height:'+chipH+'px;'
+    +'background:'+gc+';pointer-events:none;z-index:20;overflow:hidden;'
+    +'display:flex;align-items:center;padding:0 6px 0 8px;gap:6px;box-sizing:border-box">'
+    +'<span style="font-size:10px;font-weight:900;color:#fff;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.4)">'
+    +tf+'–'+tt+' <span style="font-weight:500;opacity:.8">('+durStr+')</span></span>'
+    +'<span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.3)">'
+    +typeL+(who?' · '+who:'')+'</span></div>';
+  return washHtml + labelHtml;
 }
 
 function buildEv(s) {
@@ -3421,7 +3420,7 @@ function renderDisposAdmin() {
 
       calHtml += '<div id="ds-sh-'+sh.id+'" '
         + 'onclick="adminToggleShiftDispo_picker(\''+sh.id+'\')" '
-        + 'style="position:absolute;left:44%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
+        + 'style="position:absolute;left:2px;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
         + 'background:'+bg+';border-left:3px solid '+border+';border-radius:0 4px 4px 0;'
         + 'z-index:4;cursor:pointer;overflow:hidden;padding:3px 5px;box-shadow:0 1px 4px rgba(0,0,0,.2)">'
         + countBadge
@@ -4631,14 +4630,14 @@ function renderFlowShifts() {
       col.appendChild(st);
     }
 
-    // 1. SÉANCES — second plan bien visible
+    // 1. SÉANCES — wash + label flottant
     weekSess.filter(s => s.date === dStr).forEach(s => {
       const sMin = t2m(s.start_time.slice(0, 5)) - CAL_SF * 60;
       const eMin = t2m(s.end_time.slice(0, 5)) - CAL_SF * 60;
       if (eMin <= 0 || sMin >= (CAL_EF - CAL_SF) * 60) return;
       const topPx = Math.max(0, (sMin / 30) * slotH);
       const hPx   = Math.max((eMin - sMin) / 30 * slotH, 20);
-      col.appendChild(buildSessBg(s, topPx, hPx));
+      appendSessBg(col, s, topPx, hPx);
     });
 
     // 2. SHIFTS — premier plan, bandes pleines et cliquables
@@ -4668,7 +4667,7 @@ function renderFlowShifts() {
       const covSess = weekSess.filter(s => s.date===dStr && t2m(s.start_time.slice(0,5))<shE && t2m(s.end_time.slice(0,5))>shS);
 
       const band = document.createElement('div');
-      band.style.cssText = 'position:absolute;left:44%;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
+      band.style.cssText = 'position:absolute;left:2px;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
         +'background:'+shiftBg+';border-left:4px solid '+shiftBorder+';border-radius:0 6px 6px 0;'
         +'z-index:8;overflow:hidden;padding:5px 7px 5px 6px;box-shadow:0 2px 8px rgba(0,0,0,.25);'
         +'display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box';
@@ -5821,11 +5820,11 @@ function renderCreneauxGrid() {
       col.appendChild(stripe);
     }
 
-    // Séances en fond — bien visible
+    // Séances en fond — wash + label flottant
     (S.sessions||[]).filter(s=>s.date===dStr).forEach(s=>{
       const topPx=(t2m(s.start_time.slice(0,5))-startH*60)/30*slotH;
       const hPx=Math.max((t2m(s.end_time.slice(0,5))-t2m(s.start_time.slice(0,5)))/30*slotH, 20);
-      col.appendChild(buildSessBg(s, topPx, hPx));
+      appendSessBg(col, s, topPx, hPx);
     });
 
     // Drag to CREATE (zone vide de la colonne)
@@ -5863,7 +5862,7 @@ function renderCreneauxGrid() {
       const bandEl=document.createElement('div');
       bandEl.className='cren-band';
       bandEl.style.cssText=`top:${topPx}px;height:${hPx}px;background:${color}`;
-      bandEl.style.left='44%'; bandEl.style.right='0'; bandEl.style.borderRadius='0 5px 5px 0';
+      bandEl.style.left='3px'; bandEl.style.right='3px';
 
       // Contenu interne
       const inner=document.createElement('div');
