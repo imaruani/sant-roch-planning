@@ -612,8 +612,13 @@ body.cut-mode .cren-col-hint{cursor:default}
 #flow-week-note-panel textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--beige-d);border-radius:6px;padding:10px;font-family:var(--font);font-size:12px;line-height:1.5;color:var(--text);background:var(--creme);outline:none;box-sizing:border-box}
 #flow-week-note-panel textarea:focus{border-color:var(--bordeaux)}
 @media(max-width:768px){#fdm-shifts-inner{flex-direction:column}#flow-week-note-panel{width:100%;position:static}}
-/* Mobile : séances 36% gauche, shifts 64% droite */
+/* Affichage conditionnel mobile/desktop pour la vue shifts */
+.flow-mob-only{display:none}
+.flow-desk-only{display:flex}
 @media(max-width:768px){
+  .flow-mob-only{display:block!important}
+  .flow-desk-only{display:none!important}
+  /* Séances 36% gauche, shifts 64% droite sur mobile */
   .sess-split-sess{right:64%!important}
   .sess-split-shift{left:36%!important}
 }
@@ -1140,7 +1145,10 @@ function loadGuideColors() {
 
     <!-- Vue shifts semaine -->
     <div id="fdm-shifts-wrap">
-      <div id="fdm-shifts-inner" style="display:flex;gap:12px;align-items:flex-start">
+      <!-- Mobile : liste par jour (cachée sur desktop) -->
+      <div id="flow-shifts-mobile-list" class="flow-mob-only"></div>
+      <!-- Desktop : grille semaine (cachée sur mobile) -->
+      <div id="fdm-shifts-inner" class="flow-desk-only" style="display:flex;gap:12px;align-items:flex-start">
         <div style="flex:1;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch">
           <div id="flow-shifts-list"></div>
         </div>
@@ -4544,9 +4552,10 @@ async function saveFlowDisposV2() {
 // FLOW : VUE SHIFTS — VERSION MOBILE (cartes empilées)
 // ──────────────────────────────────────────────
 function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
-  const DAYS7 = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const DAYS7 = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const MOISN = ['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
   const todayStr = iso(new Date());
-  let html = '<div style="display:flex;flex-direction:column;gap:16px;padding:4px 0">';
+  let html = '<div style="display:flex;flex-direction:column;gap:14px;padding:2px 0">';
 
   for (let d = 0; d < 7; d++) {
     const day = addD(ws, d);
@@ -4556,30 +4565,33 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
     if (!dayShifts.length && !daySess.length) continue;
 
     const isToday = dStr === todayStr;
-    const dayLabel = DAYS7[d] + ' ' + String(day.getDate()).padStart(2,'0') + '/' + String(day.getMonth()+1).padStart(2,'0');
+    const dayLabel = DAYS7[d] + ' ' + day.getDate() + ' ' + MOISN[day.getMonth()];
 
-    html += '<div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.10)">';
+    html += '<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.12)">';
     // En-tête jour
-    html += '<div style="padding:8px 14px;font-size:13px;font-weight:800;'
-      + 'background:' + (isToday ? 'var(--bordeaux)' : 'var(--beige-d)') + ';'
-      + 'color:' + (isToday ? '#fff' : 'var(--text)') + '">'
-      + dayLabel + (isToday ? ' — Aujourd\'hui' : '') + '</div>';
+    html += '<div style="padding:10px 16px;font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;'
+      + 'background:' + (isToday ? 'var(--bordeaux)' : '#3a3530') + ';'
+      + 'color:#fff">'
+      + dayLabel + (isToday ? ' <span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:10px;font-weight:700">Aujourd\'hui</span>' : '')
+      + '</div>';
 
-    html += '<div style="padding:8px 10px;background:var(--creme);display:flex;flex-direction:column;gap:8px">';
+    html += '<div style="padding:10px 12px;background:var(--creme);display:flex;flex-direction:column;gap:10px">';
 
-    // Séances du jour
+    // Séances du jour — cartes bien visibles
     daySess.forEach(s => {
       const isFree = s.session_type === 'freeflow';
       const isEv   = isEventSess(s);
       const gc     = isFree ? '#7a6840' : isEv ? '#c0651a' : (s.guide_id ? guideColor(s.guide_id) : '#555');
       const typeL  = isFree ? '☀ Freeflow' : isEv ? (s.event_name || 'Événement') : '👁 Guidée';
       const guide  = s.guide_id ? (S.people||[]).find(p => p.id === s.guide_id) : null;
-      const guideName = guide ? guide.name.split(' ')[0] : '';
+      const flowP  = s.flow_id  ? (S.people||[]).find(p => p.id === s.flow_id)  : null;
       const tf = s.start_time ? s.start_time.slice(0,5) : '';
       const tt = s.end_time   ? s.end_time.slice(0,5)   : '';
-      html += '<div style="background:' + gc + ';color:#fff;font-size:11px;font-weight:700;'
-        + 'padding:6px 10px;border-radius:6px;margin-bottom:4px">'
-        + typeL + (guideName ? ' · ' + guideName : '') + (tf ? ' · ' + tf + '–' + tt : '')
+      html += '<div style="background:' + gc + ';color:#fff;border-radius:8px;padding:10px 14px">'
+        + '<div style="font-size:13px;font-weight:900">' + tf + '–' + tt + '</div>'
+        + '<div style="font-size:12px;font-weight:700;margin-top:2px;opacity:.9">' + typeL + '</div>'
+        + (guide  ? '<div style="font-size:11px;margin-top:3px;opacity:.85">👤 ' + guide.name + '</div>' : '')
+        + (flowP  ? '<div style="font-size:11px;margin-top:2px;opacity:.85">🌊 ' + flowP.name + '</div>' : '')
         + '</div>';
     });
 
@@ -4600,54 +4612,43 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
 
       const timeStr = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
 
-      html += '<div style="padding:10px 14px;border-radius:8px;margin-bottom:6px;'
-        + 'background:' + shiftBg + ';border-left:4px solid ' + shiftBorder + ';color:#fff">';
+      const btnBase = 'flex:1;padding:14px 8px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:800;min-height:48px;';
+      html += '<div style="background:' + shiftBg + ';border-left:5px solid ' + shiftBorder + ';border-radius:10px;color:#fff;padding:14px 16px">';
 
-      // Heure + statut
+      // Heure
+      html += '<div style="font-size:18px;font-weight:900;letter-spacing:.02em">' + timeStr + '</div>';
+
       if (assignedToMe) {
-        html += '<div style="font-size:13px;font-weight:900">' + timeStr + '</div>';
-        html += '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.85);margin-top:2px">'
-          + (isConfirmed ? '✓ Shift confirmé' : '⏳ En attente de confirmation') + '</div>';
-        // Boutons assigné
-        html += '<div style="display:flex;gap:6px;margin-top:8px">';
+        html += '<div style="font-size:13px;font-weight:700;opacity:.9;margin-top:4px">'
+          + (isConfirmed ? '✓ Shift confirmé' : '⏳ En attente de ta confirmation') + '</div>';
+        html += '<div style="display:flex;gap:8px;margin-top:12px">';
         if (!isConfirmed) {
-          html += '<button onclick="confirmShift(\'' + sh.id + '\')" '
-            + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:900;'
-            + 'background:rgba(255,255,255,.95);color:#b06000">✔ CONFIRMER</button>';
+          html += '<button onclick="confirmShift(\'' + sh.id + '\');renderFlowShifts()" '
+            + 'style="' + btnBase + 'background:rgba(255,255,255,.95);color:#b06000">✔ CONFIRMER</button>';
         } else {
-          html += '<button onclick="unconfirmShift(\'' + sh.id + '\')" '
-            + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;'
-            + 'background:rgba(255,255,255,.15);color:rgba(255,255,255,.7)">↩ Annuler</button>';
+          html += '<button onclick="unconfirmShift(\'' + sh.id + '\');renderFlowShifts()" '
+            + 'style="' + btnBase + 'background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)">↩ Annuler</button>';
         }
         html += '</div>';
       } else {
-        const statusLabel = myStatus === 'dispo' ? '✓ Dispo déclarée' : myStatus === 'nodispo' ? '✗ Pas disponible' : 'En attente de ta réponse';
-        html += '<div style="font-size:13px;font-weight:900">' + timeStr + '</div>';
-        html += '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.8);margin-top:2px">' + statusLabel + '</div>';
-        // Note si pas dispo
-        if (myStatus === 'nodispo' && myNote) {
-          html += '<div style="background:rgba(0,0,0,.28);border-radius:3px;padding:3px 7px;font-size:11px;'
-            + 'color:rgba(255,200,200,.9);font-style:italic;margin-top:4px">📝 ' + myNote + '</div>';
+        const statusLabel = myStatus==='dispo' ? '✓ Dispo déclarée' : myStatus==='nodispo' ? '✗ Pas disponible' : 'Pas encore répondu';
+        html += '<div style="font-size:13px;font-weight:700;opacity:.85;margin-top:4px">' + statusLabel + '</div>';
+        if (myStatus==='nodispo' && myNote) {
+          html += '<div style="background:rgba(0,0,0,.22);border-radius:6px;padding:6px 10px;font-size:12px;'
+            + 'color:rgba(255,200,200,.95);font-style:italic;margin-top:6px">📝 ' + myNote + '</div>';
         }
-        // Boutons 3 états
-        html += '<div style="display:flex;gap:6px;margin-top:8px">';
-        const ndActive = myStatus === 'nodispo';
-        const dActive  = myStatus === 'dispo';
-        html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (ndActive ? 'reset' : 'nodispo') + '\')" '
-          + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:800;'
-          + 'background:' + (ndActive ? 'rgba(180,40,40,.95)' : 'rgba(255,255,255,.15)') + ';'
-          + 'color:' + (ndActive ? '#fff' : 'rgba(255,255,255,.8)') + '">✗ Pas dispo</button>';
-        html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (dActive ? 'reset' : 'dispo') + '\')" '
-          + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:800;'
-          + 'background:' + (dActive ? 'rgba(0,135,115,.95)' : 'rgba(255,255,255,.15)') + ';'
-          + 'color:' + (dActive ? '#fff' : 'rgba(255,255,255,.8)') + '">✓ Dispo</button>';
+        const ndActive = myStatus==='nodispo', dActive = myStatus==='dispo';
+        html += '<div style="display:flex;gap:8px;margin-top:12px">';
+        html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (ndActive?'reset':'nodispo') + '\')" '
+          + 'style="' + btnBase + 'background:' + (ndActive?'rgba(200,60,60,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✗ Pas dispo</button>';
+        html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (dActive?'reset':'dispo') + '\')" '
+          + 'style="' + btnBase + 'background:' + (dActive?'rgba(0,155,130,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✓ Dispo</button>';
         html += '</div>';
-        // Bouton note si pas dispo
-        if (myStatus === 'nodispo') {
+        if (myStatus==='nodispo') {
           html += '<button onclick="openShiftNote(\'' + sh.id + '\')" '
-            + 'style="width:100%;margin-top:4px;padding:6px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:700;'
-            + 'background:rgba(255,255,255,.12);color:rgba(255,220,220,.9)">'
-            + (myNote ? '📝 Modifier ta note' : '📝 Laisser une note à l\'admin') + '</button>';
+            + 'style="width:100%;margin-top:8px;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:700;min-height:44px;'
+            + 'background:rgba(255,255,255,.14);color:rgba(255,220,220,.95)">'
+            + (myNote ? '📝 Modifier ma note' : '📝 Laisser une note à l\'admin') + '</button>';
         }
       }
 
@@ -4701,8 +4702,9 @@ function renderFlowShifts() {
     return;
   }
 
-  const isMob = window.innerWidth <= 768;
-  if (isMob) { renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid); return; }
+  // Toujours rendre la vue mobile (affichée/cachée par CSS media query)
+  const mobContainer = document.getElementById('flow-shifts-mobile-list');
+  if (mobContainer) renderFlowShiftsMobile(mobContainer, ws, we, weekShifts, weekSess, uid);
 
   const wrap = document.createElement('div');
   wrap.style.cssText = 'overflow-x:auto;-webkit-overflow-scrolling:touch';
