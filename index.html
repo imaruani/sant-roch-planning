@@ -340,10 +340,44 @@ body.flow-mode #mob-flow-nav{display:flex}
   #fdt-grid-wrap .toolbar{flex-wrap:wrap}
 
   /* ── MON PLANNING toolbar ── */
-  #fp-planning .toolbar{flex-direction:column;align-items:stretch}
-  #fp-planning .toolbar .pbtn-group{margin-bottom:2px}
+  #fp-planning .toolbar{flex-direction:column;align-items:stretch;gap:8px}
+  #fp-planning .toolbar .pbtn-group{margin-bottom:0;width:100%}
+  #fp-planning .toolbar .pbtn{flex:1;padding:11px 4px;font-size:11px;min-height:44px}
   #fp-planning #list-period-group{width:100%}
-  #fcal-nav-prev,#fcal-nav-next{min-width:44px;min-height:44px;font-size:18px}
+  #fcal-nav-prev,#fcal-nav-next{min-width:44px;min-height:44px;font-size:20px}
+  /* Row nav : centré et pleine largeur */
+  #fp-planning .toolbar > :nth-child(2),
+  #fp-planning .toolbar > :nth-child(3),
+  #fp-planning .toolbar > :nth-child(4){display:inline-flex;align-items:center;justify-content:center}
+
+  /* Légende états : masquée sur mobile (économie d'espace, info dans les cartes) */
+  #fp-planning-legend,#fp-global-legend{display:none!important}
+
+  /* Confirmation batch : CTA full-width et touch-friendly */
+  .confirm-batch .btn-green{width:100%;padding:16px;font-size:15px;font-weight:900;border-radius:6px;min-height:52px}
+  .confirm-batch .btn-g{width:100%;padding:12px;font-size:12px;min-height:44px}
+  .confirm-batch > div:first-child{flex-direction:column;align-items:stretch}
+  .confirm-batch > div:first-child h3{text-align:center;font-size:14px}
+  .confirm-batch > div:first-child > div{flex-direction:column;gap:8px}
+  .confirm-item{padding:10px 2px;gap:8px}
+  .confirm-item .btn-green.btn-sm{min-height:44px;padding:10px 14px;font-size:12px}
+
+  /* Notifs shifts : bouton confirmer touch-friendly */
+  .notif-card button[onclick*="confirmShift"]{min-height:44px!important;padding:10px 14px!important;font-size:12px!important}
+
+  /* Vue liste séances : cards mobiles empilées */
+  #fpv-list-wrap .flow-sess-row{
+    flex-direction:column;align-items:flex-start;gap:6px;
+    padding:14px;border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.10);
+    margin-bottom:10px;border:none;
+  }
+  #fpv-list-wrap .flow-sess-row .btn,.flow-sess-row .btn-green.btn-sm{width:100%;padding:12px;font-size:13px;font-weight:800;min-height:48px;margin-top:4px}
+  #fpv-list-wrap .flow-sess-row [style*="margin-left:auto"]{margin-left:0!important;margin-top:4px}
+
+  /* Toolbar global : centré */
+  #fp-global .toolbar{justify-content:center;gap:12px}
+  #fp-global .toolbar .btn-g{min-width:44px;min-height:44px;font-size:20px}
 
   /* Guide "comment ça marche" : masqué par défaut en mobile */
   .guide-box .guide-body:not(.hidden){display:none}
@@ -1230,8 +1264,8 @@ function loadGuideColors() {
       </div>
     </div>
 
-    <!-- Légende états -->
-    <div class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px">
+    <!-- Légende états (masquée sur mobile) -->
+    <div id="fp-planning-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px">
       <span style="display:flex;align-items:center;gap:5px">
         <span style="width:14px;height:14px;background:rgba(42,122,75,.90);border-left:4px solid #1a5c38;display:inline-block"></span>
         <strong>Shift confirmé</strong>
@@ -1251,10 +1285,20 @@ function loadGuideColors() {
     </div>
 
     <!-- Vue calendrier semaine -->
-    <div id="fpv-cal-wrap" style="overflow-x:auto"><div class="calendar" id="flow-cal"></div></div>
+    <div id="fpv-cal-wrap">
+      <!-- Mobile : liste par jour (cachée sur desktop) -->
+      <div id="flow-cal-mobile-list" class="flow-mob-only"></div>
+      <!-- Desktop : grille semaine (cachée sur mobile) -->
+      <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="flow-cal"></div></div>
+    </div>
 
     <!-- Vue mois -->
-    <div id="fpv-month-wrap" class="hidden"><div style="overflow-x:auto"><div class="month-grid" id="flow-month-cal"></div></div></div>
+    <div id="fpv-month-wrap" class="hidden">
+      <!-- Mobile : liste par jour -->
+      <div id="flow-month-mobile-list" class="flow-mob-only"></div>
+      <!-- Desktop : grille mois -->
+      <div class="flow-desk-only" style="overflow-x:auto"><div class="month-grid" id="flow-month-cal"></div></div>
+    </div>
 
     <!-- Vue liste -->
     <div id="fpv-list-wrap" class="hidden">
@@ -1265,12 +1309,12 @@ function loadGuideColors() {
   <!-- ── PLANNING SANT-ROCH (vue globale lecture seule) ── -->
   <div class="panel" id="fp-global">
     <div class="toolbar">
-      <button class="btn btn-g btn-sm" onclick="navGlobalCal(-1)">◀</button>
+      <button class="btn btn-g btn-sm" onclick="navGlobalCal(-1)" style="min-width:44px;min-height:44px;font-size:20px">◀</button>
       <span class="wlbl" id="global-cal-lbl">—</span>
-      <button class="btn btn-g btn-sm" onclick="navGlobalCal(1)">▶</button>
+      <button class="btn btn-g btn-sm" onclick="navGlobalCal(1)"  style="min-width:44px;min-height:44px;font-size:20px">▶</button>
     </div>
-    <!-- Légende -->
-    <div class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px">
+    <!-- Légende (masquée sur mobile) -->
+    <div id="fp-global-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px">
       <span style="display:flex;align-items:center;gap:5px">
         <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span>
         <strong>Je suis GUIDE</strong>
@@ -1292,7 +1336,10 @@ function loadGuideColors() {
         Freeflow
       </span>
     </div>
-    <div style="overflow-x:auto"><div class="calendar" id="global-cal"></div></div>
+    <!-- Mobile : liste par jour -->
+    <div id="global-cal-mobile-list" class="flow-mob-only"></div>
+    <!-- Desktop : grille semaine -->
+    <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="global-cal"></div></div>
   </div>
 </div><!-- /v-flow -->
 
@@ -6358,6 +6405,8 @@ function renderFlowCal() {
 
   // ── 1. MES SHIFTS assignés (person_id===uid, publiés seulement) ──
   const myWeekShifts=(S.shifts||[]).filter(sh=>sh.date>=iso(ws)&&sh.date<=iso(we)&&sh.person_id===uid&&sh.assignment_published!==false);
+  // Vue mobile (liste par jour) — toujours rendue, affichée/cachée par CSS media query
+  { const _fcMob=document.getElementById('flow-cal-mobile-list'); if (_fcMob) renderFlowCalMobile(_fcMob, ws, we, uid, mine, myWeekShifts); }
   myWeekShifts.forEach(sh=>{
     const colInfo=cols.find(c=>c.date===sh.date); if(!colInfo) return;
     const sMin=t2m(sh.time_from.slice(0,5))-CAL_S*60, eMin=t2m(sh.time_to.slice(0,5))-CAL_S*60;
@@ -6490,6 +6539,8 @@ function renderGlobalCal() {
   // Séances — toutes, lecture seule
   const uid=S.user.id;
   const toShow=S.sessions.filter(s=>s.date>=iso(ws)&&s.date<=iso(we));
+  // Vue mobile (liste par jour) — toujours rendue, affichée/cachée par CSS media query
+  { const _gcMob=document.getElementById('global-cal-mobile-list'); if (_gcMob) renderGlobalCalMobile(_gcMob, ws, we, uid, toShow); }
   toShow.forEach(s=>{
     const colInfo=cols.find(c=>c.date===s.date); if(!colInfo) return;
     const sMin=t2m(s.start_time)-CAL_S*60, eMin=t2m(s.end_time)-CAL_S*60;
@@ -6578,6 +6629,142 @@ function renderGlobalCal() {
     ev.innerHTML=html;
     colInfo.col.appendChild(ev);
   });
+}
+
+// ──────────────────────────────────────────────
+// MOBILE : Vue liste "Mon Planning" (semaine)
+// ──────────────────────────────────────────────
+function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
+  const DAYS7=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const MOISN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  const todayStr=iso(new Date());
+  let html='<div style="display:flex;flex-direction:column;gap:14px;padding:2px 0">';
+  let hasAny=false;
+  for (let d=0;d<7;d++) {
+    const day=addD(ws,d), dStr=iso(day);
+    const daySess=mySessions.filter(s=>s.date===dStr).sort((a,b)=>a.start_time.localeCompare(b.start_time));
+    const dayShifts=myShifts.filter(sh=>sh.date===dStr).sort((a,b)=>a.time_from.localeCompare(b.time_from));
+    if (!daySess.length&&!dayShifts.length) continue;
+    hasAny=true;
+    const isToday=dStr===todayStr;
+    const dayLabel=DAYS7[d]+' '+day.getDate()+' '+MOISN[day.getMonth()];
+    html+='<div style="border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.13)">';
+    html+='<div style="padding:11px 16px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px;'
+      +'background:'+(isToday?'var(--bordeaux)':'#2e2a26')+';color:#fff">'
+      +dayLabel+(isToday?' <span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 9px;border-radius:10px;font-weight:700;flex-shrink:0">Aujourd\'hui</span>':'')
+      +'</div>';
+    html+='<div style="padding:10px 12px;background:var(--creme);display:flex;flex-direction:column;gap:9px">';
+    // ── Séances ──
+    daySess.forEach(s=>{
+      const isMyFlow=s.flow_id===uid, isMyGuide=s.guide_id===uid;
+      const isConf=s.status==='confirmed', isFree=s.session_type==='freeflow', isEv=isEventSess(s);
+      const guide=S.people.find(p=>p.id===s.guide_id), flow=S.people.find(p=>p.id===s.flow_id);
+      let gc;
+      if (isMyGuide)          gc='rgba(108,20,18,.94)';
+      else if (isConf)        gc='rgba(42,122,75,.92)';
+      else if (isFree&&isMyFlow) gc='rgba(122,88,40,.92)';
+      else if (isEv)          gc='rgba(192,100,26,.92)';
+      else                    gc='rgba(42,95,165,.92)';
+      const typeL=isFree?'☀ Freeflow':isEv?(s.event_name||'Événement'):'🧘 Guidée';
+      const roleBadge=isMyGuide?'👤 GUIDE':'⚓ FLOW'+(isConf?' ✓':'');
+      const tf=s.start_time.slice(0,5), tt=s.end_time.slice(0,5);
+      const partner=isMyGuide?(flow?'🌊 '+flow.name:'⚠ Sans flow'):(guide?'👤 '+guide.name:'');
+      html+='<div style="background:'+gc+';color:#fff;border-radius:10px;padding:13px 15px;cursor:pointer" onclick="openFlowEventModal_list(\''+s.id+'\')">';
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">';
+      html+='<div style="font-size:19px;font-weight:900;letter-spacing:.02em;line-height:1">'+tf+'–'+tt+'</div>';
+      html+='<div style="font-size:11px;font-weight:800;background:rgba(255,255,255,.22);padding:3px 9px;border-radius:8px;flex-shrink:0">'+roleBadge+'</div>';
+      html+='</div>';
+      html+='<div style="font-size:13px;font-weight:700;opacity:.9">'+typeL+'</div>';
+      if (partner) html+='<div style="font-size:12px;opacity:.85;margin-top:2px">'+partner+'</div>';
+      if (!isConf&&isMyFlow) {
+        html+='<button onclick="event.stopPropagation();confirmSessAndMark(\''+s.id+'\')" '
+          +'style="width:100%;margin-top:10px;padding:13px;border-radius:9px;border:none;cursor:pointer;'
+          +'font-size:15px;font-weight:900;background:rgba(255,255,255,.95);color:'+gc+';min-height:50px;letter-spacing:.02em">✔ CONFIRMER MA PRÉSENCE</button>';
+      }
+      html+='</div>';
+    });
+    // ── Shifts ──
+    dayShifts.forEach(sh=>{
+      const isConf=sh.status==='confirmed';
+      const bg=isConf?'rgba(42,122,75,.94)':'rgba(170,90,0,.92)';
+      const border=isConf?'#1a5c38':'#b06000';
+      const tf=sh.time_from.slice(0,5), tt=sh.time_to.slice(0,5);
+      html+='<div style="background:'+bg+';border-left:5px solid '+border+';border-radius:10px;color:#fff;padding:13px 16px">';
+      html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">';
+      html+='<div style="font-size:19px;font-weight:900;letter-spacing:.02em;line-height:1">'+tf+'–'+tt+'</div>';
+      html+='<div style="font-size:10px;font-weight:800;background:rgba(255,255,255,.22);padding:3px 9px;border-radius:8px">SHIFT</div>';
+      html+='</div>';
+      html+='<div style="font-size:13px;font-weight:700;opacity:.9">'+(isConf?'✓ Shift confirmé':'⏳ En attente de confirmation')+'</div>';
+      if (!isConf) {
+        html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowCal()" '
+          +'style="width:100%;margin-top:10px;padding:13px;border-radius:9px;border:none;cursor:pointer;'
+          +'font-size:15px;font-weight:900;background:rgba(255,255,255,.95);color:#b06000;min-height:50px;letter-spacing:.02em">✔ CONFIRMER</button>';
+      } else {
+        html+='<button onclick="unconfirmShift(\''+sh.id+'\')" '
+          +'style="width:100%;margin-top:8px;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.3);cursor:pointer;'
+          +'font-size:13px;font-weight:700;background:transparent;color:rgba(255,255,255,.75);min-height:44px">↩ Annuler la confirmation</button>';
+      }
+      html+='</div>';
+    });
+    html+='</div></div>';
+  }
+  if (!hasAny) html+='<div style="text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;font-style:italic">Aucune séance ni shift cette semaine.</div>';
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+// ──────────────────────────────────────────────
+// MOBILE : Vue liste "Sant-Roch" (toutes séances)
+// ──────────────────────────────────────────────
+function renderGlobalCalMobile(container, ws, we, uid, allSessions) {
+  const DAYS7=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  const MOISN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  const todayStr=iso(new Date());
+  let html='<div style="display:flex;flex-direction:column;gap:14px;padding:2px 0">';
+  let hasAny=false;
+  for (let d=0;d<7;d++) {
+    const day=addD(ws,d), dStr=iso(day);
+    const daySess=allSessions.filter(s=>s.date===dStr).sort((a,b)=>a.start_time.localeCompare(b.start_time));
+    if (!daySess.length) continue;
+    hasAny=true;
+    const isToday=dStr===todayStr;
+    const dayLabel=DAYS7[d]+' '+day.getDate()+' '+MOISN[day.getMonth()];
+    html+='<div style="border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.13)">';
+    html+='<div style="padding:11px 16px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px;'
+      +'background:'+(isToday?'var(--bordeaux)':'#2e2a26')+';color:#fff">'
+      +dayLabel+(isToday?' <span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 9px;border-radius:10px;font-weight:700;flex-shrink:0">Aujourd\'hui</span>':'')
+      +'</div>';
+    html+='<div style="padding:10px 12px;background:var(--creme);display:flex;flex-direction:column;gap:9px">';
+    daySess.forEach(s=>{
+      const isMyFlow=s.flow_id===uid, isMyGuide=s.guide_id===uid, isMe=isMyFlow||isMyGuide;
+      const isConf=s.status==='confirmed', isFree=s.session_type==='freeflow', isEv=isEventSess(s);
+      const guide=S.people.find(p=>p.id===s.guide_id), flow=S.people.find(p=>p.id===s.flow_id);
+      let gc, alpha='1';
+      if      (isMyGuide)               { gc='rgba(108,20,18,.94)'; }
+      else if (isMyFlow&&isConf)         { gc='rgba(42,122,75,.92)'; }
+      else if (isMyFlow)                 { gc='rgba(42,95,165,.92)'; }
+      else if (isFree)                   { gc='rgba(180,160,120,.80)'; alpha='.85'; }
+      else if (isEv)                     { gc='rgba(192,100,26,.80)'; alpha='.85'; }
+      else if (isConf)                   { gc='rgba(42,122,75,.55)'; alpha='.80'; }
+      else                               { gc='rgba(130,120,115,.55)'; alpha='.75'; }
+      const typeL=isFree?'☀ Freeflow':isEv?(s.event_name||'Événement'):'🧘 Guidée';
+      const tf=s.start_time.slice(0,5), tt=s.end_time.slice(0,5);
+      const meBadge=isMe?('<span style="background:rgba(255,255,255,.28);padding:2px 8px;border-radius:7px;font-size:11px;font-weight:800;flex-shrink:0">'+(isMyGuide?'MOI · GUIDE':'MOI · FLOW')+'</span>'):'';
+      html+='<div style="background:'+gc+';color:#fff;border-radius:10px;padding:12px 14px;opacity:'+alpha+'">';
+      html+='<div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:3px">';
+      html+='<div style="font-size:18px;font-weight:900;letter-spacing:.02em;line-height:1">'+tf+'–'+tt+'</div>';
+      html+=meBadge;
+      html+='</div>';
+      html+='<div style="font-size:13px;font-weight:700;opacity:.92">'+typeL+'</div>';
+      if (guide) html+='<div style="font-size:12px;opacity:.85;margin-top:2px">👤 '+guide.name+'</div>';
+      if (flow)  html+='<div style="font-size:12px;opacity:.85;margin-top:1px">🌊 '+flow.name+'</div>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+  }
+  if (!hasAny) html+='<div style="text-align:center;padding:48px 20px;color:var(--muted);font-size:14px;font-style:italic">Aucune séance cette semaine.</div>';
+  html+='</div>';
+  container.innerHTML=html;
 }
 
 function openFlowEventModal(s) {
@@ -6759,12 +6946,12 @@ function renderFlowNotifs() {
       const d=new Date(sh.date+'T00:00:00');
       const JOURS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
       const MOIS=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.15)">
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15)">
         <div>
-          <span style="font-weight:800">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span>
-          <span style="margin-left:8px;opacity:.9">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>
+          <span style="font-weight:800;font-size:14px">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span>
+          <span style="margin-left:8px;opacity:.9;font-size:14px">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>
         </div>
-        <button onclick="confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border:none;border-radius:5px;padding:5px 14px;font-size:11px;font-weight:900;color:#b06000;cursor:pointer;letter-spacing:.03em;flex-shrink:0">✔ CONFIRMER</button>
+        <button onclick="confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:10px 16px;font-size:13px;font-weight:900;color:#b06000;cursor:pointer;letter-spacing:.03em;flex-shrink:0;min-height:44px;-webkit-tap-highlight-color:transparent">✔ CONFIRMER</button>
       </div>`;
     }).join('');
     const more=pendingShifts.length>5?`<div style="font-size:11px;opacity:.75;margin-top:6px">… et ${pendingShifts.length-5} autre(s)</div>`:'';
@@ -6998,17 +7185,16 @@ function renderFlowSessionsList() {
         const isConf=sh.status==='confirmed';
         const borderColor=isConf?'var(--green)':'#a06000';
         const bgColor=isConf?'rgba(42,122,75,.06)':'rgba(170,90,0,.06)';
-        const statusBadge=isConf
-          ?`<span class="badge b-ok" style="margin-left:auto">✓ CONFIRMÉ</span>`
-          :`<span class="badge b-wait" style="margin-left:auto;color:#a06000;background:rgba(170,90,0,.12)">⏳ À CONFIRMER</span>`;
         const confirmBtn=!isConf
-          ?`<button class="btn btn-sm" style="background:#a06000;color:#fff;padding:5px 12px;font-size:11px;font-weight:800" onclick="event.stopPropagation();confirmShift('${sh.id}')">✔ Confirmer</button>`
+          ?`<button class="btn btn-sm" style="background:#a06000;color:#fff;padding:12px;font-size:13px;font-weight:800;width:100%;min-height:48px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();confirmShift('${sh.id}')">✔ CONFIRMER CE SHIFT</button>`
           :'';
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:4px solid ${borderColor};background:${bgColor}">
-          <span style="display:inline-block;background:${isConf?'rgba(42,122,75,.15)':'rgba(170,90,0,.15)'};color:${isConf?'var(--green)':'#a06000'};font-size:10px;font-weight:800;padding:2px 7px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap">⏱ SHIFT</span>
-          <span style="font-weight:700;font-size:13px">${fmtDateFr(sh.date)}</span>
-          <span style="color:var(--muted);font-size:12px">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>
-          ${statusBadge}
+        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="display:inline-block;background:${isConf?'rgba(42,122,75,.15)':'rgba(170,90,0,.15)'};color:${isConf?'var(--green)':'#a06000'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em">⏱ SHIFT</span>
+            <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span>
+            <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>
+            <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#a06000;background:rgba(170,90,0,.12)'}">${isConf?'✓ CONFIRMÉ':'⏳ À CONFIRMER'}</span>
+          </div>
           ${confirmBtn}
         </div>`;
       } else {
@@ -7025,24 +7211,30 @@ function renderFlowSessionsList() {
           ?`<span class="role-badge-guide">👤 GUIDE</span>`
           :`<span class="role-badge-flow">⚓ FLOW</span>`;
         const partnerLine=isMyGuide
-          ?(flow?`<span style="font-size:12px;color:var(--muted)">Flow : ${flow.name}</span>`:`<span style="font-size:12px;color:#c0392b">Pas de flow</span>`)
-          :(guide?`<span style="font-size:12px;color:var(--muted)">Guide : ${guide.name}</span>`:'');
+          ?(flow?`<span style="font-size:13px;color:var(--muted)">🌊 Flow : ${flow.name}</span>`:`<span style="font-size:13px;color:#c0392b">⚠ Pas de flow</span>`)
+          :(guide?`<span style="font-size:13px;color:var(--muted)">👤 Guide : ${guide.name}</span>`:'');
         const statusBadge=isMyGuide
-          ?`<span class="badge b-guide" style="margin-left:auto;background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ SÉANCE OK':'EN ATTENTE'}</span>`
-          :`<span class="badge ${isConf?'b-ok':'b-wait'}" style="margin-left:auto">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`;
+          ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ SÉANCE OK':'EN ATTENTE'}</span>`
+          :`<span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`;
         const confirmBtn=(!isConf&&!isMyGuide)
-          ?`<button class="btn btn-green btn-sm" onclick="event.stopPropagation();confirmSessAndMark('${s.id}')">✓</button>`
+          ?`<button class="btn btn-green" style="width:100%;padding:13px;font-size:14px;font-weight:900;min-height:50px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();confirmSessAndMark('${s.id}')">✔ CONFIRMER MA PRÉSENCE</button>`
           :'';
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'} ${roleClass}" style="cursor:pointer" onclick="openFlowEventModal_list('${s.id}')">
-          <span class="read-dot ${isSeen?'seen':'unseen'}" title="${isSeen?'Vu':'Nouveau'}"></span>
-          ${roleBadge}
-          <span style="font-weight:700;font-size:13px">${fmtDateFr(s.date)}</span>
-          <span style="color:var(--muted);font-size:12px">${ft(s.start_time)}–${ft(s.end_time)}</span>
-          <span class="${s.session_type==='freeflow'?'sess-badge-free':'sess-badge-guidee'}">${sessTypeLabel(s)}</span>
-          ${partnerLine}
-          ${statusBadge}
+        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'} ${roleClass}" style="cursor:pointer;padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)" onclick="openFlowEventModal_list('${s.id}')">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span class="read-dot ${isSeen?'seen':'unseen'}" title="${isSeen?'Vu':'Nouveau'}"></span>
+            ${roleBadge}
+            <span style="font-weight:700;font-size:14px">${fmtDateFr(s.date)}</span>
+            <span style="color:var(--text);font-size:16px;font-weight:900">${ft(s.start_time)}–${ft(s.end_time)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+            <span class="${s.session_type==='freeflow'?'sess-badge-free':'sess-badge-guidee'}">${sessTypeLabel(s)}</span>
+            ${statusBadge}
+          </div>
+          ${partnerLine?`<div style="margin-top:2px">${partnerLine}</div>`:''}
           ${confirmBtn}
-          <button class="btn btn-s btn-sm" onclick="event.stopPropagation();exportSessionToICal('${s.id}')" title="Exporter vers calendrier">📅</button>
+          <div style="margin-top:8px">
+            <button class="btn btn-s btn-sm" style="font-size:11px;padding:6px 12px" onclick="event.stopPropagation();exportSessionToICal('${s.id}')" title="Exporter vers calendrier">📅 Ajouter au calendrier</button>
+          </div>
         </div>`;
       }
     }).join('');
@@ -7060,6 +7252,60 @@ function renderFlowMonthCal() {
   const d0=S.flowCalMonth;
   document.getElementById('fcal-lbl').textContent=`${MONTHS[d0.getMonth()]} ${d0.getFullYear()}`;
   const uid=S.user.id;
+
+  // Vue mobile — liste des jours avec séances/shifts ce mois
+  const _mmMob=document.getElementById('flow-month-mobile-list');
+  if (_mmMob) {
+    const MOISN=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+    const DAYS7=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+    const todayStr=iso(new Date());
+    const mStart=iso(new Date(d0.getFullYear(),d0.getMonth(),1));
+    const mEnd=iso(new Date(d0.getFullYear(),d0.getMonth()+1,0));
+    const mySess=S.sessions.filter(s=>s.date>=mStart&&s.date<=mEnd&&(s.flow_id===uid||s.guide_id===uid)).sort((a,b)=>a.date.localeCompare(b.date)||a.start_time.localeCompare(b.start_time));
+    const myShiftsMo=(S.shifts||[]).filter(sh=>sh.date>=mStart&&sh.date<=mEnd&&sh.person_id===uid&&sh.assignment_published!==false).sort((a,b)=>a.date.localeCompare(b.date)||a.time_from.localeCompare(b.time_from));
+    const allDates=[...new Set([...mySess.map(s=>s.date),...myShiftsMo.map(sh=>sh.date)])].sort();
+    if (!allDates.length) {
+      _mmMob.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;font-style:italic">Aucune séance ni shift ce mois.</div>';
+    } else {
+      let html='<div style="display:flex;flex-direction:column;gap:10px;padding:2px 0">';
+      allDates.forEach(dStr=>{
+        const d=new Date(dStr+'T00:00:00');
+        const dayLabel=DAYS7[(d.getDay()+6)%7]+' '+d.getDate()+' '+MOISN[d.getMonth()];
+        const isToday=dStr===todayStr;
+        html+='<div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.10)">';
+        html+='<div style="padding:9px 14px;font-size:14px;font-weight:800;background:'+(isToday?'var(--bordeaux)':'#3a3530')+';color:#fff">'+dayLabel+'</div>';
+        html+='<div style="padding:8px 10px;background:var(--creme);display:flex;flex-direction:column;gap:7px">';
+        myShiftsMo.filter(sh=>sh.date===dStr).forEach(sh=>{
+          const isConf=sh.status==='confirmed';
+          const bg=isConf?'rgba(42,122,75,.90)':'rgba(170,90,0,.88)';
+          html+='<div style="background:'+bg+';color:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
+          html+='<div><div style="font-size:16px;font-weight:900">'+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div><div style="font-size:11px;font-weight:700;opacity:.85">SHIFT '+(isConf?'✓ Confirmé':'⏳ À confirmer')+'</div></div>';
+          if (!isConf) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#b06000;cursor:pointer;min-height:44px">✔</button>';
+          html+='</div>';
+        });
+        mySess.filter(s=>s.date===dStr).forEach(s=>{
+          const isMyGuide=s.guide_id===uid, isConf=s.status==='confirmed';
+          const isFree=s.session_type==='freeflow', isEv=isEventSess(s);
+          let gc;
+          if (isMyGuide) gc='rgba(108,20,18,.92)';
+          else if (isConf) gc='rgba(42,122,75,.90)';
+          else if (isFree) gc='rgba(122,88,40,.90)';
+          else if (isEv)  gc='rgba(192,100,26,.90)';
+          else gc='rgba(42,95,165,.90)';
+          const role=isMyGuide?'👤 GUIDE':('⚓ FLOW'+(isConf?' ✓':''));
+          html+='<div style="background:'+gc+';color:#fff;border-radius:8px;padding:10px 12px;cursor:pointer" onclick="openFlowEventModal_list(\''+s.id+'\')">';
+          html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">';
+          html+='<div style="font-size:16px;font-weight:900">'+s.start_time.slice(0,5)+'–'+s.end_time.slice(0,5)+'</div>';
+          html+='<div style="font-size:11px;font-weight:800;background:rgba(255,255,255,.22);padding:2px 7px;border-radius:6px">'+role+'</div>';
+          html+='</div></div>';
+        });
+        html+='</div></div>';
+      });
+      html+='</div>';
+      _mmMob.innerHTML=html;
+    }
+  }
+
   const grid=document.getElementById('flow-month-cal');
   grid.innerHTML='';
   DAYS.forEach(d=>{ const h=document.createElement('div'); h.className='mhdr'; h.textContent=d; grid.appendChild(h); });
