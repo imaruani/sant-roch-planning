@@ -4541,6 +4541,128 @@ async function saveFlowDisposV2() {
 }
 
 // ──────────────────────────────────────────────
+// FLOW : VUE SHIFTS — VERSION MOBILE (cartes empilées)
+// ──────────────────────────────────────────────
+function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
+  const DAYS7 = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const todayStr = iso(new Date());
+  let html = '<div style="display:flex;flex-direction:column;gap:16px;padding:4px 0">';
+
+  for (let d = 0; d < 7; d++) {
+    const day = addD(ws, d);
+    const dStr = iso(day);
+    const dayShifts = weekShifts.filter(sh => sh.date === dStr);
+    const daySess   = weekSess.filter(s => s.date === dStr);
+    if (!dayShifts.length && !daySess.length) continue;
+
+    const isToday = dStr === todayStr;
+    const dayLabel = DAYS7[d] + ' ' + String(day.getDate()).padStart(2,'0') + '/' + String(day.getMonth()+1).padStart(2,'0');
+
+    html += '<div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.10)">';
+    // En-tête jour
+    html += '<div style="padding:8px 14px;font-size:13px;font-weight:800;'
+      + 'background:' + (isToday ? 'var(--bordeaux)' : 'var(--beige-d)') + ';'
+      + 'color:' + (isToday ? '#fff' : 'var(--text)') + '">'
+      + dayLabel + (isToday ? ' — Aujourd\'hui' : '') + '</div>';
+
+    html += '<div style="padding:8px 10px;background:var(--creme);display:flex;flex-direction:column;gap:8px">';
+
+    // Séances du jour
+    daySess.forEach(s => {
+      const isFree = s.session_type === 'freeflow';
+      const isEv   = isEventSess(s);
+      const gc     = isFree ? '#7a6840' : isEv ? '#c0651a' : (s.guide_id ? guideColor(s.guide_id) : '#555');
+      const typeL  = isFree ? '☀ Freeflow' : isEv ? (s.event_name || 'Événement') : '👁 Guidée';
+      const guide  = s.guide_id ? (S.people||[]).find(p => p.id === s.guide_id) : null;
+      const guideName = guide ? guide.name.split(' ')[0] : '';
+      const tf = s.start_time ? s.start_time.slice(0,5) : '';
+      const tt = s.end_time   ? s.end_time.slice(0,5)   : '';
+      html += '<div style="background:' + gc + ';color:#fff;font-size:11px;font-weight:700;'
+        + 'padding:6px 10px;border-radius:6px;margin-bottom:4px">'
+        + typeL + (guideName ? ' · ' + guideName : '') + (tf ? ' · ' + tf + '–' + tt : '')
+        + '</div>';
+    });
+
+    // Shifts du jour
+    dayShifts.forEach(sh => {
+      const myAvail      = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === uid);
+      const myStatus     = myAvail ? (myAvail.available === true ? 'dispo' : myAvail.available === false ? 'nodispo' : 'reset') : 'reset';
+      const myNote       = myAvail ? (myAvail.note || null) : null;
+      const assignedToMe = sh.person_id === uid && sh.assignment_published !== false;
+      const isConfirmed  = sh.status === 'confirmed';
+
+      let shiftBg, shiftBorder;
+      if      (assignedToMe && isConfirmed) { shiftBg = 'rgba(42,122,75,.92)';  shiftBorder = '#1a5c38'; }
+      else if (assignedToMe)               { shiftBg = 'rgba(180,100,0,.90)';  shiftBorder = '#b06000'; }
+      else if (myStatus === 'dispo')       { shiftBg = 'rgba(0,135,115,.90)';  shiftBorder = '#007a68'; }
+      else if (myStatus === 'nodispo')     { shiftBg = 'rgba(180,40,40,.86)';  shiftBorder = '#b02020'; }
+      else                                 { shiftBg = 'rgba(100,95,95,.75)';  shiftBorder = '#7a7070'; }
+
+      const timeStr = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
+
+      html += '<div style="padding:10px 14px;border-radius:8px;margin-bottom:6px;'
+        + 'background:' + shiftBg + ';border-left:4px solid ' + shiftBorder + ';color:#fff">';
+
+      // Heure + statut
+      if (assignedToMe) {
+        html += '<div style="font-size:13px;font-weight:900">' + timeStr + '</div>';
+        html += '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.85);margin-top:2px">'
+          + (isConfirmed ? '✓ Shift confirmé' : '⏳ En attente de confirmation') + '</div>';
+        // Boutons assigné
+        html += '<div style="display:flex;gap:6px;margin-top:8px">';
+        if (!isConfirmed) {
+          html += '<button onclick="confirmShift(\'' + sh.id + '\')" '
+            + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:900;'
+            + 'background:rgba(255,255,255,.95);color:#b06000">✔ CONFIRMER</button>';
+        } else {
+          html += '<button onclick="unconfirmShift(\'' + sh.id + '\')" '
+            + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;'
+            + 'background:rgba(255,255,255,.15);color:rgba(255,255,255,.7)">↩ Annuler</button>';
+        }
+        html += '</div>';
+      } else {
+        const statusLabel = myStatus === 'dispo' ? '✓ Dispo déclarée' : myStatus === 'nodispo' ? '✗ Pas disponible' : 'En attente de ta réponse';
+        html += '<div style="font-size:13px;font-weight:900">' + timeStr + '</div>';
+        html += '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.8);margin-top:2px">' + statusLabel + '</div>';
+        // Note si pas dispo
+        if (myStatus === 'nodispo' && myNote) {
+          html += '<div style="background:rgba(0,0,0,.28);border-radius:3px;padding:3px 7px;font-size:11px;'
+            + 'color:rgba(255,200,200,.9);font-style:italic;margin-top:4px">📝 ' + myNote + '</div>';
+        }
+        // Boutons 3 états
+        html += '<div style="display:flex;gap:6px;margin-top:8px">';
+        const ndActive = myStatus === 'nodispo';
+        const dActive  = myStatus === 'dispo';
+        html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (ndActive ? 'reset' : 'nodispo') + '\')" '
+          + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:800;'
+          + 'background:' + (ndActive ? 'rgba(180,40,40,.95)' : 'rgba(255,255,255,.15)') + ';'
+          + 'color:' + (ndActive ? '#fff' : 'rgba(255,255,255,.8)') + '">✗ Pas dispo</button>';
+        html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (dActive ? 'reset' : 'dispo') + '\')" '
+          + 'style="flex:1;padding:7px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:800;'
+          + 'background:' + (dActive ? 'rgba(0,135,115,.95)' : 'rgba(255,255,255,.15)') + ';'
+          + 'color:' + (dActive ? '#fff' : 'rgba(255,255,255,.8)') + '">✓ Dispo</button>';
+        html += '</div>';
+        // Bouton note si pas dispo
+        if (myStatus === 'nodispo') {
+          html += '<button onclick="openShiftNote(\'' + sh.id + '\')" '
+            + 'style="width:100%;margin-top:4px;padding:6px;border-radius:6px;border:none;cursor:pointer;font-size:11px;font-weight:700;'
+            + 'background:rgba(255,255,255,.12);color:rgba(255,220,220,.9)">'
+            + (myNote ? '📝 Modifier ta note' : '📝 Laisser une note à l\'admin') + '</button>';
+        }
+      }
+
+      html += '</div>'; // fin carte shift
+    });
+
+    html += '</div>'; // fin contenu jour
+    html += '</div>'; // fin carte jour
+  }
+
+  html += '</div>'; // fin wrapper
+  container.innerHTML = html;
+}
+
+// ──────────────────────────────────────────────
 // FLOW : VUE SHIFTS (MES SHIFTS)
 // ──────────────────────────────────────────────
 function renderFlowShifts() {
@@ -4578,6 +4700,9 @@ function renderFlowShifts() {
     }
     return;
   }
+
+  const isMob = window.innerWidth <= 768;
+  if (isMob) { renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid); return; }
 
   const wrap = document.createElement('div');
   wrap.style.cssText = 'overflow-x:auto;-webkit-overflow-scrolling:touch';
