@@ -612,6 +612,11 @@ body.cut-mode .cren-col-hint{cursor:default}
 #flow-week-note-panel textarea{width:100%;min-height:120px;resize:vertical;border:1px solid var(--beige-d);border-radius:6px;padding:10px;font-family:var(--font);font-size:12px;line-height:1.5;color:var(--text);background:var(--creme);outline:none;box-sizing:border-box}
 #flow-week-note-panel textarea:focus{border-color:var(--bordeaux)}
 @media(max-width:768px){#fdm-shifts-inner{flex-direction:column}#flow-week-note-panel{width:100%;position:static}}
+/* Mobile : séances 36% gauche, shifts 64% droite */
+@media(max-width:768px){
+  .sess-split-sess{right:64%!important}
+  .sess-split-shift{left:36%!important}
+}
 </style>
 </head>
 <body>
@@ -2386,19 +2391,22 @@ function _sessInfo(s) {
 
 function _sessBlockHtml(s, topPx, hPx) {
   const { gc, guideP, flowP, typeL, tf, tt, durStr } = _sessInfo(s);
-  const row = (ico, txt) =>
-    `<div style="display:flex;align-items:flex-start;gap:3px;line-height:1.3">`
-    +`<span style="opacity:.7;flex-shrink:0">${ico}</span>`
-    +`<span style="word-break:break-word">${txt}</span></div>`;
-  let lines = `<div style="font-size:11px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:2px">${tf}–${tt}</div>`;
-  lines += `<div style="font-size:9px;color:rgba(255,255,255,.75);margin-bottom:3px">${durStr}</div>`;
-  lines += `<div style="font-size:9px;font-weight:700;color:#fff;margin-bottom:1px">${typeL}</div>`;
-  if (guideP) lines += row('👤', guideP.name);
-  if (flowP)  lines += row('🌊', flowP.name);
-  return `<div style="position:absolute;left:0;right:54%;top:${topPx}px;height:${hPx}px;`
-    +`background:${gc};border-right:2px solid rgba(255,255,255,.25);`
-    +`pointer-events:none;z-index:5;overflow:hidden;padding:4px 5px;box-sizing:border-box;`
-    +`display:flex;flex-direction:column;font-size:9px;color:rgba(255,255,255,.9)">${lines}</div>`;
+  // Adapte police + lignes selon hauteur disponible
+  // chaque ligne ~ 11px (font 8px * line-height 1.35) + padding 6px = environ 11px/ligne
+  const pad = 4; const lineH = 11;
+  const linesAvail = Math.floor((hPx - pad * 2) / lineH);
+  const fs = hPx < 30 ? 7 : hPx < 48 ? 8 : 9; // police adaptative
+  const lh = 1.3;
+  let lines = '';
+  // Ligne 1 toujours : heure (légèrement plus grande)
+  const fsTime = fs + 1;
+  lines += `<div style="font-size:${fsTime}px;font-weight:900;color:#fff;line-height:${lh};white-space:nowrap">${tf}–${tt}</div>`;
+  if (linesAvail >= 2) lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.75);line-height:${lh}">${durStr} · ${typeL}</div>`;
+  if (linesAvail >= 3 && guideP) lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh}">👤 ${guideP.name}</div>`;
+  if (linesAvail >= 4 && flowP)  lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.9);line-height:${lh}">🌊 ${flowP.name}</div>`;
+  return `<div class="sess-split-sess" style="position:absolute;left:0;right:54%;top:${topPx}px;height:${hPx}px;`
+    +`background:${gc};border-right:2px solid rgba(255,255,255,.2);`
+    +`pointer-events:none;z-index:5;overflow:hidden;padding:${pad}px 4px;box-sizing:border-box">${lines}</div>`;
 }
 
 // Version DOM
@@ -3413,7 +3421,7 @@ function renderDisposAdmin() {
 
       calHtml += '<div id="ds-sh-'+sh.id+'" '
         + 'onclick="adminToggleShiftDispo_picker(\''+sh.id+'\')" '
-        + 'style="position:absolute;left:46%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
+        + 'class="sess-split-shift" style="position:absolute;left:46%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
         + 'background:'+bg+';border-left:3px solid '+border+';border-radius:0 4px 4px 0;'
         + 'z-index:4;cursor:pointer;overflow:hidden;padding:3px 5px;box-shadow:0 1px 4px rgba(0,0,0,.2)">'
         + countBadge
@@ -4660,6 +4668,7 @@ function renderFlowShifts() {
       const covSess = weekSess.filter(s => s.date===dStr && t2m(s.start_time.slice(0,5))<shE && t2m(s.end_time.slice(0,5))>shS);
 
       const band = document.createElement('div');
+      band.className = 'sess-split-shift';
       band.style.cssText = 'position:absolute;left:46%;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
         +'background:'+shiftBg+';border-left:4px solid '+shiftBorder+';border-radius:0 6px 6px 0;'
         +'z-index:8;overflow:hidden;padding:5px 7px 5px 6px;box-shadow:0 2px 8px rgba(0,0,0,.25);'
@@ -5855,6 +5864,7 @@ function renderCreneauxGrid() {
       const bandEl=document.createElement('div');
       bandEl.className='cren-band';
       bandEl.style.cssText=`top:${topPx}px;height:${hPx}px;background:${color}`;
+      bandEl.classList.add('sess-split-shift');
       bandEl.style.left='46%'; bandEl.style.right='0'; bandEl.style.borderRadius='0 5px 5px 0';
 
       // Contenu interne
