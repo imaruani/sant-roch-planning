@@ -2383,10 +2383,9 @@ function buildSessBg(s, topPx, hPx) {
   const durStr = dMin >= 60 ? (dMin%60===0 ? dMin/60+'h' : Math.floor(dMin/60)+'h'+String(dMin%60).padStart(2,'0')) : dMin+'min';
 
   const el = document.createElement('div');
-  el.style.cssText = 'position:absolute;left:0;right:0;top:'+topPx+'px;height:'+hPx+'px;'
-    + 'border-left:5px solid '+gc+';background:'+gc+'cc;'   // cc = 80% opacité
-    + 'pointer-events:none;z-index:2;overflow:hidden;padding:3px 5px 3px 8px;box-sizing:border-box;'
-    + 'display:flex;flex-direction:column;justify-content:center;gap:1px';
+  el.style.cssText = 'position:absolute;left:0;right:56%;top:'+topPx+'px;height:'+hPx+'px;'
+    + 'border-left:5px solid '+gc+';background:'+gc+'dd;'   // dd = 90% opacité
+    + 'pointer-events:none;z-index:2;overflow:hidden;padding:3px 4px 3px 6px;box-sizing:border-box';
 
   let inner = '<div style="font-size:10px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'
     + 'text-shadow:0 1px 3px rgba(0,0,0,.5);line-height:1.2">'
@@ -2417,10 +2416,9 @@ function sessBgHtml(s, topPx, hPx) {
     + tf+'–'+tt+(hPx>=32?' <span style="opacity:.75;font-weight:600">('+durStr+')</span>':'')+'</div>';
   if (hPx >= 28) inner += '<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.4);line-height:1.2">'
     + typeL+(who?' · '+who:'')+'</div>';
-  return '<div style="position:absolute;left:0;right:0;top:'+topPx+'px;height:'+hPx+'px;'
-    +'border-left:5px solid '+gc+';background:'+gc+'cc;'
-    +'pointer-events:none;z-index:2;overflow:hidden;padding:3px 5px 3px 8px;box-sizing:border-box;'
-    +'display:flex;flex-direction:column;justify-content:center;gap:1px">'+inner+'</div>';
+  return '<div style="position:absolute;left:0;right:56%;top:'+topPx+'px;height:'+hPx+'px;'
+    +'border-left:5px solid '+gc+';background:'+gc+'dd;'
+    +'pointer-events:none;z-index:2;overflow:hidden;padding:3px 4px 3px 6px;box-sizing:border-box">'+inner+'</div>';
 }
 
 function buildEv(s) {
@@ -3423,7 +3421,7 @@ function renderDisposAdmin() {
 
       calHtml += '<div id="ds-sh-'+sh.id+'" '
         + 'onclick="adminToggleShiftDispo_picker(\''+sh.id+'\')" '
-        + 'style="position:absolute;left:2px;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
+        + 'style="position:absolute;left:44%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
         + 'background:'+bg+';border-left:3px solid '+border+';border-radius:0 4px 4px 0;'
         + 'z-index:4;cursor:pointer;overflow:hidden;padding:3px 5px;box-shadow:0 1px 4px rgba(0,0,0,.2)">'
         + countBadge
@@ -4670,7 +4668,7 @@ function renderFlowShifts() {
       const covSess = weekSess.filter(s => s.date===dStr && t2m(s.start_time.slice(0,5))<shE && t2m(s.end_time.slice(0,5))>shS);
 
       const band = document.createElement('div');
-      band.style.cssText = 'position:absolute;left:6px;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
+      band.style.cssText = 'position:absolute;left:44%;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
         +'background:'+shiftBg+';border-left:4px solid '+shiftBorder+';border-radius:0 6px 6px 0;'
         +'z-index:8;overflow:hidden;padding:5px 7px 5px 6px;box-shadow:0 2px 8px rgba(0,0,0,.25);'
         +'display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box';
@@ -5865,6 +5863,7 @@ function renderCreneauxGrid() {
       const bandEl=document.createElement('div');
       bandEl.className='cren-band';
       bandEl.style.cssText=`top:${topPx}px;height:${hPx}px;background:${color}`;
+      bandEl.style.left='44%'; bandEl.style.right='0'; bandEl.style.borderRadius='0 5px 5px 0';
 
       // Contenu interne
       const inner=document.createElement('div');
