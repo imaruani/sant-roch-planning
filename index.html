@@ -238,7 +238,8 @@ code{font-family:monospace;background:var(--beige);padding:1px 5px;font-size:12p
 
 /* ── MOBILE BOTTOM NAV (flow users only) ── */
 #mob-flow-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;height:64px;
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  min-height:64px;padding-bottom:env(safe-area-inset-bottom);
   background:#fff;border-top:1px solid var(--beige-d);
   box-shadow:0 -3px 12px rgba(0,0,0,.1);z-index:300;
 }
@@ -261,7 +262,14 @@ body.flow-mode #mob-flow-nav{display:flex}
   #hdr{height:48px;padding:0 14px}
   #hdr h1{font-size:14px;letter-spacing:.03em}
   #mode-badge{display:none}
-  #main{padding:10px 10px 78px}/* padding-bottom pour bottom nav */
+  /* padding-bottom = bottom-nav (64px) + safe-area iPhone + marge */
+  #main{padding:10px 10px calc(80px + env(safe-area-inset-bottom))}
+
+  /* Toasts au-dessus du bottom nav en mode flow */
+  body.flow-mode #toasts{bottom:calc(80px + env(safe-area-inset-bottom));z-index:9999}
+
+  /* Modal : utiliser dvh pour gérer le clavier iOS qui pousse */
+  .modal{max-height:92dvh!important;max-height:92vh}
 
   /* Masquer les tabs top en mode flow (remplacés par bottom nav) */
   body.flow-mode .tabs{display:none}
@@ -353,17 +361,18 @@ body.flow-mode #mob-flow-nav{display:flex}
   /* Légende états : masquée sur mobile (économie d'espace, info dans les cartes) */
   #fp-planning-legend,#fp-global-legend{display:none!important}
 
-  /* Confirmation batch : CTA full-width et touch-friendly */
-  .confirm-batch .btn-green{width:100%;padding:16px;font-size:15px;font-weight:900;border-radius:6px;min-height:52px}
-  .confirm-batch .btn-g{width:100%;padding:12px;font-size:12px;min-height:44px}
-  .confirm-batch > div:first-child{flex-direction:column;align-items:stretch}
-  .confirm-batch > div:first-child h3{text-align:center;font-size:14px}
-  .confirm-batch > div:first-child > div{flex-direction:column;gap:8px}
-  .confirm-item{padding:10px 2px;gap:8px}
-  .confirm-item .btn-green.btn-sm{min-height:44px;padding:10px 14px;font-size:12px}
-
+  /* ── Confirmation batch : ULTRA-COMPACT sur mobile (avant : ~280px → après : ~110px) ── */
+  .confirm-batch{padding:12px 14px;border-radius:10px}
+  .confirm-batch h3{font-size:13px;margin-bottom:8px}
+  .confirm-batch > div:first-child{flex-direction:column;align-items:stretch;margin-bottom:8px;gap:6px}
+  .confirm-batch > div:first-child > div{flex-direction:column;gap:6px;width:100%}
+  .confirm-batch .btn-green{width:100%;padding:14px;font-size:15px;font-weight:900;border-radius:7px;min-height:50px}
+  .confirm-batch .btn-g.btn-sm,.confirm-batch button.btn-g{display:none}/* "Sélection manuelle" + "Confirmer sélection" cachés sur mobile (TOUT CONFIRMER suffit) */
+  #confirm-list{display:none}/* détail liste caché ; le bouton TOUT CONFIRMER suffit */
   /* Notifs shifts : bouton confirmer touch-friendly */
-  .notif-card button[onclick*="confirmShift"]{min-height:44px!important;padding:10px 14px!important;font-size:12px!important}
+  .notif-card{padding:10px 12px;border-radius:8px;margin-bottom:8px}
+  .notif-card h4{font-size:13px;margin-bottom:6px}
+  .notif-card button[onclick*="confirmShift"]{min-height:44px!important;padding:9px 12px!important;font-size:12px!important;border-radius:6px}
 
   /* Vue liste séances : cards mobiles empilées */
   #fpv-list-wrap .flow-sess-row{
@@ -655,6 +664,12 @@ body.cut-mode .cren-col-hint{cursor:default}
   /* Séances 36% gauche, shifts 64% droite sur mobile */
   .sess-split-sess{right:64%!important}
   .sess-split-shift{left:36%!important}
+  /* Word-break sur noms longs dans cards mobile */
+  .flow-mob-only [style*="font-weight:900"],
+  .flow-mob-only [style*="font-weight:800"],
+  .flow-mob-only div{word-break:break-word;overflow-wrap:break-word}
+  /* Toujours laisser respirer les boutons tactiles */
+  .flow-mob-only button{-webkit-tap-highlight-color:rgba(108,20,18,.15);touch-action:manipulation}
 }
 </style>
 </head>
@@ -2334,7 +2349,10 @@ function ftab(t) {
     if(mb) mb.classList.toggle('on', x===t);
   });
   if (t==='planning') {
-    if (!S.flowPlanMode) S.flowPlanMode= window.innerWidth<=768 ? 'list' : 'cal';
+    // Sur mobile : toujours forcer le mode "list" (cards verticales, lisibles) à l'ouverture
+    const isMob = window.matchMedia('(max-width:768px)').matches;
+    if (isMob) S.flowPlanMode = 'list';
+    else if (!S.flowPlanMode) S.flowPlanMode = 'cal';
     flowPlanView(S.flowPlanMode);
   }
   if (t==='dispos') flowDispoMode(S._flowDispoMode||'shifts');
@@ -6346,6 +6364,39 @@ async function saveFlowDispos() {
   }
 }
 
+// ──────────────────────────────────────────────
+// CONFIRM BATCH — extrait, appelé depuis toutes les vues planning
+// ──────────────────────────────────────────────
+function renderConfirmBatch() {
+  const uid = S.user?.id; if (!uid) return;
+  const wrap = document.getElementById('confirm-batch-wrap');
+  if (!wrap) return;
+  const allPending = S.sessions.filter(s => s.flow_id===uid && s.status!=='confirmed' && s.date>=iso(new Date()));
+  if (!allPending.length) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  // Layout compact mobile = 1 ligne + bouton "TOUT CONFIRMER" plein écran
+  // Layout desktop = liste détaillée
+  const list = document.getElementById('confirm-list');
+  if (list) {
+    list.innerHTML = allPending.map(s => {
+      const isFreeS = s.session_type==='freeflow';
+      const typeIcon = isFreeS ? '' : '🧘';
+      const typeLabel = isFreeS ? 'Freeflow' : 'Séance guidée';
+      return `<div class="confirm-item">
+        <label class="chk" style="flex:1;text-transform:none;font-weight:normal;font-size:13px">
+          <input type="checkbox" class="confirm-chk" data-id="${s.id}" style="accent-color:var(--green)">
+          <span class="confirm-dot dot-proposed" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
+          <span>${typeIcon} <strong>${typeLabel}</strong> — ${fmtDateFr(s.date)}, ${ft(s.start_time)}–${ft(s.end_time)}</span>
+        </label>
+        <button class="btn btn-green btn-sm" onclick="confirmSess('${s.id}')">✓</button>
+      </div>`;
+    }).join('');
+  }
+  // MAJ du compteur sur le bouton principal
+  const allBtn = wrap.querySelector('button[onclick*="confirmAllPending"]');
+  if (allBtn) allBtn.innerHTML = `✓ TOUT CONFIRMER (${allPending.length})`;
+}
+
 function renderFlowCal() {
   const ws=S.flowCalWeek, we=addD(ws,6);
   const isPub=isWeekPublished(iso(ws));
@@ -6356,25 +6407,8 @@ function renderFlowCal() {
   // Séances sans flow (je pourrais prendre)
   const open=S.sessions.filter(s=>s.date>=iso(ws)&&s.date<=iso(we)&&!s.flow_id);
 
-  // Batch confirmation — TOUTES les séances non confirmées assignées à moi (pas juste la semaine)
-  const allPending=S.sessions.filter(s=>s.flow_id===uid&&s.status!=='confirmed'&&s.date>=iso(new Date()));
-  const wrap=document.getElementById('confirm-batch-wrap');
-  if (allPending.length>0) {
-    wrap.classList.remove('hidden');
-    document.getElementById('confirm-list').innerHTML=allPending.map(s=>{
-      const isFreeS=s.session_type==='freeflow';
-      const typeIcon=isFreeS?'':'🧘';
-      const typeLabel=isFreeS?'Freeflow':'Séance guidée';
-      return `
-      <div class="confirm-item">
-        <label class="chk" style="flex:1;text-transform:none;font-weight:normal;font-size:13px">
-          <input type="checkbox" class="confirm-chk" data-id="${s.id}" style="accent-color:var(--green)">
-          <span class="confirm-dot dot-proposed" style="width:10px;height:10px;border-radius:50%;flex-shrink:0"></span>
-          <span>${typeIcon} <strong>${typeLabel}</strong> — ${fmtDateFr(s.date)}, ${ft(s.start_time)}–${ft(s.end_time)}</span>
-        </label>
-        <button class="btn btn-green btn-sm" onclick="confirmSess('${s.id}')">✓</button>
-      </div>`;}).join('');
-  } else { wrap.classList.add('hidden'); }
+  // Batch confirmation (extrait dans renderConfirmBatch — appelé depuis toutes les vues)
+  renderConfirmBatch();
 
   // Calendrier
   const cal=document.getElementById('flow-cal'); cal.innerHTML='';
@@ -6927,11 +6961,17 @@ async function confirmChecked() {
 async function confirmAllPending() {
   const uid=S.user.id;
   const pending=S.sessions.filter(s=>s.flow_id===uid&&s.status!=='confirmed');
+  if (!pending.length) { toast('Rien à confirmer','info'); return; }
   for (const s of pending) {
     await API.patch('sessions',s.id,{status:'confirmed'}).catch(()=>{});
     s.status='confirmed';
   }
-  renderFlowCal(); toast(`${pending.length} séance(s) confirmée(s) ✓`,'ok');
+  // Refresh toutes les vues planning (mobile + desktop, peu importe mode actif)
+  renderConfirmBatch();
+  renderFlowCal();
+  renderFlowSessionsList();
+  renderFlowNotifs();
+  toast(`✓ ${pending.length} séance(s) confirmée(s)`,'ok');
 }
 
 function renderFlowNotifs() {
@@ -7122,6 +7162,7 @@ function setFlowListPeriod(p) {
 }
 
 function renderFlowSessionsList() {
+  renderConfirmBatch();
   const uid=S.user.id;
   const period=S.flowListPeriod||'all';
   const nowStr=iso(new Date());
@@ -7154,7 +7195,18 @@ function renderFlowSessionsList() {
 
   const div=document.getElementById('flow-sessions-list');
   if (!items.length) {
-    div.innerHTML='<div class="text-muted text-sm" style="padding:20px;text-align:center">Aucune séance ni shift pour cette période.</div>';
+    // Empty state plus utile : suggérer d'aller renseigner les dispos
+    const hasDispo = (S.shiftAvails||[]).some(a=>a.person_id===uid && a.available);
+    div.innerHTML = '<div style="padding:32px 20px;text-align:center;background:var(--white);border-radius:12px;border:1px solid var(--beige);box-shadow:0 2px 8px rgba(0,0,0,.06)">'
+      + '<div style="font-size:42px;margin-bottom:8px">📅</div>'
+      + '<div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px">Aucune séance ni shift pour le moment</div>'
+      + '<div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:16px">'
+      + (hasDispo
+          ? "L'admin n'a encore rien assigné. Tu seras notifié(e) dès qu'une séance ou un shift te sera attribué."
+          : "Tu n'as pas encore renseigné tes disponibilités. Sans dispos, l'admin ne peut pas t'assigner.")
+      + '</div>'
+      + (hasDispo ? '' : '<button class="btn btn-p" style="padding:13px 22px;font-size:13px;font-weight:800;min-height:48px;border-radius:7px" onclick="ftab(\'dispos\')">📋 Renseigner mes dispos</button>')
+      + '</div>';
     return;
   }
 
@@ -7248,6 +7300,7 @@ function renderFlowSessionsList() {
 
 // ── VUE MOIS MON PLANNING ──
 function renderFlowMonthCal() {
+  renderConfirmBatch();
   if (!S.flowCalMonth) S.flowCalMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
   const d0=S.flowCalMonth;
   document.getElementById('fcal-lbl').textContent=`${MONTHS[d0.getMonth()]} ${d0.getFullYear()}`;
@@ -7808,6 +7861,20 @@ window.addEventListener('DOMContentLoaded',()=>{
   initLogin();
   document.querySelectorAll('.mo').forEach(o=>{
     o.addEventListener('click',e=>{ if(e.target===o) o.classList.add('hidden'); });
+  });
+  // Sur rotation device : si flow user sur mobile en mode planning, re-render pour basculer mobile/desktop
+  let _resizeT;
+  window.addEventListener('resize',()=>{
+    clearTimeout(_resizeT);
+    _resizeT=setTimeout(()=>{
+      if (!S.user || !document.body.classList.contains('flow-mode')) return;
+      const onPlan=document.getElementById('fp-planning')?.classList.contains('on');
+      const onDispos=document.getElementById('fp-dispos')?.classList.contains('on');
+      const onGlobal=document.getElementById('fp-global')?.classList.contains('on');
+      if (onPlan) flowPlanView(S.flowPlanMode||'cal');
+      else if (onDispos) flowDispoMode(S._flowDispoMode||'shifts');
+      else if (onGlobal) renderGlobalCal();
+    },220);
   });
 });
 </script>
