@@ -2371,7 +2371,7 @@ function renderCal() {
 // ──────────────────────────────────────────────
 // CALENDRIER SEMAINE
 // ──────────────────────────────────────────────
-const CAL_S=8, CAL_E=24, SH=48; // hauteur 1h en px (4 slots × 12px)
+const CAL_S=7, CAL_E=24, SH=48; // hauteur 1h en px (4 slots × 12px)
 const SLOT_MIN=15; // granularité calendrier en minutes
 const SLOT_H=SH*(SLOT_MIN/60); // hauteur d'un slot en px = 12
 
@@ -3080,7 +3080,7 @@ async function deletePerson() {
 // ──────────────────────────────────────────────
 // GRILLE DISPOS COMMUNE
 // ──────────────────────────────────────────────
-const DS=8, DE=24;
+const DS=7, DE=24;
 // Variable drag partagée entre les deux grilles — un seul mouseup global
 let _gridDragging = false;
 document.addEventListener('mouseup', () => { _gridDragging = false; });
@@ -4724,7 +4724,7 @@ function renderFlowShifts() {
 
   const uid = S.user.id;
   const DAYS7 = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  const CAL_SF = 8, CAL_EF = 23, slotH = 34;
+  const CAL_SF = 7, CAL_EF = 23, slotH = 34;
   const gridH = (CAL_EF - CAL_SF) * 2 * slotH;
   const weekShifts = (S.shifts||[]).filter(sh => sh.date >= iso(ws) && sh.date <= iso(we));
   const weekSess   = (S.sessions||[]).filter(s  => s.date  >= iso(ws) && s.date  <= iso(we));
@@ -5520,7 +5520,7 @@ function _populateShiftTimeSel(selId, selectedMin) {
   const sel = document.getElementById(selId);
   if (!sel) return;
   sel.innerHTML = '';
-  for (let m = DS*60; m <= DE*60; m += 30) {
+  for (let m = DS*60; m <= DE*60; m += 15) {
     const opt = document.createElement('option');
     opt.value = m;
     opt.textContent = m2t(m);
@@ -5533,7 +5533,7 @@ function _populateShiftSplitSel(fromMin, toMin, selectedMin) {
   const sel = document.getElementById('sh-split-time');
   if (!sel) return;
   sel.innerHTML = '';
-  for (let m = fromMin + 30; m <= toMin - 30; m += 30) {
+  for (let m = fromMin + 15; m <= toMin - 15; m += 15) {
     const opt = document.createElement('option');
     opt.value = m;
     opt.textContent = m2t(m);
@@ -5560,8 +5560,8 @@ function onShiftTimeChange() {
   // Update split select if visible
   const splitSection = document.getElementById('sh-split-section');
   if (splitSection && !splitSection.classList.contains('hidden') && (toMin - fromMin) >= 60) {
-    const mid = Math.round((fromMin + toMin) / 2 / 30) * 30;
-    const clampedMid = Math.max(fromMin + 30, Math.min(toMin - 30, mid));
+    const mid = Math.round((fromMin + toMin) / 2 / 15) * 15;
+    const clampedMid = Math.max(fromMin + 15, Math.min(toMin - 15, mid));
     _populateShiftSplitSel(fromMin, toMin, clampedMid);
     updateShiftSplitPreview();
   }
@@ -5613,8 +5613,8 @@ function openShiftModal(shiftId, dStr, fromMin, toMin) {
   if (splitSection) {
     if (isEdit && dur >= 60) {
       splitSection.classList.remove('hidden');
-      const mid = Math.round((fm + tm) / 2 / 30) * 30;
-      const clampedMid = Math.max(fm + 30, Math.min(tm - 30, mid));
+      const mid = Math.round((fm + tm) / 2 / 15) * 15;
+      const clampedMid = Math.max(fm + 15, Math.min(tm - 15, mid));
       _populateShiftSplitSel(fm, tm, clampedMid);
       updateShiftSplitPreview();
     } else {
@@ -5674,7 +5674,7 @@ async function saveShift() {
   if (!dateVal)                   { toast('Date requise', 'err'); return; }
   if (isNaN(fromMin)||isNaN(toMin))  { toast('Horaires requis', 'err'); return; }
   if (toMin <= fromMin)              { toast('La fin doit être après le début', 'err'); return; }
-  if (toMin - fromMin < 30)          { toast('Le shift doit durer au moins 30 min', 'err'); return; }
+  if (toMin - fromMin < 15)          { toast('Le shift doit durer au moins 15 min', 'err'); return; }
 
   const personId = document.getElementById('sh-assign-person')?.value || null;
   const body = { date: dateVal, time_from: m2t(fromMin)+':00', time_to: m2t(toMin)+':00' };
@@ -5744,7 +5744,7 @@ async function splitShiftFromModal() {
     return;
   }
   if (splitMin - fromMin < 30 || toMin - splitMin < 30) {
-    toast('Chaque partie doit durer au moins 30 min', 'err');
+    toast('Chaque partie doit durer au moins 15 min', 'err');
     return;
   }
 
@@ -5813,7 +5813,7 @@ async function quickCutShift(shiftId) {
   const fromMin = t2m(sh.time_from.slice(0,5));
   const toMin   = t2m(sh.time_to.slice(0,5));
   if (toMin - fromMin < 60) { toast('Shift trop court pour être coupé', 'err'); return; }
-  const splitMin  = Math.max(fromMin + 30, Math.min(toMin - 30, Math.round((fromMin + toMin) / 2 / 30) * 30));
+  const splitMin  = Math.max(fromMin + 15, Math.min(toMin - 15, Math.round((fromMin + toMin) / 2 / 15) * 15));
   const splitTime = m2t(splitMin) + ':00';
   const origEnd   = sh.time_to;
   try {
@@ -5854,7 +5854,7 @@ function _crenMouseMove(e) {
     const minS = Math.min(_crenDrag.startSlot, endSlot), maxS = Math.max(_crenDrag.startSlot, endSlot);
     previewEl.style.top    = (minS * slotH) + 'px';
     previewEl.style.height = ((maxS - minS + 1) * slotH) + 'px';
-    previewEl.textContent  = `${m2t(startH*60+minS*30)} – ${m2t(startH*60+(maxS+1)*30)}`;
+    previewEl.textContent  = `${m2t(startH*60+minS*15)} – ${m2t(startH*60+(maxS+1)*15)}`;
   }
   else if (type === 'move') {
     const rawY = e.clientY - rect.top - _crenDrag.grabOffset;
@@ -5866,8 +5866,8 @@ function _crenMouseMove(e) {
     }
     const topPx = startSlot * slotH;
     previewEl.style.top = topPx + 'px';
-    const fromMin = startH*60 + startSlot*30;
-    previewEl.textContent = `${m2t(fromMin)} – ${m2t(fromMin + _crenDrag.durSlots*30)}`;
+    const fromMin = startH*60 + startSlot*15;
+    previewEl.textContent = `${m2t(fromMin)} – ${m2t(fromMin + _crenDrag.durSlots*15)}`;
   }
   else if (type === 'resize') {
     const relY = e.clientY - rect.top;
@@ -5877,7 +5877,7 @@ function _crenMouseMove(e) {
       _crenIgnoreClick = true;
     }
     previewEl.style.height = ((endSlot - _crenDrag.fromSlot + 1) * slotH) + 'px';
-    previewEl.textContent  = `${m2t(startH*60+_crenDrag.fromSlot*30)} – ${m2t(startH*60+(endSlot+1)*30)}`;
+    previewEl.textContent  = `${m2t(startH*60+_crenDrag.fromSlot*15)} – ${m2t(startH*60+(endSlot+1)*15)}`;
   }
 }
 
@@ -5894,7 +5894,7 @@ async function _crenMouseUp() {
     _crenDrag = null;
     const minS = Math.min(startSlot, endSlot ?? startSlot);
     const maxS = Math.max(startSlot, endSlot ?? startSlot);
-    openShiftModal(null, dStr, startH*60 + minS*30, startH*60 + (maxS+1)*30);
+    openShiftModal(null, dStr, startH*60 + minS*15, startH*60 + (maxS+1)*15);
   }
   else if (type === 'move') {
     const { shiftId, curStart, durSlots } = _crenDrag;
@@ -5902,8 +5902,8 @@ async function _crenMouseUp() {
     if (!_crenIgnoreClick) return;
     const sh = (S.shifts||[]).find(s=>s.id===shiftId);
     const prevFrom = sh?.time_from, prevTo = sh?.time_to;
-    const fromMin = startH*60 + curStart*30;
-    const toMin   = fromMin + durSlots*30;
+    const fromMin = startH*60 + curStart*15;
+    const toMin   = fromMin + durSlots*15;
     await API.patch('shifts', shiftId, { time_from: m2t(fromMin)+':00', time_to: m2t(toMin)+':00' });
     if (sh) { sh.time_from = m2t(fromMin)+':00'; sh.time_to = m2t(toMin)+':00'; }
     renderCreneauxGrid();
@@ -5919,7 +5919,7 @@ async function _crenMouseUp() {
     if (!_crenIgnoreClick) return;
     const sh = (S.shifts||[]).find(s=>s.id===shiftId);
     const prevTo = sh?.time_to;
-    const toMin = startH*60 + (curEnd+1)*30;
+    const toMin = startH*60 + (curEnd+1)*15;
     await API.patch('shifts', shiftId, { time_to: m2t(toMin)+':00' });
     if (sh) sh.time_to = m2t(toMin)+':00';
     renderCreneauxGrid();
@@ -5947,7 +5947,7 @@ function renderCreneauxGrid() {
   if (!container) return;
   container.innerHTML = '';
 
-  const startH = DS, endH = DE, totalSlots = (endH - startH) * 2, slotH = 24;
+  const startH = DS, endH = DE, totalSlots = (endH - startH) * 4, slotH = 12; // 15min slots
   const DAYS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
   const wrap = document.createElement('div');
@@ -5976,8 +5976,8 @@ function renderCreneauxGrid() {
   tcol.style.cssText = 'grid-row:2;grid-column:1;background:var(--creme);border-right:1px solid var(--beige-d)';
   for (let s = 0; s < totalSlots; s++) {
     const lbl2 = document.createElement('div'); lbl2.className = 'cren-hlbl';
-    const h = startH + Math.floor(s/2), m = (s%2)*30;
-    lbl2.textContent = m===0 ? `${String(h).padStart(2,'0')}h` : '';
+    const h = startH + Math.floor(s/4), m = (s%4)*15;
+    lbl2.textContent = m===0 ? `${String(h).padStart(2,'0')}h` : (m===30 ? '·' : '');
     tcol.appendChild(lbl2);
   }
   grid.appendChild(tcol);
@@ -5998,8 +5998,8 @@ function renderCreneauxGrid() {
 
     // Séances en fond — wash + label flottant
     (S.sessions||[]).filter(s=>s.date===dStr).forEach(s=>{
-      const topPx=(t2m(s.start_time.slice(0,5))-startH*60)/30*slotH;
-      const hPx=Math.max((t2m(s.end_time.slice(0,5))-t2m(s.start_time.slice(0,5)))/30*slotH, 20);
+      const topPx=(t2m(s.start_time.slice(0,5))-startH*60)/15*slotH;
+      const hPx=Math.max((t2m(s.end_time.slice(0,5))-t2m(s.start_time.slice(0,5)))/15*slotH, 20);
       appendSessBg(col, s, topPx, hPx);
     });
 
@@ -6015,7 +6015,7 @@ function renderCreneauxGrid() {
       const previewEl=document.createElement('div');
       previewEl.className='cren-band-preview';
       previewEl.style.cssText=`top:${startSlot*slotH}px;height:${slotH}px;background:var(--bordeaux)`;
-      previewEl.textContent=m2t(startH*60+startSlot*30);
+      previewEl.textContent=m2t(startH*60+startSlot*15);
       col.appendChild(previewEl);
       _crenDrag={type:'create',col,dStr,startSlot,endSlot:startSlot,slotH,totalSlots,startH,previewEl};
       window.addEventListener('mousemove',_crenMouseMove);
@@ -6027,9 +6027,9 @@ function renderCreneauxGrid() {
     getShiftsForDate(dStr).forEach(sh => {
       const fromMin=t2m(sh.time_from.slice(0,5));
       const toMin=t2m(sh.time_to.slice(0,5));
-      const topPx=(fromMin-startH*60)/30*slotH;
-      const hPx=Math.max((toMin-fromMin)/30*slotH, 32);
-      const durSlots=(toMin-fromMin)/30;
+      const topPx=(fromMin-startH*60)/15*slotH;
+      const hPx=Math.max((toMin-fromMin)/15*slotH, 32);
+      const durSlots=(toMin-fromMin)/15;
       const assigned=sh.person_id?(S.people||[]).find(p=>p.id===sh.person_id):null;
       const shAvails=(S.shiftAvails||[]).filter(a=>a.shift_id===sh.id);
       const dispoNames=shAvails.filter(a=>a.available).map(a=>{const p=(S.people||[]).find(x=>x.id===a.person_id);return p?.name.split(' ')[0]||'';}).filter(Boolean);
