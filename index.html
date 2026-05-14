@@ -1039,11 +1039,11 @@ function btnLoading(btn, loading) {
 // ──────────────────────────────────────────────
 // MODALS
 // ──────────────────────────────────────────────
-// Stub email — à remplacer par une vraie intégration (ex: Resend, EmailJS)
-// sendEmail : non configuré par défaut.
-// Pour activer EmailJS : ajouter <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+// Stub email - a remplacer par une vraie integration (ex: Resend, EmailJS)
+// sendEmail : non configure par defaut.
+// Pour activer EmailJS : ajouter le tag script EmailJS dans le HTML,
 // puis renseigner CFG.EMAILJS = { serviceId, templateId, publicKey } dans le config.
-// Fallback : log local + (optionnel) mailto: si admin a explicitement activé l'ouverture mail client.
+// Fallback : log local + (optionnel) mailto si admin a explicitement active l'ouverture mail client.
 async function sendEmail(to, name, data) {
   // Log in-app pour transparence (debug & audit)
   S._emailLog = S._emailLog || [];
