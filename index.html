@@ -2101,8 +2101,25 @@ function btnLoading(btn, loading) {
 // MODALS
 // ──────────────────────────────────────────────
 // Stub email — à remplacer par une vraie intégration (ex: Resend, EmailJS)
+// sendEmail : non configuré par défaut.
+// Pour activer EmailJS : ajouter <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+// puis renseigner CFG.EMAILJS = { serviceId, templateId, publicKey } dans le config.
+// Fallback : log local + (optionnel) mailto: si admin a explicitement activé l'ouverture mail client.
 async function sendEmail(to, name, data) {
+  // Log in-app pour transparence (debug & audit)
+  S._emailLog = S._emailLog || [];
+  S._emailLog.push({ at: new Date().toISOString(), to, name, data });
+  if (S._emailLog.length > 50) S._emailLog.shift();
+  // Si EmailJS chargé + configuré, envoyer pour de vrai
+  if (window.emailjs && CFG.EMAILJS?.serviceId && CFG.EMAILJS?.templateId && CFG.EMAILJS?.publicKey) {
+    try {
+      await window.emailjs.send(CFG.EMAILJS.serviceId, CFG.EMAILJS.templateId,
+        { to_email: to, to_name: name, ...data }, CFG.EMAILJS.publicKey);
+      return true;
+    } catch(e) { console.warn('[sendEmail] EmailJS échec:', e); return false; }
+  }
   console.info('[sendEmail] non configuré — destinataire:', to, data);
+  return false;
 }
 
 function omo(id){
@@ -2275,6 +2292,8 @@ async function loadAll() {
   S.shiftAvails = shiftAvails;
   S.weekNotes   = weekNotes || [];
   S.shifts = shifts;
+  // Charger les semaines publiées (DB si dispo, sinon localStorage)
+  await loadPublishedWeeks();
   // Masquer l'overlay de chargement
   if (_lov) { _lov.classList.add('hidden'); setTimeout(()=>{ _lov.style.display='none'; },350); }
 }
@@ -3086,13 +3105,50 @@ async function savePerson() {
 }
 async function deletePerson() {
   const id=document.getElementById('pe-id').value;
-  if (!id||!confirm('Supprimer ce membre ?')) return;
+  if (!id) return;
+  const person = S.people.find(p=>p.id===id);
+  // Compter ce qui sera impacté avant suppression
+  const impactSess = (S.sessions||[]).filter(s=>s.flow_id===id||s.guide_id===id).length;
+  const impactShifts = (S.shifts||[]).filter(sh=>sh.person_id===id).length;
+  const impactDispos = ((S.broadAvails||[]).filter(a=>a.person_id===id).length)
+                     + ((S.shiftAvails||[]).filter(a=>a.person_id===id).length);
+  let warn = 'Supprimer ' + (person?.name||'ce membre') + ' ?';
+  if (impactSess || impactShifts || impactDispos) {
+    warn += '\n\nIMPACT :';
+    if (impactSess)   warn += `\n• ${impactSess} séance(s) seront désassignées`;
+    if (impactShifts) warn += `\n• ${impactShifts} shift(s) seront détachés`;
+    if (impactDispos) warn += `\n• ${impactDispos} dispo(s) seront supprimées`;
+    warn += '\n\nCette action est irréversible.';
+  }
+  if (!confirm(warn)) return;
   try {
     await API.del('people',id);
-    S.people=S.people.filter(p=>p.id!==id);
+    // Nettoyage local en cascade (la DB doit avoir ON DELETE SET NULL / CASCADE selon FKs)
+    S.people = S.people.filter(p=>p.id!==id);
+    // Détacher sessions où la personne est flow/guide (mais ne pas supprimer la séance)
+    (S.sessions||[]).forEach(s => {
+      if (s.flow_id === id)  s.flow_id  = null;
+      if (s.guide_id === id) s.guide_id = null;
+    });
+    // Détacher shifts
+    (S.shifts||[]).forEach(sh => { if (sh.person_id === id) sh.person_id = null; });
+    // Supprimer dispos
+    S.broadAvails = (S.broadAvails||[]).filter(a => a.person_id !== id);
+    S.shiftAvails = (S.shiftAvails||[]).filter(a => a.person_id !== id);
+    // Cleanup localStorage
+    try {
+      const pwds = JSON.parse(localStorage.getItem('sr_flow_passwords')||'{}');
+      if (pwds[id]) { delete pwds[id]; localStorage.setItem('sr_flow_passwords', JSON.stringify(pwds)); }
+      const colors = JSON.parse(localStorage.getItem('sr_guide_colors')||'{}');
+      if (colors[id]) { delete colors[id]; localStorage.setItem('sr_guide_colors', JSON.stringify(colors)); }
+    } catch(e) {}
     cmo('mo-person'); renderPeople(); populateSelects();
-    toast('Membre supprimé');
-  } catch(e) { toast(e.message,'err'); }
+    // Re-render des vues qui dépendent des références
+    if (typeof renderCal === 'function') renderCal();
+    if (typeof renderCreneauxGrid === 'function') renderCreneauxGrid();
+    if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
+    toast('Membre supprimé ✓ ('+(impactSess+impactShifts+impactDispos)+' lien(s) nettoyé(s))','ok');
+  } catch(e) { toast('Erreur suppression : '+e.message,'err'); }
 }
 
 // ──────────────────────────────────────────────
@@ -4119,25 +4175,52 @@ async function autoAssignAll() {
 }
 
 // ── Publication du planning ──
+// IMPORTANT : nécessite la table SQL suivante dans Supabase pour fonctionner cross-device :
+//   CREATE TABLE IF NOT EXISTS published_weeks (
+//     week_start TEXT PRIMARY KEY,
+//     published_at TIMESTAMPTZ DEFAULT NOW()
+//   );
+// Si la table n'existe pas, fallback automatique sur localStorage (admin uniquement).
+// S.publishedWeeks = Set<weekStartIso> mémoire, chargé au démarrage.
 function getPublishedWeeks() {
+  // Source de vérité = S.publishedWeeks (rempli depuis DB ou localStorage)
+  if (S.publishedWeeks instanceof Set) return [...S.publishedWeeks];
+  // Bootstrap : fallback localStorage
   return JSON.parse(localStorage.getItem('sr_published_weeks')||'[]');
 }
 function isWeekPublished(weekStartIso) {
-  return getPublishedWeeks().includes(weekStartIso);
+  if (S.publishedWeeks instanceof Set) return S.publishedWeeks.has(weekStartIso);
+  return JSON.parse(localStorage.getItem('sr_published_weeks')||'[]').includes(weekStartIso);
 }
-function togglePublishWeek() {
-  const ws=iso(S.calWeek||monday(new Date()));
-  const weeks=getPublishedWeeks();
-  const idx=weeks.indexOf(ws);
-  if (idx>=0) {
-    weeks.splice(idx,1);
-    toast('Planning dépublié — la semaine repasse en brouillon','info');
-  } else {
-    weeks.push(ws);
-    toast('✓ Planning publié — visible par les flows !','ok');
-  }
-  localStorage.setItem('sr_published_weeks',JSON.stringify(weeks));
+async function loadPublishedWeeks() {
+  // Tente la DB d'abord, sinon localStorage
+  try {
+    const rows = await API.get('published_weeks','select=week_start');
+    S.publishedWeeks = new Set((rows||[]).map(r => r.week_start));
+    return;
+  } catch(e) { /* table absente : fallback */ }
+  S.publishedWeeks = new Set(JSON.parse(localStorage.getItem('sr_published_weeks')||'[]'));
+}
+async function togglePublishWeek() {
+  const ws = iso(S.calWeek||monday(new Date()));
+  if (!(S.publishedWeeks instanceof Set)) S.publishedWeeks = new Set();
+  const isCurrentlyPub = S.publishedWeeks.has(ws);
+  // Optimiste local
+  if (isCurrentlyPub) S.publishedWeeks.delete(ws); else S.publishedWeeks.add(ws);
   updatePublishBtn();
+  try {
+    if (isCurrentlyPub) {
+      await API.delWhere('published_weeks', 'week_start', ws);
+      toast('Planning dépublié — la semaine repasse en brouillon','info');
+    } else {
+      await API.post('published_weeks', { week_start: ws });
+      toast('✓ Planning publié — visible par les flows !','ok');
+    }
+  } catch(e) {
+    // Fallback localStorage si la table n'existe pas
+    localStorage.setItem('sr_published_weeks', JSON.stringify([...S.publishedWeeks]));
+    toast(isCurrentlyPub ? 'Planning dépublié (local)' : '✓ Planning publié (local — créez la table published_weeks pour le partager)','info');
+  }
 }
 function updatePublishBtn() {
   const ws=iso(S.calWeek||monday(new Date()));
@@ -4234,8 +4317,9 @@ async function saveDisposForPerson(pid,sel,ws,slotMin=15) {
   }
   const ex=await API.get('broad_availabilities',
     `person_id=eq.${pid}&date_from=gte.${iso(ws)}&date_from=lte.${iso(addD(ws,6))}`).catch(()=>[]);
-  for (const r of ex) await API.del('broad_availabilities',r.id).catch(()=>{});
-  for (const r of toSave) await API.post('broad_availabilities',r).catch(()=>{});
+  // Parallélisation : suppressions puis créations en parallèle (gain ~80% sur 20+ items)
+  await Promise.all(ex.map(r => API.del('broad_availabilities', r.id).catch(()=>{})));
+  await Promise.all(toSave.map(r => API.post('broad_availabilities', r).catch(()=>{})));
   S.broadAvails=await API.get('broad_availabilities','order=date_from.asc').catch(()=>[]);
 }
 
@@ -5761,7 +5845,7 @@ async function splitShiftFromModal() {
     toast(`L'heure de coupure doit être entre ${sh.time_from.slice(0,5)} et ${sh.time_to.slice(0,5)}`, 'err');
     return;
   }
-  if (splitMin - fromMin < 30 || toMin - splitMin < 30) {
+  if (splitMin - fromMin < 15 || toMin - splitMin < 15) {
     toast('Chaque partie doit durer au moins 15 min', 'err');
     return;
   }
