@@ -766,7 +766,7 @@ function loadGuideColors() {
 <header id="hdr"> <h1>Sant Roch — Planning</h1> <div id="hdr-right"> <span id="mode-badge">—</span> <button class="hdr-btn" onclick="logout()">DÉCONNEXION</button> </div>
 </header> <!-- APP -->
 <main id="main"> <!-- ═══════════════════════ ADMIN ═══════════════════════ -->
-<div id="v-admin" class="hidden"> <!-- ── GUIDE ADMIN ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('admin-guide')"> <div class="guide-hdr-title"> <span>Comment utiliser l'interface admin</span> </div> <span class="guide-hdr-toggle" id="admin-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="admin-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Créer les séances</div> </div> <div class="guide-step-body"> Allez dans <strong>SÉANCES</strong> → <em>+ Nouvelle Séance</em>.<br> Choisissez le type (Guidée / Freeflow), la date, l'heure et la durée.<br> Pour une séance guidée, un guide est obligatoire.<br> Utilisez <strong>Copier Semaine</strong> pour dupliquer un programme existant. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Consulter les dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>DISPONIBILITÉS</strong>.<br> Le fond de chaque créneau indique combien de flows sont disponibles :<br> <span style="color:var(--red)">■ rouge</span> = 0 flow · <span style="color:var(--orange)">■ orange</span> = 1 · <span style="color:var(--green)">■ vert</span> = 2+<br> Les points colorés = les flows disponibles sur ce créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Assigner les flows</div> </div> <div class="guide-step-body"> Cliquez sur un bloc séance dans la grille pour ouvrir le panneau d'assignation.<br> Vous voyez les flows disponibles, triés par équité (moins de séances ce mois d'abord).<br> Cliquez <strong>ASSIGNER</strong> — le flow reçoit un email et doit confirmer. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Auto-assigner</div> </div> <div class="guide-step-body"> Le bouton <strong>Auto-Assigner</strong> assigne automatiquement les flows disponibles sur chaque créneau libre, en respectant l'équité.<br> Vous pouvez ensuite modifier manuellement chaque assignation. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Publier le planning</div> </div> <div class="guide-step-body"> Une fois les assignations prêtes, cliquez <strong>Publier</strong> depuis l'onglet Séances.<br> Chaque flow reçoit un email avec ses séances de la semaine.<br> Ils doivent confirmer leur présence depuis leur espace. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">6</div> <div class="guide-step-title">Suivre les confirmations</div> </div> <div class="guide-step-body"> Dans la grille des disponibilités : <strong>✓ vert</strong> = confirmé, <strong>...</strong> = en attente.<br> Dans <strong>PARAMÈTRES → Statut des confirmations</strong> : vue globale de toutes les séances à venir. </div> </div> <div class="guide-tip"> <span><strong>Astuce :</strong> Personnalisez les couleurs de chaque guide pour les retrouver facilement sur le calendrier.</span> </div> </div> </div> <div class="tabs"> <button class="tab on"  onclick="atab('creneaux')"   id="at-creneaux">SHIFTS<span class="tab-sub">Créer & organiser</span></button> <button class="tab"     onclick="atab('seances')"    id="at-seances">SÉANCES<span class="tab-sub">Calendrier</span></button> <button class="tab"     onclick="atab('personnes')"  id="at-personnes">PERSONNES<span class="tab-sub">Équipe</span></button> <button class="tab"     onclick="atab('dispos')"     id="at-dispos">DISPONIBILITÉS<span class="tab-sub">Qui est dispo</span></button> <button class="tab"     onclick="atab('stats')"      id="at-stats">STATISTIQUES<span class="tab-sub">Équité & charge</span></button> <button class="tab"     onclick="atab('params')"     id="at-params">PARAMÈTRES<span class="tab-sub">Config</span></button> </div> <!-- ── SÉANCES ── --> <div class="panel on" id="ap-seances"> <div class="toolbar"> <button class="btn btn-p btn-sm" onclick="openCreateSession()">+ NOUVELLE SÉANCE</button> <button class="btn btn-s btn-sm" onclick="omo_copy_week()" title="Copier toutes les séances de cette semaine vers une autre">COPIER SEMAINE</button> <button class="btn btn-d btn-sm" onclick="toggleBulkDelete()" id="btn-bulk-del">✓ SUPPR. MULTIPLE</button> <!-- bouton import supprimé (données de dev uniquement) --> <select class="fc" style="width:180px" id="filt-person" onchange="renderCal()"> <option value="">Toutes les personnes</option> </select> <div style="flex:1"></div> <div class="pbtn-group"> <button class="pbtn on" onclick="setCalView('week')"    id="cv-week">SEMAINE</button> <button class="pbtn"    onclick="setCalView('month')"   id="cv-month">MOIS</button> <button class="pbtn"    onclick="setCalView('quarter')" id="cv-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="setCalView('list')"    id="cv-list">LISTE</button> </div> </div> <!-- navigation --> <div class="cal-ctrl"> <button class="btn btn-g btn-sm" onclick="navCal(-1)">◀</button> <span class="wlbl" id="nav-label">—</span> <button class="btn btn-g btn-sm" onclick="navCal(1)">▶</button> <span id="publish-status-badge" class="hidden" style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.05em;margin-left:8px">✓ PUBLIÉ</span> </div> <!-- équité compacte --> <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--beige);margin-bottom:14px;flex-wrap:wrap" id="eq-card"> <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);white-space:nowrap;letter-spacing:.06em">ÉQUITÉ :</span> <div class="pbtn-group"> <button class="pbtn on" onclick="eqPeriod('week')"    id="ep-week" style="padding:3px 8px;font-size:10px">SEM</button> <button class="pbtn"    onclick="eqPeriod('month')"   id="ep-month" style="padding:3px 8px;font-size:10px">MOIS</button> <button class="pbtn"    onclick="eqPeriod('quarter')" id="ep-quarter" style="padding:3px 8px;font-size:10px">TRIM</button> </div> <div id="eq-bars" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;align-items:center"></div> </div> <div id="cal-week-view"><div style="overflow-x:auto"><div class="calendar" id="main-cal"></div></div></div> <div id="cal-month-view" class="hidden"><div style="overflow-x:auto"><div class="month-grid" id="month-cal"></div></div></div> <div id="cal-quarter-view" class="hidden"><div id="quarter-cal"></div></div> <div id="cal-list-view" class="hidden"> <div class="tw"><table id="sess-tbl"> <thead><tr><th>DATE</th><th>HORAIRE</th><th>TYPE</th><th>FLOW</th><th>ACTIONS</th></tr></thead> <tbody id="sess-tbody"></tbody> </table></div> </div> </div> <!-- ── PERSONNES ── --> <div class="panel" id="ap-personnes"> <div class="card"> <div class="card-hdr"> <span class="card-title">Membres de l'équipe</span> <button class="btn btn-p btn-sm" onclick="openPersonModal()">+ AJOUTER</button> </div> <div class="tw"><table> <thead><tr><th>NOM</th><th>EMAIL</th><th>TÉLÉPHONE</th><th>PRIX / SÉANCE</th><th>RÔLE</th><th>ACTIONS</th></tr></thead> <tbody id="people-tbody"></tbody> </table></div> </div> </div> <!-- ── DISPONIBILITÉS & ASSIGNATIONS ── --> <div class="panel" id="ap-dispos"> <!-- Barre de contrôle --> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px"> <button class="btn btn-g btn-sm" onclick="navDispo(-1)">◀</button> <span class="wlbl" id="dispo-nav-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navDispo(1)">▶</button> <button class="btn-today" onclick="navDispoToday()" title="Revenir à la semaine courante">Aujourd'hui</button> </div> <!-- Notes flow semaine --> <div id="admin-week-notes" class="hidden" style="margin-bottom:16px"></div> <!-- Liste shifts --> <div id="dispos-shifts-list"></div> <!-- Éléments conservés pour compatibilité --> <div id="assign-session-list" class="hidden"></div> <div id="assign-count-badge" class="hidden"></div> <div id="unified-dispo-cal" class="hidden"></div> <div id="unified-assign-panel" class="hidden"></div> <div id="confirm-status-bar" class="hidden"><div id="confirm-status-content"></div></div> <div id="dispo-stats-bar" class="hidden"></div> </div> <!-- ── STATS ── --> <div class="panel" id="ap-stats"> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="statPeriod('month')"   id="sp-month">MOIS</button> <button class="pbtn"    onclick="statPeriod('quarter')" id="sp-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="statPeriod('year')"    id="sp-year">ANNÉE</button> <button class="pbtn"    onclick="statPeriod('all')"     id="sp-all">TOUT</button> </div> <button class="btn btn-s btn-sm" onclick="exportCSV()">EXPORT EXCEL</button> </div> <div class="row2"> <div class="card"> <div class="card-hdr"><span class="card-title">Séances par personne (Flow)</span></div> <div id="stat-bars"></div> </div> <div class="card"> <div class="card-hdr"><span class="card-title">Vue d'ensemble</span></div> <div id="stat-overview"></div> </div> </div> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Détail + Rémunération</span></div> <div class="tw"><table> <thead><tr><th>NOM</th><th>SÉANCES FLOW</th><th>PRIX / SÉA.</th><th>TOTAL ESTIMÉ</th></tr></thead> <tbody id="stat-tbody"></tbody> </table></div> </div> </div> <!-- ── PARAMÈTRES ── --> <div class="panel" id="ap-params"> <!-- Mots de passe membres --> <div class="card mt16"> <div class="card-hdr"> <span class="card-title">Mots de passe membres (connexion flow)</span> <button class="btn btn-p btn-sm" onclick="saveFlowPasswords()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Définissez un mot de passe par membre. Laissez vide = accès libre sans mot de passe.</p> <div id="flow-passwords-wrap" style="display:flex;flex-direction:column;gap:10px"></div> </div> <!-- Couleurs des guides --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Couleurs des Guides</span> <button class="btn btn-p btn-sm" onclick="saveGuideColors()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Choisissez une couleur par guide — visible sur le calendrier et dans le planning des flows.</p> <div id="guide-colors-wrap" style="display:flex;flex-direction:column;gap:12px"></div> </div> <!-- Réinitialisation des assignations --> <div class="card mt16" style="border:1px solid rgba(180,90,0,.25)"> <div class="card-hdr"><span class="card-title" style="color:rgba(150,70,0,1)">Réinitialiser les assignations de la semaine</span></div> <p class="text-muted text-sm mb12">Retire tous les flows assignés aux séances de la semaine affichée dans le calendrier. Les séances, membres et dispos ne sont pas touchés.</p> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"> <span style="font-size:12px;color:var(--muted)">Semaine concernée :</span> <input type="week" id="reset-assign-week" class="fc" style="width:180px"> <button class="btn mt0" style="background:rgba(180,90,0,.85);color:#fff" onclick="resetWeekAssignments()">RETIRER LES FLOWS</button> </div> </div> <!-- Réinitialisation des profils --> <div class="card mt16" style="border:1px solid rgba(192,57,43,.25)"> <div class="card-hdr"><span class="card-title" style="color:#c0392b">Réinitialisation des profils utilisateurs</span></div> <p class="text-muted text-sm mb12">Efface les données liées aux profils : disponibilités, confirmations de séances et marqueurs "vu". Les séances et les membres ne sont pas supprimés.</p> <div style="display:flex;flex-direction:column;gap:8px"> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-avails" checked> Effacer toutes les disponibilités </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-confirmations">Réinitialiser les confirmations de séances (repasse en "draft") </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-seen"> Effacer les marqueurs "vu" (notifications) </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-passwords"> Effacer les mots de passe membres </label> </div> <button class="btn mt12" style="background:#c0392b;color:#fff" onclick="resetUserProfiles()">RÉINITIALISER LES PROFILS</button> </div> <!-- Statut des confirmations --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Statut des confirmations (séances à venir)</span></div> <p class="text-muted text-sm mb8">Vue globale des séances avec un flow assigné et leur statut de confirmation.</p> <div id="read-status-table"></div> </div> </div> <!-- ── CRÉNEAUX DISPO ── --> <div class="panel" id="ap-creneaux"> <div class="toolbar" style="flex-wrap:wrap;gap:8px"> <div style="display:flex;align-items:center;gap:8px"> <button class="btn btn-s btn-sm" onclick="navCreneaux(-1)">◀</button> <span id="cren-week-label" style="font-size:13px;font-weight:700;min-width:190px;text-align:center">—</span> <button class="btn btn-s btn-sm" onclick="navCreneaux(1)">▶</button> <button class="btn-today" onclick="navCreneauxToday()" title="Revenir à la semaine courante">Aujourd'hui</button> </div> <div style="display:flex;gap:6px;flex-wrap:wrap"> <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="autoGenCreneauxWeek()" title="Génère automatiquement les créneaux depuis les séances (buffer 30min)">AUTO</button> <button class="btn btn-s btn-sm" id="cren-undo-btn" onclick="undoCren()" disabled>← ANNULER</button> <button class="btn btn-sm" id="cren-cut-btn" onclick="toggleCutMode()" title="Mode ciseau : cliquez un shift pour le couper en deux">CISEAU</button> <button class="btn btn-d btn-sm" onclick="resetCreneauxWeek()">RESET SEMAINE</button> </div> </div> <p style="font-size:11px;color:var(--muted);margin:8px 0 12px">Cliquez-glissez sur la grille pour créer un créneau de disponibilité. Cliquez sur un créneau existant pour assigner une personne ou le supprimer.</p> <div id="cren-grid-container"></div> </div> </div><!-- /v-admin --> <!-- ═══════════════════════ FLOW ═══════════════════════ -->
+<div id="v-admin" class="hidden"> <!-- ── GUIDE ADMIN ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('admin-guide')"> <div class="guide-hdr-title"> <span>Comment utiliser l'interface admin</span> </div> <span class="guide-hdr-toggle" id="admin-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="admin-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Créer les séances</div> </div> <div class="guide-step-body"> Allez dans <strong>SÉANCES</strong> → <em>+ Nouvelle Séance</em>.<br> Choisissez le type (Guidée / Freeflow), la date, l'heure et la durée.<br> Pour une séance guidée, un guide est obligatoire.<br> Utilisez <strong>Copier Semaine</strong> pour dupliquer un programme existant. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Consulter les dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>DISPONIBILITÉS</strong>.<br> Le fond de chaque créneau indique combien de flows sont disponibles :<br> <span style="color:var(--red)">■ rouge</span> = 0 flow · <span style="color:var(--orange)">■ orange</span> = 1 · <span style="color:var(--green)">■ vert</span> = 2+<br> Les points colorés = les flows disponibles sur ce créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Assigner les flows</div> </div> <div class="guide-step-body"> Cliquez sur un bloc séance dans la grille pour ouvrir le panneau d'assignation.<br> Vous voyez les flows disponibles, triés par équité (moins de séances ce mois d'abord).<br> Cliquez <strong>ASSIGNER</strong> — le flow reçoit un email et doit confirmer. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Auto-assigner</div> </div> <div class="guide-step-body"> Le bouton <strong>Auto-Assigner</strong> assigne automatiquement les flows disponibles sur chaque créneau libre, en respectant l'équité.<br> Vous pouvez ensuite modifier manuellement chaque assignation. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Publier le planning</div> </div> <div class="guide-step-body"> Une fois les assignations prêtes, cliquez <strong>Publier</strong> depuis l'onglet Séances.<br> Chaque flow reçoit un email avec ses séances de la semaine.<br> Ils doivent confirmer leur présence depuis leur espace. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">6</div> <div class="guide-step-title">Suivre les confirmations</div> </div> <div class="guide-step-body"> Dans la grille des disponibilités : <strong>✓ vert</strong> = confirmé, <strong>...</strong> = en attente.<br> Dans <strong>PARAMÈTRES → Statut des confirmations</strong> : vue globale de toutes les séances à venir. </div> </div> <div class="guide-tip"> <span><strong>Astuce :</strong> Personnalisez les couleurs de chaque guide pour les retrouver facilement sur le calendrier.</span> </div> </div> </div> <div class="tabs"> <button class="tab on"  onclick="atab('creneaux')"   id="at-creneaux">SHIFTS<span class="tab-sub">Créer & organiser</span></button> <button class="tab"     onclick="atab('seances')"    id="at-seances">SÉANCES<span class="tab-sub">Calendrier</span></button> <button class="tab"     onclick="atab('personnes')"  id="at-personnes">PERSONNES<span class="tab-sub">Équipe</span></button> <button class="tab"     onclick="atab('dispos')"     id="at-dispos">DISPONIBILITÉS<span class="tab-sub">Qui est dispo</span></button> <button class="tab"     onclick="atab('stats')"      id="at-stats">STATISTIQUES<span class="tab-sub">Équité & charge</span></button> <button class="tab"     onclick="atab('params')"     id="at-params">PARAMÈTRES<span class="tab-sub">Config</span></button> </div> <!-- ── SÉANCES ── --> <div class="panel on" id="ap-seances"> <div class="toolbar"> <button class="btn btn-p btn-sm" onclick="openCreateSession()">+ NOUVELLE SÉANCE</button> <button class="btn btn-s btn-sm" onclick="omo_copy_week()" title="Copier toutes les séances de cette semaine vers une autre">COPIER SEMAINE</button> <button class="btn btn-d btn-sm" onclick="toggleBulkDelete()" id="btn-bulk-del">✓ SUPPR. MULTIPLE</button> <!-- bouton import supprimé (données de dev uniquement) --> <select class="fc" style="width:180px" id="filt-person" onchange="renderCal()"> <option value="">Toutes les personnes</option> </select> <div style="flex:1"></div> <div class="pbtn-group"> <button class="pbtn on" onclick="setCalView('week')"    id="cv-week">SEMAINE</button> <button class="pbtn"    onclick="setCalView('month')"   id="cv-month">MOIS</button> <button class="pbtn"    onclick="setCalView('quarter')" id="cv-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="setCalView('list')"    id="cv-list">LISTE</button> </div> </div> <!-- navigation --> <div class="cal-ctrl"> <button class="btn btn-g btn-sm" onclick="navCal(-1)">◀</button> <span class="wlbl" id="nav-label">—</span> <button class="btn btn-g btn-sm" onclick="navCal(1)">▶</button> <span id="publish-status-badge" class="hidden" style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.05em;margin-left:8px">✓ PUBLIÉ</span> </div> <!-- équité compacte --> <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--beige);margin-bottom:14px;flex-wrap:wrap" id="eq-card"> <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);white-space:nowrap;letter-spacing:.06em">ÉQUITÉ :</span> <div class="pbtn-group"> <button class="pbtn on" onclick="eqPeriod('week')"    id="ep-week" style="padding:3px 8px;font-size:10px">SEM</button> <button class="pbtn"    onclick="eqPeriod('month')"   id="ep-month" style="padding:3px 8px;font-size:10px">MOIS</button> <button class="pbtn"    onclick="eqPeriod('quarter')" id="ep-quarter" style="padding:3px 8px;font-size:10px">TRIM</button> </div> <div id="eq-bars" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;align-items:center"></div> </div> <div id="cal-week-view"><div style="overflow-x:auto"><div class="calendar" id="main-cal"></div></div></div> <div id="cal-month-view" class="hidden"><div style="overflow-x:auto"><div class="month-grid" id="month-cal"></div></div></div> <div id="cal-quarter-view" class="hidden"><div id="quarter-cal"></div></div> <div id="cal-list-view" class="hidden"> <div class="tw"><table id="sess-tbl"> <thead><tr><th>DATE</th><th>HORAIRE</th><th>TYPE</th><th>FLOW</th><th>ACTIONS</th></tr></thead> <tbody id="sess-tbody"></tbody> </table></div> </div> </div> <!-- ── PERSONNES ── --> <div class="panel" id="ap-personnes"> <div class="card"> <div class="card-hdr"> <span class="card-title">Membres de l'équipe</span> <button class="btn btn-p btn-sm" onclick="openPersonModal()">+ AJOUTER</button> </div> <div class="tw"><table> <thead><tr><th>NOM</th><th>EMAIL</th><th>TÉLÉPHONE</th><th>PRIX / SÉANCE</th><th>RÔLE</th><th>ACTIONS</th></tr></thead> <tbody id="people-tbody"></tbody> </table></div> </div> </div> <!-- ── DISPONIBILITÉS & ASSIGNATIONS ── --> <div class="panel" id="ap-dispos"> <!-- Barre de contrôle --> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px"> <button class="btn btn-g btn-sm" onclick="navDispo(-1)">◀</button> <span class="wlbl" id="dispo-nav-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navDispo(1)">▶</button> <button class="btn-today" onclick="navDispoToday()" title="Revenir à la semaine courante">Aujourd'hui</button> <div style="flex:1"></div> <div class="pbtn-group"><button class="pbtn on" id="adm-dispo-view-shift" onclick="switchAdminDispoView('shift')">PAR SHIFT</button><button class="pbtn" id="adm-dispo-view-person" onclick="switchAdminDispoView('person')">PAR PERSONNE</button></div> <button class="btn btn-s btn-sm" onclick="openImportDispos()" title="Importer des dispos depuis un message WhatsApp/SMS">📥 IMPORT MSG</button> <button class="btn btn-s btn-sm" onclick="openExportMsg()" title="Exporter le planning par personne sous forme de message">📤 EXPORT MSG</button> </div> <!-- Vue par personne (toggle) --> <div id="admin-dispo-by-person" class="hidden"></div> <!-- Notes flow semaine --> <div id="admin-week-notes" class="hidden" style="margin-bottom:16px"></div> <!-- Liste shifts --> <div id="dispos-shifts-list"></div> <!-- Éléments conservés pour compatibilité --> <div id="assign-session-list" class="hidden"></div> <div id="assign-count-badge" class="hidden"></div> <div id="unified-dispo-cal" class="hidden"></div> <div id="unified-assign-panel" class="hidden"></div> <div id="confirm-status-bar" class="hidden"><div id="confirm-status-content"></div></div> <div id="dispo-stats-bar" class="hidden"></div> </div> <!-- ── STATS ── --> <div class="panel" id="ap-stats"> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="statPeriod('month')"   id="sp-month">MOIS</button> <button class="pbtn"    onclick="statPeriod('quarter')" id="sp-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="statPeriod('year')"    id="sp-year">ANNÉE</button> <button class="pbtn"    onclick="statPeriod('all')"     id="sp-all">TOUT</button> </div> <button class="btn btn-s btn-sm" onclick="exportCSV()">EXPORT EXCEL</button> </div> <div class="row2"> <div class="card"> <div class="card-hdr"><span class="card-title">Séances par personne (Flow)</span></div> <div id="stat-bars"></div> </div> <div class="card"> <div class="card-hdr"><span class="card-title">Vue d'ensemble</span></div> <div id="stat-overview"></div> </div> </div> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Détail + Rémunération</span></div> <div class="tw"><table> <thead><tr><th>NOM</th><th>SÉANCES FLOW</th><th>PRIX / SÉA.</th><th>TOTAL ESTIMÉ</th></tr></thead> <tbody id="stat-tbody"></tbody> </table></div> </div> </div> <!-- ── PARAMÈTRES ── --> <div class="panel" id="ap-params"> <!-- Mots de passe membres --> <div class="card mt16"> <div class="card-hdr"> <span class="card-title">Mots de passe membres (connexion flow)</span> <button class="btn btn-p btn-sm" onclick="saveFlowPasswords()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Définissez un mot de passe par membre. Laissez vide = accès libre sans mot de passe.</p> <div id="flow-passwords-wrap" style="display:flex;flex-direction:column;gap:10px"></div> </div> <!-- Couleurs des guides --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Couleurs des Guides</span> <button class="btn btn-p btn-sm" onclick="saveGuideColors()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Choisissez une couleur par guide — visible sur le calendrier et dans le planning des flows.</p> <div id="guide-colors-wrap" style="display:flex;flex-direction:column;gap:12px"></div> </div> <!-- Réinitialisation des assignations --> <div class="card mt16" style="border:1px solid rgba(180,90,0,.25)"> <div class="card-hdr"><span class="card-title" style="color:rgba(150,70,0,1)">Réinitialiser les assignations de la semaine</span></div> <p class="text-muted text-sm mb12">Retire tous les flows assignés aux séances de la semaine affichée dans le calendrier. Les séances, membres et dispos ne sont pas touchés.</p> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"> <span style="font-size:12px;color:var(--muted)">Semaine concernée :</span> <input type="week" id="reset-assign-week" class="fc" style="width:180px"> <button class="btn mt0" style="background:rgba(180,90,0,.85);color:#fff" onclick="resetWeekAssignments()">RETIRER LES FLOWS</button> </div> </div> <!-- Réinitialisation des profils --> <div class="card mt16" style="border:1px solid rgba(192,57,43,.25)"> <div class="card-hdr"><span class="card-title" style="color:#c0392b">Réinitialisation des profils utilisateurs</span></div> <p class="text-muted text-sm mb12">Efface les données liées aux profils : disponibilités, confirmations de séances et marqueurs "vu". Les séances et les membres ne sont pas supprimés.</p> <div style="display:flex;flex-direction:column;gap:8px"> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-avails" checked> Effacer toutes les disponibilités </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-confirmations">Réinitialiser les confirmations de séances (repasse en "draft") </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-seen"> Effacer les marqueurs "vu" (notifications) </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-passwords"> Effacer les mots de passe membres </label> </div> <button class="btn mt12" style="background:#c0392b;color:#fff" onclick="resetUserProfiles()">RÉINITIALISER LES PROFILS</button> </div> <!-- Statut des confirmations --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Statut des confirmations (séances à venir)</span></div> <p class="text-muted text-sm mb8">Vue globale des séances avec un flow assigné et leur statut de confirmation.</p> <div id="read-status-table"></div> </div> </div> <!-- ── CRÉNEAUX DISPO ── --> <div class="panel" id="ap-creneaux"> <div class="toolbar" style="flex-wrap:wrap;gap:8px"> <div style="display:flex;align-items:center;gap:8px"> <button class="btn btn-s btn-sm" onclick="navCreneaux(-1)">◀</button> <span id="cren-week-label" style="font-size:13px;font-weight:700;min-width:190px;text-align:center">—</span> <button class="btn btn-s btn-sm" onclick="navCreneaux(1)">▶</button> <button class="btn-today" onclick="navCreneauxToday()" title="Revenir à la semaine courante">Aujourd'hui</button> </div> <div style="display:flex;gap:6px;flex-wrap:wrap"> <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="autoGenCreneauxWeek()" title="Génère automatiquement les créneaux depuis les séances (buffer 30min)">AUTO</button> <button class="btn btn-s btn-sm" id="cren-undo-btn" onclick="undoCren()" disabled>← ANNULER</button> <button class="btn btn-sm" id="cren-cut-btn" onclick="toggleCutMode()" title="Mode ciseau : cliquez un shift pour le couper en deux">CISEAU</button> <button class="btn btn-d btn-sm" onclick="resetCreneauxWeek()">RESET SEMAINE</button> </div> </div> <p style="font-size:11px;color:var(--muted);margin:8px 0 12px">Cliquez-glissez sur la grille pour créer un créneau de disponibilité. Cliquez sur un créneau existant pour assigner une personne ou le supprimer.</p> <div id="cren-grid-container"></div> </div> </div><!-- /v-admin --> <!-- ═══════════════════════ FLOW ═══════════════════════ -->
 <div id="v-flow" class="hidden"> <!-- ── GUIDE FLOW ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('flow-guide')"> <div class="guide-hdr-title"> <span>Comment ça marche — Bienvenue dans votre espace</span> </div> <span class="guide-hdr-toggle" id="flow-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="flow-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Renseignez vos dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>MES DISPONIBILITÉS</strong>.<br> Cliquez-glissez sur la grille pour cocher les créneaux où vous êtes disponible.<br> Cliquez <strong>ENREGISTRER</strong> — l'admin reçoit une notification. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Séances visibles sur la grille</div> </div> <div class="guide-step-body"> Les créneaux avec un fond coloré = une séance est déjà planifiée.<br> <span style="color:var(--bordeaux)">■ bordeaux</span> = séance guidée · <span style="color:#b5a88a">■ beige</span> = freeflow<br> Le nom du guide est affiché directement sur le créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Vous recevez une assignation</div> </div> <div class="guide-step-body"> Quand l'admin vous assigne une séance, vous recevez un email.<br> Une notification apparaît en haut de votre espace.<br> Rendez-vous dans <strong>MON PLANNING</strong> pour la voir. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Confirmez votre présence</div> </div> <div class="guide-step-body"> Dans <strong>MON PLANNING</strong>, les séances <span style="color:var(--blue)">■ bleues</span> = en attente de confirmation.<br> Cliquez sur une séance ou cochez la case → <strong>CONFIRMER</strong>.<br> Une fois confirmée, la séance passe au <span style="color:var(--green)">■ vert</span>. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Vue liste &amp; export</div> </div> <div class="guide-step-body"> Basculez en <strong>LISTE</strong> pour voir vos séances semaine par semaine ou mois par mois. </div> </div> <div class="guide-tip"> <span><strong>Important :</strong> Renseignez vos disponibilités <em>avant</em> la date de planification — sans vos dispos, l'admin ne peut pas vous assigner de séances. Plus vous indiquez de créneaux, plus vous avez de chances d'être assigné(e).</span> </div> </div> </div> <div class="tabs"> <button class="tab on" onclick="ftab('dispos')"   id="ft-dispos">📋 MES DISPOS</button> <button class="tab"    onclick="ftab('planning')" id="ft-planning">📅 MON PLANNING</button> <button class="tab"    onclick="ftab('global')"   id="ft-global">👥 SANT-ROCH</button> <button onclick="omo('mo-faq')" style="background:none;border:1.5px solid var(--beige-d);border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:900;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px" title="Aide & FAQ">?</button> </div> <!-- Navigation bottom mobile (flow users) --> <div id="mob-flow-nav"> <button class="mnb on" id="mnb-dispos"   onclick="ftab('dispos')"><span class="mni">📋</span><span>DISPOS</span><span id="mnb-dispos-badge" class="mnb-badge hidden"></span></button> <button class="mnb"    id="mnb-planning" onclick="ftab('planning')"><span class="mni">📅</span><span>PLANNING</span></button> <button class="mnb"    id="mnb-global"   onclick="ftab('global')"><span class="mni">👥</span><span>ÉQUIPE</span></button> <button class="mnb" onclick="omo('mo-faq')"><span class="mni">❓</span><span>AIDE</span></button> </div> <!-- ── DISPOS FLOW V2 (page d'accueil par défaut) ── --> <div class="panel on" id="fp-dispos"> <!-- Bannière urgence dispos --> <div id="dispo-urgency-wrap"></div> <!-- Toggle vue semaine/mois + nav --> <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap"> <div style="display:flex;gap:4px;background:var(--beige);border-radius:6px;padding:3px"> <button id="fdv-week" class="btn btn-sm on" onclick="flowDispoView('week')" style="font-size:10px;padding:5px 12px;border-radius:4px">Semaine</button> <button id="fdv-month" class="btn btn-sm" onclick="flowDispoView('month')" style="font-size:10px;padding:5px 12px;border-radius:4px">Mois</button> </div> </div> <!-- Navigation --> <div class="dispo-week-nav" id="fdispo-week-nav"> <button class="btn btn-g btn-sm" onclick="navFlowDispo(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button> <span class="wlbl" id="fdispo-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navFlowDispo(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button> <button class="btn-today" onclick="navFlowDispoToday()" style="margin-left:4px">Aujourd'hui</button> </div> <!-- Navigation mois --> <div class="dispo-week-nav hidden" id="fdispo-month-nav"> <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button> <span class="wlbl" id="fdispo-month-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button> </div> <!-- Aide contextuelle dispos --> <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap"> <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:11px"> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(100,95,95,.75)"></span><span style="color:var(--muted)">Pas répondu</span></span> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(0,135,115,.90)"></span><span style="color:var(--muted)">Dispo déclarée</span></span> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,40,40,.86)"></span><span style="color:var(--muted)">Pas dispo</span></span> <button onclick="omo('mo-faq')" style="background:none;border:1px solid var(--beige-d);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700">? Comment ça marche ?</button> </div> </div> <!-- Vue shifts semaine --> <div id="fdm-shifts-wrap"> <!-- Mobile : liste par jour (cachée sur desktop) --> <div id="flow-shifts-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine (cachée sur mobile) --> <div id="fdm-shifts-inner" class="flow-desk-only" style="display:flex;gap:12px;align-items:flex-start"> <div style="flex:1;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch"> <div id="flow-shifts-list"></div> </div> <div id="flow-week-note-panel" style="display:none"></div> </div> </div> <!-- Vue shifts mois --> <div id="fdm-month-wrap" class="hidden"> <div id="flow-shifts-month"></div> </div> <!-- Éléments cachés conservés pour compat --> <div id="fdm-shifts" class="hidden"></div> <div id="fdm-cards" class="hidden"></div> <div id="fdm-list" class="hidden"></div> <div id="fdm-cards-wrap" class="hidden"> <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"> <div class="ag" id="flow-avail-grid"></div> </div> <div class="fill-month-block" id="fill-month-block"> <div class="fill-month-title"> Appliquer ce modèle à un mois entier</div> <div class="fill-month-desc">La semaine visible sera répétée sur tous les jours du mois choisi.</div> <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"> <select class="fc" id="fill-month-sel" style="flex:1;min-width:160px;font-size:14px;font-weight:700"></select> <button class="btn btn-p" onclick="applyWeekPatternToMonth()" style="white-space:nowrap;padding:12px 18px;font-size:13px">Remplir ce mois</button> </div> <div id="fill-month-preview" style="margin-top:8px;font-size:11px;color:var(--muted)"></div> </div> <div class="dispo-save-bar" id="dispo-save-bar" style="justify-content:center"> <span id="dispo-save-status" style="font-size:12px;font-weight:700;color:var(--muted)">✓ À jour</span> </div> </div> <div id="fdm-list-wrap" class="hidden"> <div class="flex gap8 mb12"> <button class="btn btn-d btn-sm" onclick="clearAllFlowDispos()">TOUT EFFACER</button> </div> <div id="flow-dispo-list"></div> </div> <div id="flow-dispo-cards" class="hidden"></div> <div id="fdt-month-wrap" class="hidden"><div id="flow-dispo-month"></div></div> </div> <!-- ── PLANNING FLOW ── --> <div class="panel" id="fp-planning"> <!-- Notifications shifts (confirmations en attente) --> <div id="flow-notifs"></div> <!-- Toolbar mode vue --> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="flowPlanView('cal')"   id="fpv-cal">SEMAINE</button> <button class="pbtn"    onclick="flowPlanView('month')" id="fpv-month">MOIS</button> <button class="pbtn"    onclick="flowPlanView('list')"  id="fpv-list">LISTE</button> </div> <button class="btn btn-g btn-sm" id="fcal-nav-prev" onclick="navFlowCal(-1)">◀</button> <span class="wlbl" id="fcal-lbl">—</span> <button class="btn btn-g btn-sm" id="fcal-nav-next" onclick="navFlowCal(1)">▶</button> <!-- filtre période pour la vue liste --> <div class="pbtn-group hidden" id="list-period-group"> <button class="pbtn on" onclick="setFlowListPeriod('all')"   id="flp-all">TOUT</button> <button class="pbtn"    onclick="setFlowListPeriod('week')"  id="flp-week">SEMAINE</button> <button class="pbtn"    onclick="setFlowListPeriod('month')" id="flp-month">MOIS</button> </div> </div> <!-- Confirmation groupée (visible dans tous les modes) --> <div id="confirm-batch-wrap" class="hidden"> <div class="confirm-batch"> <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px"> <h3 style="font-size:15px">⚠ Séances en attente de confirmation</h3> <div style="display:flex;gap:8px;flex-wrap:wrap"> <button class="btn btn-green" style="padding:10px 20px;font-size:14px;font-weight:800" onclick="confirmAllPending()">✓ TOUT CONFIRMER</button> <button class="btn btn-g btn-sm" onclick="toggleAllConfirmChecks()">Sélection manuelle</button> <button class="btn btn-green btn-sm" onclick="confirmChecked()">✓ Confirmer la sélection</button> </div> </div> <div id="confirm-list"></div> </div> </div> <!-- Légende états (masquée sur mobile) --> <div id="fp-planning-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px"> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,122,75,.90);border-left:4px solid #1a5c38;display:inline-block"></span> <strong>Shift confirmé</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(170,90,0,.88);border-left:4px solid #a06000;display:inline-block"></span> <strong>Shift à confirmer</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span> <strong>Guide</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,95,165,.88);border-left:4px solid #2a5fa5;display:inline-block"></span> <strong>Flow</strong> <span style="color:var(--muted)">(vert = confirmé)</span> </span> </div> <!-- Vue calendrier semaine --> <div id="fpv-cal-wrap"> <!-- Mobile : liste par jour (cachée sur desktop) --> <div id="flow-cal-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine (cachée sur mobile) --> <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="flow-cal"></div></div> </div> <!-- Vue mois --> <div id="fpv-month-wrap" class="hidden"> <!-- Mobile : liste par jour --> <div id="flow-month-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille mois --> <div class="flow-desk-only" style="overflow-x:auto"><div class="month-grid" id="flow-month-cal"></div></div> </div> <!-- Vue liste --> <div id="fpv-list-wrap" class="hidden"> <div id="flow-sessions-list"></div> </div> </div> <!-- ── PLANNING SANT-ROCH (vue globale lecture seule) ── --> <div class="panel" id="fp-global"> <div class="toolbar"> <button class="btn btn-g btn-sm" onclick="navGlobalCal(-1)" style="min-width:44px;min-height:44px;font-size:20px">◀</button> <span class="wlbl" id="global-cal-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navGlobalCal(1)"  style="min-width:44px;min-height:44px;font-size:20px">▶</button> </div> <!-- Légende (masquée sur mobile) --> <div id="fp-global-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px"> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span> <strong>Je suis GUIDE</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,95,165,.88);border-left:4px solid #2a5fa5;display:inline-block"></span> <strong>Je suis FLOW</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,122,75,.28);border-left:3px solid var(--green);display:inline-block"></span> Autre séance confirmée </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(150,150,150,.45);border-left:3px solid #aaa;display:inline-block"></span> Autre séance </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(210,198,172,.85);border-left:3px solid #b5a88a;display:inline-block"></span> Freeflow </span> </div> <!-- Mobile : liste par jour --> <div id="global-cal-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine --> <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="global-cal"></div></div> </div>
 </div><!-- /v-flow --> </main> <!-- MODALS ─────────────────────────────────────────── --> <!-- Modal Séance -->
 <div class="mo hidden" id="mo-session"> <div class="modal"> <div class="mhd"><h3 id="mo-sess-title">NOUVELLE SÉANCE</h3><button class="mcl" onclick="cmo('mo-session')">×</button></div> <div class="mbd"> <input type="hidden" id="se-id"> <!-- TYPE SÉANCE --> <div class="fg"> <label>TYPE DE SÉANCE *</label> <div class="type-selector mt8" id="type-selector-btns"> <div class="type-opt t-guide on" onclick="selType('guidee')"   id="to-guidee">Guidée</div> <div class="type-opt t-freeflow" onclick="selType('freeflow')" id="to-freeflow">Freeflow</div> <div class="type-opt t-event"    onclick="selType('event')"    id="to-event">Événement</div> </div> <!-- Nom de l'événement — visible uniquement si type=event --> <div id="se-event-wrap" class="hidden" style="margin-top:10px;background:rgba(230,126,34,.08);border:1px solid rgba(230,126,34,.3);padding:10px 12px;border-radius:4px"> <label style="color:var(--orange)">NOM DE L'ÉVÉNEMENT *</label> <div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Rituel Social'">Rituel Social</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Privatisation'">Privatisation</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Formation'">Formation</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Team Building'">Team Building</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Soirée'">Soirée</button> </div> <input type="text" class="fc" id="se-event-name" placeholder="Ou tapez un nom libre…" style="margin-top:2px"> </div> <input type="hidden" id="se-type" value="guidee"> <input type="hidden" id="se-custom-label" value=""> </div> <div class="row2"> <div class="fg"><label>DATE *</label><input type="date" class="fc" id="se-date" onchange="checkSessOverlap()"></div> <div class="fg"> <label>HEURE DÉBUT *</label> <select class="fc" id="se-start" onchange="checkSessOverlap()"></select> </div> </div> <div class="row2"> <div class="fg"> <label>DURÉE *</label> <select class="fc" id="se-duration" onchange="checkSessOverlap()"> <option value="60" selected>1h (60 min)</option> <option value="70">1h10 (70 min)</option> <option value="75">1h15 (75 min)</option> <option value="90">1h30 (90 min)</option> <option value="120">2h</option> <option value="180">3h</option> </select> </div> </div> <div id="se-overlap-warn" role="alert">⚠ Chevauchement détecté avec une autre séance</div> <div class="fg" id="se-guide-wrap"> <label>GUIDE * <span id="se-guide-color-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:4px;vertical-align:middle"></span></label> <select class="fc" id="se-guide" onchange="updateGuideColorDot()"> <option value="">— Choisir un guide —</option> </select> </div> <div class="fg"><label>NOTES</label><textarea class="fc" id="se-notes" placeholder="Informations…"></textarea></div> <!-- Récurrence --> <div style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <label class="chk mb8"><input type="checkbox" id="se-repeat" onchange="toggleRepeat()"><span>Créer plusieurs séances identiques</span></label> <div id="se-repeat-wrap" class="hidden mt8" style="background:var(--creme);padding:12px;border:1px solid var(--beige)"> <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Cette séance sera dupliquée aux dates suivantes :</div> <div class="row2"> <div class="fg"> <label>Espacement</label> <select class="fc" id="se-repeat-freq" onchange="previewRepeat()"> <option value="7">Chaque semaine (+7j)</option> <option value="14">Toutes les 2 semaines (+14j)</option> </select> </div> <div class="fg"> <label>Nombre de copies</label> <select class="fc" id="se-repeat-count" onchange="previewRepeat()"> <option value="2">2 copies</option> <option value="3">3 copies</option> <option value="4" selected>4 copies</option> <option value="6">6 copies</option> <option value="8">8 copies</option> </select> </div> </div> <div id="repeat-preview" style="font-size:11px;color:var(--blue);margin-top:6px"></div> </div> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-session')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-sess" onclick="deleteSession()">SUPPRIMER</button> <button class="btn btn-s btn-sm hidden" id="btn-dup-sess" onclick="duplicateSession()">DUPLIQUER</button> <button class="btn btn-p" onclick="saveSession()">ENREGISTRER</button> </div> </div>
@@ -791,7 +791,92 @@ function loadGuideColors() {
 <div class="mo hidden" id="mo-edit-dispo"> <div class="modal" style="max-width:380px"> <div class="mhd"><h3>MODIFIER LA DISPONIBILITÉ</h3><button class="mcl" onclick="cmo('mo-edit-dispo')">×</button></div> <div class="mbd"> <input type="hidden" id="ed-id"> <div class="fg"><label>Date</label><input type="date" class="fc" id="ed-date"></div> <div class="row2"> <div class="fg"><label>Début</label><input type="time" class="fc" id="ed-from" step="900"></div> <div class="fg"><label>Fin</label><input type="time" class="fc" id="ed-to" step="900"></div> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-edit-dispo')">ANNULER</button> <button class="btn btn-d btn-sm" onclick="deleteFlowDispoById()">SUPPRIMER</button> <button class="btn btn-p" onclick="saveEditedDispo()">ENREGISTRER</button> </div> </div>
 </div> <!-- Modal Copier Semaine -->
 <div class="mo hidden" id="mo-copy-week"> <div class="modal" style="max-width:420px"> <div class="mhd"><h3>COPIER LA SEMAINE</h3><button class="mcl" onclick="cmo('mo-copy-week')">×</button></div> <div class="mbd"> <p class="text-muted text-sm mb16">Toutes les séances de la semaine affichée seront dupliquées vers la semaine cible, en conservant les jours et horaires.</p> <div class="fg"> <label>Semaine source</label> <div id="cw-source-lbl" style="font-weight:600;padding:8px 0;color:var(--bordeaux)">—</div> </div> <div class="fg"> <label>N'importe quel jour de la semaine cible *</label> <input type="date" class="fc" id="cw-target-date"> </div> <label class="chk mt8"><input type="checkbox" id="cw-keep-flow"><span>Conserver les assignations Flow</span></label> <label class="chk mt8"><input type="checkbox" id="cw-keep-guide" checked><span>Conserver les guides assignés</span></label> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-copy-week')">ANNULER</button> <button class="btn btn-p" onclick="copyWeekSessions()">⧉ COPIER</button> </div> </div>
-</div> <div id="toasts"></div> <!-- ═══════════════════════ SCRIPT ═══════════════════════ -->
+</div>
+
+<!-- Modal Export planning par personne (admin) -->
+<div class="mo hidden" id="mo-export-msg">
+  <div class="modal" style="max-width:540px">
+    <div class="mhd"><h3>📤 Exporter le planning par personne</h3><button class="mcl" onclick="cmo('mo-export-msg')">×</button></div>
+    <div class="mbd">
+      <p class="text-muted text-sm mb12">Génère un message prêt à copier-coller pour envoyer sur WhatsApp / Slack à un membre qui ne consulte pas l'app.</p>
+      <div class="row2">
+        <div class="fg">
+          <label>Personne *</label>
+          <select class="fc" id="exm-person" onchange="renderExportMsg()"></select>
+        </div>
+        <div class="fg">
+          <label>Période</label>
+          <select class="fc" id="exm-period" onchange="renderExportMsg()">
+            <option value="week">Cette semaine</option>
+            <option value="next">Semaine prochaine</option>
+            <option value="2weeks" selected>2 prochaines semaines</option>
+            <option value="month">Mois en cours</option>
+            <option value="future">Tout le futur</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Aperçu (modifiable)</label>
+        <textarea class="fc" id="exm-text" rows="14" style="font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.55;background:var(--creme)"></textarea>
+      </div>
+      <div id="exm-status" style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px"></div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-g" onclick="cmo('mo-export-msg')">FERMER</button>
+      <button class="btn btn-s btn-sm" onclick="renderExportMsg()">🔄 Régénérer</button>
+      <button class="btn btn-p" onclick="copyExportMsg()">📋 COPIER LE MESSAGE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Import dispos via Claude (admin) -->
+<div class="mo hidden" id="mo-import-dispos">
+  <div class="modal" style="max-width:620px">
+    <div class="mhd"><h3>📥 Importer des dispos depuis un message</h3><button class="mcl" onclick="cmo('mo-import-dispos')">×</button></div>
+    <div class="mbd">
+      <p class="text-muted text-sm mb12">Un membre t'a envoyé ses dispos par WhatsApp/SMS ? Colle son message, Claude le transforme en dispos structurées.</p>
+
+      <!-- Étape 1 : sélection de la personne + message -->
+      <div class="fg">
+        <label>1. Personne concernée *</label>
+        <select class="fc" id="imd-person"></select>
+      </div>
+      <div class="fg">
+        <label>2. Coller le message reçu *</label>
+        <textarea class="fc" id="imd-message" rows="6" placeholder="Ex : Lundi je suis dispo de 14h à 18h, mardi matin jusqu'à 13h, jeudi toute la journée, vendredi pas dispo…" style="font-family:system-ui,sans-serif;font-size:13px"></textarea>
+      </div>
+
+      <button class="btn btn-s btn-sm w100" style="margin-bottom:12px" onclick="generateImportPrompt()">⚙️ Générer le prompt à copier dans Claude →</button>
+
+      <!-- Étape 2 : prompt à copier dans Claude -->
+      <div id="imd-step2" class="hidden">
+        <div class="fg">
+          <label>3. Copier ce prompt dans <a href="https://claude.ai" target="_blank" style="color:var(--bordeaux);font-weight:700">claude.ai</a></label>
+          <textarea class="fc" id="imd-prompt" rows="6" readonly style="font-family:monospace;font-size:11px;background:#f4f4f0;line-height:1.5"></textarea>
+          <button class="btn btn-s btn-sm mt8" onclick="copyImportPrompt()">📋 Copier le prompt</button>
+        </div>
+
+        <div class="fg">
+          <label>4. Coller le JSON retourné par Claude *</label>
+          <textarea class="fc" id="imd-json" rows="6" placeholder='{"disponibilites":[{"date":"2026-05-19","time_from":"14:00","time_to":"18:00"}]}' style="font-family:monospace;font-size:11px"></textarea>
+        </div>
+
+        <div id="imd-preview" class="hidden" style="background:rgba(42,122,75,.08);border:1px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:800;color:var(--green);letter-spacing:.04em;margin-bottom:6px">APERÇU AVANT IMPORT</div>
+          <div id="imd-preview-list" style="font-size:12px"></div>
+        </div>
+
+        <button class="btn btn-s btn-sm w100" style="margin-bottom:8px" onclick="previewImportJSON()">👁 Prévisualiser le JSON</button>
+      </div>
+    </div>
+    <div class="mft">
+      <button class="btn btn-g" onclick="cmo('mo-import-dispos')">FERMER</button>
+      <button class="btn btn-p hidden" id="imd-import-btn" onclick="executeImportDispos()">✓ IMPORTER LES DISPOS</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div> <!-- ═══════════════════════ SCRIPT ═══════════════════════ -->
 <script>
 'use strict';
 // ──────────────────────────────────────────────
@@ -2623,22 +2708,35 @@ function adminToggleShiftDispo_picker(shiftId) {
     }
   }
 
-  // ── Pas disponibles ──
+  // ── Pas disponibles (force-assign possible avec confirm) ──
   if (pasDispo.length) {
-    popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-top:10px;margin-bottom:6px">✗ PAS DISPONIBLES</div>';
+    popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-top:10px;margin-bottom:6px">✗ PAS DISPONIBLES (clic = forcer)</div>';
     pasDispo.forEach(fp => {
       const rec = allShAvails.find(a => a.person_id===fp.id);
-      popHtml += '<div style="background:rgba(80,80,80,.08);border:1px solid rgba(80,80,80,.15);border-radius:7px;padding:8px 12px;margin-bottom:5px">'
-        + '<div style="font-size:11px;font-weight:800;color:#555">✗ '+fp.name+'</div>'
-        + (rec?.note ? '<div style="font-size:10px;color:var(--fg);margin-top:3px;font-style:italic"> '+rec.note+'</div>' : '')
+      popHtml += '<div onclick="forceAssignShift(\''+shiftId+'\',\''+fp.id+'\',\'pas dispo\');_dsPopup?.remove();_dsPopup=null"'
+        + ' style="background:rgba(180,80,40,.08);border:1px solid rgba(180,80,40,.30);border-radius:7px;padding:8px 12px;margin-bottom:5px;cursor:pointer"'
+        + ' onmouseover="this.style.background=\'rgba(180,80,40,.18)\'" onmouseout="this.style.background=\'rgba(180,80,40,.08)\'">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">'
+        + '<span style="font-size:11px;font-weight:800;color:#a55020">✗ '+fp.name+'</span>'
+        + '<span style="font-size:10px;color:#a55020;opacity:.8;font-weight:700">⚠ Forcer →</span>'
+        + '</div>'
+        + (rec?.note ? '<div style="font-size:10px;color:#7a4020;margin-top:3px;font-style:italic">"'+rec.note+'"</div>' : '')
         + '</div>';
     });
   }
 
-  // ── Pas répondu ──
+  // ── Pas répondu (force-assign possible avec confirm) ──
   if (pasRepondu.length) {
-    popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-top:10px;margin-bottom:6px">○ PAS RÉPONDU</div>';
-    popHtml += '<div style="color:var(--muted);font-size:10px">'+pasRepondu.map(fp=>fp.name.split(' ')[0]).join(', ')+'</div>';
+    popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-top:10px;margin-bottom:6px">○ PAS RÉPONDU (clic = forcer)</div>';
+    pasRepondu.forEach(fp => {
+      popHtml += '<div onclick="forceAssignShift(\''+shiftId+'\',\''+fp.id+'\',\'pas r&eacute;pondu\');_dsPopup?.remove();_dsPopup=null"'
+        + ' style="background:rgba(120,120,120,.10);border:1px solid rgba(120,120,120,.25);border-radius:7px;padding:7px 11px;margin-bottom:4px;cursor:pointer"'
+        + ' onmouseover="this.style.background=\'rgba(120,120,120,.22)\'" onmouseout="this.style.background=\'rgba(120,120,120,.10)\'">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">'
+        + '<span style="font-size:11px;font-weight:700;color:#555">○ '+fp.name+'</span>'
+        + '<span style="font-size:10px;color:#666;opacity:.85;font-weight:700">⚠ Forcer →</span>'
+        + '</div></div>';
+    });
   }
 
   popHtml += '</div>'; // padding wrapper
@@ -2673,6 +2771,307 @@ async function adminToggleShiftDispo(shiftId, personId, currentlyDispo) {
 }
 
 // Admin: assign (or unassign) a flow to a shift — assignment starts as draft (not visible to flow user)
+// Force-assign : assigne malgré l'absence de dispo (avec confirm dialog)
+async function forceAssignShift(shiftId, personId, reason) {
+  const person = S.people.find(p => p.id === personId);
+  const name = person ? person.name : 'ce flow';
+  const sh = (S.shifts||[]).find(s => s.id === shiftId);
+  const dateLbl = sh ? fmtDateFr(sh.date) + ' · ' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5) : '';
+  const ok = confirm('⚠ FORCER L\'ASSIGNATION\n\n' + name + ' est ' + reason + ' sur ce shift :\n' + dateLbl + '\n\nForcer quand même l\'assignation ?');
+  if (!ok) return;
+  await adminAssignShift(shiftId, personId);
+  toast('⚠ Assignation forcée — ' + name, 'info');
+}
+
+// ──────────────────────────────────────────────
+// EXPORT MESSAGE PAR PERSONNE (admin → copier-coller WhatsApp/Slack)
+// ──────────────────────────────────────────────
+function openExportMsg() {
+  const sel = document.getElementById('exm-person');
+  if (sel) {
+    sel.innerHTML = '';
+    (S.people||[]).filter(p => p.can_be_flow).forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.id; o.textContent = p.name;
+      sel.appendChild(o);
+    });
+  }
+  omo('mo-export-msg');
+  renderExportMsg();
+}
+
+function _exportRange(period) {
+  const now = new Date();
+  const mon = monday(now);
+  if (period === 'week')   return { from: iso(mon), to: iso(addD(mon, 6)) };
+  if (period === 'next')   return { from: iso(addD(mon, 7)), to: iso(addD(mon, 13)) };
+  if (period === '2weeks') return { from: iso(now), to: iso(addD(mon, 13)) };
+  if (period === 'month')  return { from: iso(new Date(now.getFullYear(), now.getMonth(), 1)), to: iso(new Date(now.getFullYear(), now.getMonth()+1, 0)) };
+  return { from: iso(now), to: iso(addD(now, 365)) };
+}
+
+function renderExportMsg() {
+  const pid = document.getElementById('exm-person')?.value;
+  const period = document.getElementById('exm-period')?.value || '2weeks';
+  const txtEl = document.getElementById('exm-text');
+  if (!txtEl) return;
+  if (!pid) { txtEl.value = ''; return; }
+  const p = (S.people||[]).find(x => x.id === pid);
+  if (!p) { txtEl.value = ''; return; }
+  const { from, to } = _exportRange(period);
+  const firstName = p.name.split(' ')[0];
+
+  // Shifts assignés à cette personne sur la période (publiés ou pas)
+  const shifts = (S.shifts||[]).filter(sh =>
+    sh.person_id === pid && sh.date >= from && sh.date <= to
+  ).sort((a,b) => a.date.localeCompare(b.date) || a.time_from.localeCompare(b.time_from));
+
+  // Séances où cette personne est flow ou guide
+  const sess = (S.sessions||[]).filter(s =>
+    (s.flow_id === pid || s.guide_id === pid) && s.date >= from && s.date <= to
+  ).sort((a,b) => a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time));
+
+  // Grouper par jour
+  const byDate = {};
+  shifts.forEach(sh => {
+    byDate[sh.date] = byDate[sh.date] || { shifts: [], sess: [] };
+    byDate[sh.date].shifts.push(sh);
+  });
+  sess.forEach(s => {
+    byDate[s.date] = byDate[s.date] || { shifts: [], sess: [] };
+    byDate[s.date].sess.push(s);
+  });
+  const dates = Object.keys(byDate).sort();
+
+  const DAYS_FULL = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const MOIS = ['janv','févr','mars','avril','mai','juin','juil','août','sept','oct','nov','déc'];
+  let msg = 'Salut ' + firstName + ',\n\n';
+  if (!dates.length) {
+    msg += 'Tu n\'as aucun shift ni séance prévu sur la période.\n\nN\'oublie pas de déclarer tes dispos dans l\'app si ce n\'est pas déjà fait : https://sant-roch.app';
+    txtEl.value = msg;
+    return;
+  }
+  msg += 'Voici ton planning à venir :\n\n';
+  dates.forEach(d => {
+    const dt = new Date(d + 'T00:00:00');
+    msg += '📅 ' + DAYS_FULL[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS[dt.getMonth()] + '\n';
+    byDate[d].shifts.forEach(sh => {
+      const status = sh.status === 'confirmed' ? ' ✓ confirmé'
+                   : (sh.assignment_published === false ? ' (brouillon admin)' : ' ⏳ à confirmer');
+      msg += '   • Shift ' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5) + status + '\n';
+    });
+    byDate[d].sess.forEach(s => {
+      const isMyGuide = s.guide_id === pid;
+      const isFree = s.session_type === 'freeflow';
+      const isEv = isEventSess(s);
+      const role = isMyGuide ? 'GUIDE' : 'FLOW';
+      const type = isFree ? 'rituel libre' : isEv ? (s.event_name || 'événement') : 'rituel guidé';
+      const partner = isMyGuide
+        ? ((S.people||[]).find(x => x.id === s.flow_id)?.name)
+        : ((S.people||[]).find(x => x.id === s.guide_id)?.name);
+      const partnerLbl = partner ? ' (avec ' + partner.split(' ')[0] + ')' : '';
+      const conf = s.status === 'confirmed' ? ' ✓' : ' ⏳';
+      msg += '   • ' + s.start_time.slice(0,5) + '–' + s.end_time.slice(0,5) + ' · ' + type + ' [' + role + ']' + partnerLbl + conf + '\n';
+    });
+    msg += '\n';
+  });
+  msg += 'Tu peux confirmer ta présence sur l\'app : https://sant-roch.app\nMerci 🙏';
+  txtEl.value = msg;
+}
+
+async function copyExportMsg() {
+  const txt = document.getElementById('exm-text')?.value || '';
+  if (!txt) { toast('Rien à copier','err'); return; }
+  try {
+    await navigator.clipboard.writeText(txt);
+    toast('✓ Message copié — colle-le sur WhatsApp/Slack','ok');
+    const st = document.getElementById('exm-status');
+    if (st) { st.textContent = '✓ Copié dans le presse-papiers'; setTimeout(()=>{ if(st) st.textContent=''; }, 3000); }
+  } catch(e) {
+    // Fallback : select all
+    const ta = document.getElementById('exm-text');
+    ta.focus(); ta.select();
+    toast('Sélectionné — appuie Cmd/Ctrl+C','info');
+  }
+}
+
+// ──────────────────────────────────────────────
+// IMPORT DISPOS VIA CLAUDE (paste message → JSON → import)
+// ──────────────────────────────────────────────
+function openImportDispos() {
+  const sel = document.getElementById('imd-person');
+  if (sel) {
+    sel.innerHTML = '<option value="">— Choisir une personne —</option>';
+    (S.people||[]).filter(p => p.can_be_flow).forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.id; o.textContent = p.name;
+      sel.appendChild(o);
+    });
+  }
+  // Reset
+  ['imd-message','imd-json'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('imd-step2')?.classList.add('hidden');
+  document.getElementById('imd-preview')?.classList.add('hidden');
+  document.getElementById('imd-import-btn')?.classList.add('hidden');
+  omo('mo-import-dispos');
+}
+
+function generateImportPrompt() {
+  const pid = document.getElementById('imd-person').value;
+  const msg = document.getElementById('imd-message').value.trim();
+  if (!pid) { toast('Choisis la personne','err'); return; }
+  if (!msg) { toast('Colle le message reçu','err'); return; }
+  const p = (S.people||[]).find(x => x.id === pid);
+  const today = iso(new Date());
+  const prompt = 'Tu reçois un message d\'un membre qui m\'indique ses disponibilités. Convertis-le en JSON strict (sans aucun commentaire avant ou après) au format suivant :\n\n'
+    + '{"disponibilites":[{"date":"YYYY-MM-DD","time_from":"HH:MM","time_to":"HH:MM"}]}\n\n'
+    + 'Règles :\n'
+    + '- Si le message dit "lundi", "mardi" etc, calcule la date à partir d\'aujourd\'hui (' + today + ', un ' + ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'][new Date().getDay()] + ').\n'
+    + '- Si le message dit "matin" → 09:00-13:00. "Après-midi" → 13:00-18:00. "Soir" → 18:00-22:00. "Journée entière" / "toute la journée" → 09:00-22:00.\n'
+    + '- Si seule l\'heure de début est donnée, suppose 4h de durée.\n'
+    + '- Une plage par ligne dans le JSON, même pour plusieurs créneaux le même jour.\n'
+    + '- N\'inclus QUE les dispos positives (pas les "pas dispo").\n'
+    + '- Réponds UNIQUEMENT avec le JSON, rien d\'autre.\n\n'
+    + 'Membre : ' + p.name + '\nMessage reçu :\n"""\n' + msg + '\n"""';
+  document.getElementById('imd-prompt').value = prompt;
+  document.getElementById('imd-step2').classList.remove('hidden');
+}
+
+async function copyImportPrompt() {
+  const txt = document.getElementById('imd-prompt')?.value || '';
+  try {
+    await navigator.clipboard.writeText(txt);
+    toast('✓ Prompt copié — ouvre claude.ai et colle-le','ok');
+  } catch(e) {
+    const ta = document.getElementById('imd-prompt'); ta.focus(); ta.select();
+    toast('Sélectionné — appuie Cmd/Ctrl+C','info');
+  }
+}
+
+let _imdParsed = null;
+function previewImportJSON() {
+  const raw = document.getElementById('imd-json').value.trim();
+  const pid = document.getElementById('imd-person').value;
+  if (!pid) { toast('Choisis la personne','err'); return; }
+  if (!raw) { toast('Colle le JSON','err'); return; }
+  let parsed;
+  try {
+    // Tolérer si l'utilisateur a collé du texte autour du JSON
+    const m = raw.match(/\{[\s\S]*\}/);
+    parsed = JSON.parse(m ? m[0] : raw);
+  } catch(e) { toast('JSON invalide : ' + e.message,'err'); return; }
+  if (!parsed.disponibilites || !Array.isArray(parsed.disponibilites)) {
+    toast('Le JSON doit avoir une clé "disponibilites" qui est un tableau','err'); return;
+  }
+  const dispos = parsed.disponibilites.filter(d => d.date && d.time_from && d.time_to);
+  if (!dispos.length) { toast('Aucune dispo valide trouvée','err'); return; }
+  _imdParsed = { pid, dispos };
+  const previewEl = document.getElementById('imd-preview');
+  const listEl = document.getElementById('imd-preview-list');
+  if (previewEl && listEl) {
+    listEl.innerHTML = dispos.map(d => {
+      const dt = new Date(d.date + 'T00:00:00');
+      const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+      const MOIS = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+      return '<div style="padding:3px 0">• <strong>' + DAYS[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS[dt.getMonth()] + '</strong> · ' + d.time_from + ' → ' + d.time_to + '</div>';
+    }).join('');
+    previewEl.classList.remove('hidden');
+  }
+  document.getElementById('imd-import-btn')?.classList.remove('hidden');
+}
+
+async function executeImportDispos() {
+  if (!_imdParsed) { toast('Prévisualise d\'abord le JSON','err'); return; }
+  const { pid, dispos } = _imdParsed;
+  const toCreate = dispos.map(d => ({
+    person_id: pid,
+    date_from: d.date,
+    date_to: d.date,
+    time_from: d.time_from.length === 5 ? d.time_from + ':00' : d.time_from,
+    time_to:   d.time_to.length   === 5 ? d.time_to   + ':00' : d.time_to,
+  }));
+  try {
+    const results = await Promise.all(toCreate.map(b =>
+      API.post('broad_availabilities', b).then(r => Array.isArray(r) ? r[0] : r).catch(()=>null)
+    ));
+    const ok = results.filter(Boolean);
+    ok.forEach(r => S.broadAvails.push(r));
+    toast('✓ ' + ok.length + '/' + toCreate.length + ' dispo(s) importée(s)','ok');
+    cmo('mo-import-dispos');
+    _imdParsed = null;
+    if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
+  } catch(e) { toast('Erreur import : ' + e.message,'err'); }
+}
+
+// ──────────────────────────────────────────────
+// ADMIN DISPOS — TOGGLE VUE PAR SHIFT / PAR PERSONNE
+// ──────────────────────────────────────────────
+function switchAdminDispoView(mode) {
+  S._adminDispoView = mode;
+  document.getElementById('adm-dispo-view-shift')?.classList.toggle('on', mode === 'shift');
+  document.getElementById('adm-dispo-view-person')?.classList.toggle('on', mode === 'person');
+  const byPerson = document.getElementById('admin-dispo-by-person');
+  const byShift  = document.getElementById('dispos-shifts-list');
+  if (mode === 'person') {
+    if (byShift) byShift.classList.add('hidden');
+    if (byPerson) { byPerson.classList.remove('hidden'); renderAdminDispoPerPerson(); }
+  } else {
+    if (byPerson) byPerson.classList.add('hidden');
+    if (byShift) byShift.classList.remove('hidden');
+  }
+}
+
+function renderAdminDispoPerPerson() {
+  const ws = S.dispoWeek || monday(new Date());
+  const we = addD(ws, 6);
+  const wsIso = iso(ws), weIso = iso(we);
+  const flows = (S.people||[]).filter(p => p.can_be_flow);
+  const weekShifts = (S.shifts||[]).filter(sh => sh.date >= wsIso && sh.date <= weIso);
+  const totalShifts = weekShifts.length;
+  const wrap = document.getElementById('admin-dispo-by-person');
+  if (!wrap) return;
+  if (!flows.length) { wrap.innerHTML = '<div class="text-muted" style="padding:24px;text-align:center">Aucun flow configuré.</div>'; return; }
+
+  let html = '<div style="display:flex;flex-direction:column;gap:10px">';
+  flows.forEach(p => {
+    // Compter dispos / pas dispo / pas répondu sur les shifts de la semaine
+    let nDispo = 0, nNoDispo = 0, nNoAns = 0, nAssigned = 0;
+    weekShifts.forEach(sh => {
+      if (sh.person_id === p.id) nAssigned++;
+      const av = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === p.id);
+      if (!av || av.available === null) nNoAns++;
+      else if (av.available === true) nDispo++;
+      else nNoDispo++;
+    });
+    const pct = totalShifts ? Math.round((totalShifts - nNoAns) / totalShifts * 100) : 0;
+    const barColor = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
+    html += '<div style="background:#fff;border:1px solid var(--beige);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+      +   '<div style="flex:1;min-width:160px"><div style="font-size:14px;font-weight:800;color:var(--text)">' + p.name + '</div>'
+      +     '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + nAssigned + ' shift(s) assigné(s) cette semaine</div></div>'
+      +   '<div style="flex:2;min-width:200px">'
+      +     '<div style="display:flex;gap:6px;font-size:11px;font-weight:700;margin-bottom:4px">'
+      +       '<span style="color:var(--green)">✓ ' + nDispo + '</span>'
+      +       '<span style="color:#b02020">✗ ' + nNoDispo + '</span>'
+      +       '<span style="color:var(--muted)">○ ' + nNoAns + '</span>'
+      +       '<span style="margin-left:auto;color:' + barColor + ';font-weight:900">' + pct + '%</span>'
+      +     '</div>'
+      +     '<div style="background:var(--beige);border-radius:4px;height:6px;overflow:hidden"><div style="background:' + barColor + ';height:100%;width:' + pct + '%;transition:width .3s"></div></div>'
+      +   '</div>'
+      +   '<button class="btn btn-s btn-sm" onclick="openExportMsgFor(\'' + p.id + '\')" title="Envoyer son planning par message">📤</button>'
+      + '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function openExportMsgFor(pid) {
+  openExportMsg();
+  setTimeout(() => {
+    const sel = document.getElementById('exm-person');
+    if (sel) { sel.value = pid; renderExportMsg(); }
+  }, 50);
+}
+
 async function adminAssignShift(shiftId, personId) {
   try {
     const val = personId || null;
