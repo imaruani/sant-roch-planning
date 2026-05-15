@@ -807,7 +807,7 @@ function loadGuideColors() {
 <div class="mo hidden" id="mo-person"> <div class="modal"> <div class="mhd"><h3 id="mo-pers-title">NOUVEAU MEMBRE</h3><button class="mcl" onclick="cmo('mo-person')">×</button></div> <div class="mbd"> <input type="hidden" id="pe-id"> <div class="row2"> <div class="fg"><label>NOM *</label><input type="text" class="fc" id="pe-name" placeholder="Prénom Nom"></div> <div class="fg"><label>EMAIL</label><input type="email" class="fc" id="pe-email" placeholder="prenom@exemple.com"></div> </div> <div class="row2"> <div class="fg"><label>TÉLÉPHONE</label><input type="tel" class="fc" id="pe-phone" placeholder="+33 6 00 00 00 00"></div> <div class="fg"><label>PRIX PAR SÉANCE (€)</label><input type="number" class="fc" id="pe-price" placeholder="35" min="0" step="0.5"></div> </div> <div class="flex gap16 mt8 fw"> <label class="chk"><input type="checkbox" id="pe-guide" checked><span>Peut être GUIDE</span></label> <label class="chk"><input type="checkbox" id="pe-flow"  checked><span>Peut être FLOW</span></label> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-person')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-pers" onclick="deletePerson()">SUPPRIMER</button> <button class="btn btn-p" onclick="savePerson()">ENREGISTRER</button> </div> </div>
 </div> <!-- Modal Shift -->
 <div class="mo hidden" id="mo-shift"> <div class="modal"> <div class="mhd"> <h3 id="mo-shift-title">NOUVEAU SHIFT</h3> <button class="mcl" onclick="cmo('mo-shift')">×</button> </div> <div class="mbd"> <input type="hidden" id="sh-id"> <div class="row2"> <div class="fg"><label>DATE *</label><input type="date" class="fc" id="sh-date" onchange="onShiftDateChange()"></div> <div class="fg"> <label>DÉBUT *</label> <select class="fc" id="sh-from" onchange="onShiftTimeChange()"></select> </div> </div> <div class="row2"> <div class="fg"> <label>FIN *</label> <select class="fc" id="sh-to" onchange="onShiftTimeChange()"></select> </div> <div class="fg"> <label>DURÉE</label> <div id="sh-dur-display" style="padding:9px 12px;background:var(--creme);border:1px solid var(--beige-d);border-radius:4px;font-size:13px;font-weight:700;color:var(--muted)">—</div> </div> </div> <!-- Section Couper — visible uniquement en mode édition --> <div id="sh-split-section" class="hidden" style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.04em">Couper COUPER EN DEUX</div> <div style="display:flex;gap:8px;align-items:center"> <div style="flex:1"> <select class="fc" id="sh-split-time" onchange="updateShiftSplitPreview()"></select> </div> <button onclick="splitShiftFromModal()"
-            style="flex-shrink:0;background:var(--bordeaux);color:#fff;border:none;border-radius:5px;padding:9px 14px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">Couper</button> </div> <div id="sh-split-preview" style="font-size:10px;color:var(--muted);margin-top:6px"></div> </div> <!-- Récurrence --> <div style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <label class="chk mb8"><input type="checkbox" id="sh-repeat" onchange="toggleShiftRepeat()"><span>Créer plusieurs shifts identiques</span></label> <div id="sh-repeat-wrap" class="hidden mt8" style="background:var(--creme);padding:12px;border:1px solid var(--beige)"> <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Ce shift sera dupliqué aux dates suivantes :</div> <div class="row2"> <div class="fg"> <label>Espacement</label> <select class="fc" id="sh-repeat-freq" onchange="previewShiftRepeat()"> <option value="7">Chaque semaine (+7j)</option> <option value="14">Toutes les 2 semaines (+14j)</option> </select> </div> <div class="fg"> <label>Nombre de copies</label> <select class="fc" id="sh-repeat-count" onchange="previewShiftRepeat()"> <option value="2">2 copies</option> <option value="3">3 copies</option> <option value="4" selected>4 copies</option> <option value="6">6 copies</option> <option value="8">8 copies</option> </select> </div> </div> <div id="sh-repeat-preview" style="font-size:11px;color:var(--blue);margin-top:6px"></div> <div class="fg" style="margin-top:10px"> <label>ASSIGNER À (optionnel)</label> <select class="fc" id="sh-assign-person"> <option value="">— Personne —</option> </select> </div> </div> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-shift')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-shift" onclick="deleteShiftFromModal()">SUPPRIMER</button> <button class="btn btn-p" onclick="saveShift()">ENREGISTRER</button> </div> </div>
+            style="flex-shrink:0;background:var(--bordeaux);color:#fff;border:none;border-radius:5px;padding:9px 14px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">Couper</button> </div> <div id="sh-split-preview" style="font-size:10px;color:var(--muted);margin-top:6px"></div> </div> <!-- Assignation flow (toujours visible) --> <div class="fg" style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <label>ASSIGNER UN FLOW (optionnel)</label> <select class="fc" id="sh-assign-person"> <option value="">— Personne —</option> </select> </div> <!-- Récurrence --> <div style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <label class="chk mb8"><input type="checkbox" id="sh-repeat" onchange="toggleShiftRepeat()"><span id="sh-repeat-lbl">Créer plusieurs shifts identiques (avec le même flow assigné)</span></label> <div id="sh-repeat-wrap" class="hidden mt8" style="background:var(--creme);padding:12px;border:1px solid var(--beige)"> <div id="sh-repeat-desc" style="font-size:12px;color:var(--muted);margin-bottom:10px">Ce shift sera dupliqué aux dates suivantes (avec le flow choisi ci-dessus) :</div> <div class="row2"> <div class="fg"> <label>Espacement</label> <select class="fc" id="sh-repeat-freq" onchange="previewShiftRepeat()"> <option value="7">Chaque semaine (+7j)</option> <option value="14">Toutes les 2 semaines (+14j)</option> </select> </div> <div class="fg"> <label>Nombre de copies</label> <select class="fc" id="sh-repeat-count" onchange="previewShiftRepeat()"> <option value="2">2 copies</option> <option value="3">3 copies</option> <option value="4" selected>4 copies</option> <option value="6">6 copies</option> <option value="8">8 copies</option> </select> </div> </div> <div id="sh-repeat-preview" style="font-size:11px;color:var(--blue);margin-top:6px"></div> </div> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-shift')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-shift" onclick="deleteShiftFromModal()">SUPPRIMER</button> <button class="btn btn-p" onclick="saveShift()">ENREGISTRER</button> </div> </div>
 </div> <!-- Modal Event Flow -->
 <!-- ══════════════════════════════════════════
      WELCOME ONBOARDING (flow users)
@@ -5955,13 +5955,21 @@ function openShiftModal(shiftId, dStr, fromMin, toMin) {
     }
   }
 
-  // Repeat reset
+  // Repeat reset + label contextuel
   const repChk = document.getElementById('sh-repeat');
   if (repChk) repChk.checked = false;
   const repWrap = document.getElementById('sh-repeat-wrap');
   if (repWrap) repWrap.classList.add('hidden');
   const repPrev = document.getElementById('sh-repeat-preview');
   if (repPrev) repPrev.textContent = '';
+  const repLbl = document.getElementById('sh-repeat-lbl');
+  const repDesc = document.getElementById('sh-repeat-desc');
+  if (repLbl) repLbl.textContent = isEdit
+    ? 'Appliquer aussi à plusieurs occurrences futures (avec le même flow)'
+    : 'Créer plusieurs shifts identiques (avec le même flow assigné)';
+  if (repDesc) repDesc.textContent = isEdit
+    ? 'Des occurrences identiques (même heure, même flow) seront créées aux dates :'
+    : 'Ce shift sera dupliqué aux dates suivantes (avec le flow choisi ci-dessus) :';
 
   // Populate assign-person select
   const assignSel = document.getElementById('sh-assign-person');
@@ -6011,7 +6019,7 @@ async function saveShift() {
 
   const personId = document.getElementById('sh-assign-person')?.value || null;
   const body = { date: dateVal, time_from: m2t(fromMin)+':00', time_to: m2t(toMin)+':00' };
-  const doRepeat = document.getElementById('sh-repeat').checked && !shiftId;
+  const doRepeat = document.getElementById('sh-repeat').checked;
   const freq     = doRepeat ? parseInt(document.getElementById('sh-repeat-freq').value)  : 0;
   const count    = doRepeat ? parseInt(document.getElementById('sh-repeat-count').value) : 0;
 
@@ -6033,10 +6041,30 @@ async function saveShift() {
           sh.assignment_published = personId ? false : null;
         }
       }
-      toast('Shift modifié ✓', 'ok');
+      // RÉCURRENCE en édition : créer N occurrences futures avec le même flow
+      let createdRec = [];
+      if (doRepeat && count > 0 && freq > 0) {
+        const base = new Date(dateVal + 'T00:00:00');
+        const recBody = personId
+          ? { ...body, person_id: personId, assignment_published: false }
+          : { ...body };
+        const toCreate = [];
+        for (let i = 1; i <= count; i++) toCreate.push({ ...recBody, date: iso(addD(base, freq * i)) });
+        const results = await Promise.all(toCreate.map(b => API.post('shifts', b)));
+        createdRec = results.map(r => Array.isArray(r) ? r[0] : r).filter(Boolean);
+        createdRec.forEach(s => S.shifts.push(s));
+      }
+      toast(createdRec.length
+        ? `Shift modifié + ${createdRec.length} occurrence(s) créée(s) ✓`
+        : 'Shift modifié ✓', 'ok');
       pushUndo(`modif ${body.time_from.slice(0,5)}–${body.time_to.slice(0,5)}`, async () => {
         await API.patch('shifts', shiftId, { date: prevDate, time_from: prevFrom, time_to: prevTo, person_id: prevPerson });
         if (sh) { sh.date = prevDate; sh.time_from = prevFrom; sh.time_to = prevTo; sh.person_id = prevPerson; }
+        if (createdRec.length) {
+          await Promise.all(createdRec.map(s => API.del('shifts', s.id)));
+          const ids = new Set(createdRec.map(s => s.id));
+          S.shifts = S.shifts.filter(s => !ids.has(s.id));
+        }
         renderCreneauxGrid(); renderDisposAdmin();
       });
     } else {
