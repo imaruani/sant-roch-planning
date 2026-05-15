@@ -2129,6 +2129,19 @@ async function deleteSession() {
 // ──────────────────────────────────────────────
 // AUTO-ASSIGN
 // ──────────────────────────────────────────────
+// Sélectionne le flow proposé par autoAssign dans le <select> du modal séance
+function applyAutoAssignFlow(personId) {
+  const sel = document.getElementById('se-flow');
+  if (!sel) return;
+  // S'assurer que l'option existe (populée par populateSelects)
+  if ([...sel.options].some(o => o.value === personId)) {
+    sel.value = personId;
+    toast('Flow appliqué — clique ENREGISTRER pour valider','info');
+  } else {
+    toast('Flow introuvable dans le sélecteur','err');
+  }
+}
+
 async function autoAssign() {
   const id=document.getElementById('se-id').value;
   const dateVal=document.getElementById('se-date').value;
@@ -2155,7 +2168,7 @@ async function autoAssign() {
   if (!personIds.length) { div.innerHTML='<div class="text-muted text-sm">Aucun flow disponible sur ce créneau.</div>'; return; }
   div.innerHTML=personIds.slice(0,3).map(pid=>{
     const p=S.people.find(x=>x.id===pid);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--beige)"> <span style="flex:1">${p.name} <span class="text-muted text-sm">(${cnt(pid)} séances ce mois)</span></span> <button class="btn btn-p btn-sm" onclick="applyFlow('${pid}')">APPLIQUER</button> </div>`;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--beige)"> <span style="flex:1">${p.name} <span class="text-muted text-sm">(${cnt(pid)} séances ce mois)</span></span> <button class="btn btn-p btn-sm" onclick="applyAutoAssignFlow('${pid}')">APPLIQUER</button> </div>`;
   }).join('');
 }
 
@@ -2387,13 +2400,33 @@ function getAvailableFlows(sess) {
     if (!p.can_be_flow) return false;
     // Le flow déjà assigné compte toujours comme disponible
     if (p.id===sess.flow_id) return true;
-    // Récupérer toutes les plages dispo de cette personne ce jour-là
+    // 1. Si la personne a un shift_availability "available=false" sur un shift qui
+    //    englobe ENTIÈREMENT la séance → considérée NON dispo (override explicite).
+    const hasNoSay = (S.shifts||[]).some(sh => {
+      if (sh.date !== sess.date) return false;
+      const shS = t2m(sh.time_from.slice(0,5)), shE = t2m(sh.time_to.slice(0,5));
+      if (shS > sStart || shE < sEnd) return false;
+      return (S.shiftAvails||[]).some(a =>
+        a.shift_id === sh.id && a.person_id === p.id && a.available === false
+      );
+    });
+    if (hasNoSay) return false;
+    // 2. Si la personne a déclaré "available=true" sur un shift englobant la séance → dispo
+    const hasShiftDispo = (S.shifts||[]).some(sh => {
+      if (sh.date !== sess.date) return false;
+      const shS = t2m(sh.time_from.slice(0,5)), shE = t2m(sh.time_to.slice(0,5));
+      if (shS > sStart || shE < sEnd) return false;
+      return (S.shiftAvails||[]).some(a =>
+        a.shift_id === sh.id && a.person_id === p.id && a.available === true
+      );
+    });
+    if (hasShiftDispo) return true;
+    // 3. Sinon : check broad_availabilities couvrant toute la séance (slots 15 min)
     const dayAvails=S.broadAvails.filter(a=> a.person_id===p.id &&
       a.date_from<=sess.date && a.date_to>=sess.date
     );
     if (!dayAvails.length) return false;
-    // Vérifier que chaque slot de 30 min de la séance est couvert
-    for (let m=sStart; m<sEnd; m+=30) {
+    for (let m=sStart; m<sEnd; m+=15) {
       const covered=dayAvails.some(a=> t2m(a.time_from.slice(0,5))<=m &&
         t2m(a.time_to.slice(0,5))>m
       );
@@ -3309,12 +3342,16 @@ async function reloadData() {
   toast('Rechargement en cours…','info');
   try {
     await loadAll();
-    // Re-rendre tout
-    if (typeof renderCal === 'function') renderCal();
-    if (typeof renderCreneauxGrid === 'function') renderCreneauxGrid();
-    if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
-    if (typeof renderAdminDispoPerPerson === 'function') renderAdminDispoPerPerson();
-    if (typeof renderPeople === 'function') renderPeople();
+    // Re-rendre toutes les vues (admin + flow)
+    const refreshFns = [
+      'renderCal','renderCreneauxGrid','renderDisposAdmin','renderAdminDispoPerPerson',
+      'renderPeople','renderEqBars','renderStats','renderReadStatus','updatePublishBtn',
+      'renderFlowCal','renderFlowSessionsList','renderFlowShifts','renderFlowNotifs',
+      'renderDispoUrgency','renderConfirmBatch','renderGlobalCal'
+    ];
+    refreshFns.forEach(fn => {
+      try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+    });
     toast('✓ Données rechargées','ok');
   } catch(e) { toast('Erreur rechargement : ' + e.message,'err'); }
 }
@@ -4168,7 +4205,8 @@ async function saveDisposForPerson(pid,sel,ws,slotMin=15) {
   // Parallélisation : suppressions puis créations en parallèle (gain ~80% sur 20+ items)
   await Promise.all(ex.map(r => API.del('broad_availabilities', r.id).catch(()=>{})));
   await Promise.all(toSave.map(r => API.post('broad_availabilities', r).catch(()=>{})));
-  S.broadAvails=await API.get('broad_availabilities','order=date_from.asc').catch(()=>[]);
+  // Reload avec la même fenêtre temporelle que loadAll (3 mois back, 6 mois forward)
+  { const _from = iso(addD(new Date(), -90)); S.broadAvails = await API.get('broad_availabilities', `order=date_from.asc&date_from=gte.${_from}`).catch(()=>[]); }
 }
 
 function renderDispoSummary(pid) { /* supprimé — élément HTML absent */ }
@@ -4989,7 +5027,10 @@ async function confirmShift(shiftId) {
     toast('Shift confirmé ✓', 'ok');
     renderFlowShifts();
     renderFlowNotifs();
-    if (S._flowDispoView === 'month') renderFlowShiftsMonth();
+    // Rafraîchir aussi le planning (le badge ✓ doit apparaître)
+    if (typeof renderFlowCal === 'function') renderFlowCal();
+    if (typeof renderFlowSessionsList === 'function') renderFlowSessionsList();
+    if (S._flowDispoView === 'month' && typeof renderFlowShiftsMonth === 'function') renderFlowShiftsMonth();
   } catch(e) { toast('Erreur lors de la confirmation : ' + e.message, 'err'); }
 }
 
@@ -5295,6 +5336,11 @@ async function deleteShift(shiftId) {
   // Après 6s, si pas annulé, supprimer vraiment en DB
   setTimeout(async () => {
     if (cancelled) return;
+    // Si entre-temps le shift est réapparu localement (loadAll, reload, etc.) → annuler la suppression
+    if ((S.shifts||[]).some(s => s.id === shiftId)) {
+      console.warn('[deleteShift] shift réapparu localement, suppression DB annulée');
+      return;
+    }
     try {
       await API.del('shifts', shiftId);
       await Promise.all(avails.map(a => API.del('shift_availabilities', a.id).catch(()=>{})));
@@ -5333,6 +5379,11 @@ async function resetCreneauxWeek() {
   });
   setTimeout(async () => {
     if (cancelled) return;
+    // Si un des shifts est réapparu localement (loadAll entre-temps) → on annule la suppression
+    if ((S.shifts||[]).some(s => ids.includes(s.id))) {
+      console.warn('[resetCreneauxWeek] shifts réapparus, suppression DB annulée');
+      return;
+    }
     try {
       await Promise.all(ids.map(id => API.del('shifts', id).catch(() => {})));
       await Promise.all(savedAvails.map(a => API.del('shift_availabilities', a.id).catch(()=>{})));
@@ -5552,13 +5603,25 @@ async function saveShift() {
   try {
     if (shiftId) {
       const sh = S.shifts.find(s => s.id === shiftId);
-      const prevDate = sh?.date, prevFrom = sh?.time_from, prevTo = sh?.time_to;
-      await API.patch('shifts', shiftId, body);
-      if (sh) { sh.date = dateVal; sh.time_from = body.time_from; sh.time_to = body.time_to; }
+      const prevDate = sh?.date, prevFrom = sh?.time_from, prevTo = sh?.time_to, prevPerson = sh?.person_id;
+      // En édition : on persiste aussi person_id (si changé via le <select>)
+      const editBody = { ...body };
+      if (personId !== prevPerson) {
+        editBody.person_id = personId;
+        editBody.assignment_published = personId ? false : null;  // brouillon si nouvelle assignation
+      }
+      await API.patch('shifts', shiftId, editBody);
+      if (sh) {
+        sh.date = dateVal; sh.time_from = body.time_from; sh.time_to = body.time_to;
+        if (personId !== prevPerson) {
+          sh.person_id = personId;
+          sh.assignment_published = personId ? false : null;
+        }
+      }
       toast('Shift modifié ✓', 'ok');
       pushUndo(`modif ${body.time_from.slice(0,5)}–${body.time_to.slice(0,5)}`, async () => {
-        await API.patch('shifts', shiftId, { date: prevDate, time_from: prevFrom, time_to: prevTo });
-        if (sh) { sh.date = prevDate; sh.time_from = prevFrom; sh.time_to = prevTo; }
+        await API.patch('shifts', shiftId, { date: prevDate, time_from: prevFrom, time_to: prevTo, person_id: prevPerson });
+        if (sh) { sh.date = prevDate; sh.time_from = prevFrom; sh.time_to = prevTo; sh.person_id = prevPerson; }
         renderCreneauxGrid(); renderDisposAdmin();
       });
     } else {
@@ -5935,8 +5998,8 @@ function renderCreneauxGrid() {
         if(e.button!==0) return; e.stopPropagation(); e.preventDefault();
         document.body.style.userSelect='none';
         _crenIgnoreClick=false;
-        const fromSlot=(fromMin-startH*60)/30;
-        const curEnd=(toMin-startH*60)/30-1;
+        const fromSlot=(fromMin-startH*60)/15;
+        const curEnd=(toMin-startH*60)/15-1;
         const previewEl=document.createElement('div');
         previewEl.className='cren-band-preview';
         previewEl.style.cssText=`top:${topPx}px;height:${hPx}px;background:${color}`;
@@ -5960,7 +6023,7 @@ function renderCreneauxGrid() {
         previewEl.style.cssText=`top:${topPx}px;height:${hPx}px;background:${color}`;
         previewEl.textContent=`${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}`;
         col.appendChild(previewEl);
-        _crenDrag={type:'move',col,dStr,startH,slotH,totalSlots,shiftId:sh.id,grabOffset,durSlots,curStart:(fromMin-startH*60)/30,previewEl};
+        _crenDrag={type:'move',col,dStr,startH,slotH,totalSlots,shiftId:sh.id,grabOffset,durSlots,curStart:(fromMin-startH*60)/15,previewEl};
         window.addEventListener('mousemove',_crenMouseMove);
         window.addEventListener('mouseup',_crenMouseUp);
       });
@@ -6170,28 +6233,30 @@ async function applyWeekPatternToMonth() {
   const btn=document.querySelector('.fill-month-block .btn-p');
   if(btn){ btn.disabled=true; btn.textContent='En cours…'; }
 
-  // Supprimer les dispos existantes du mois
+  // Supprimer les dispos existantes du mois (Promise.all = ~10x plus rapide)
   const ex=await API.get('broad_availabilities',`person_id=eq.${pid}&date_from=gte.${monthFrom}&date_to=lte.${monthTo}`).catch(()=>[]);
-  for (const r of ex) await API.del('broad_availabilities',r.id).catch(()=>{});
+  await Promise.all(ex.map(r => API.del('broad_availabilities', r.id).catch(()=>{})));
 
-  // Insérer les nouvelles plages
-  let count=0;
+  // Préparer + insérer toutes les plages en parallèle
+  const toInsert = [];
   for (let d=1;d<=lastDay;d++) {
     const dt=new Date(y,m-1,d);
     const dStr=iso(dt);
     if (dStr<today) continue; // skip passé
-    // getDay() : 0=Dim → dow=6, 1=Lun→0, ..., 6=Sam→5
     const dow=dt.getDay()===0?6:dt.getDay()-1;
     const ranges=template[dow]||[];
     for (const r of ranges) {
       const tf=r.from.length===5?r.from+':00':r.from;
       const tt=r.to.length===5?r.to+':00':r.to;
-      await API.post('broad_availabilities',{person_id:pid,date_from:dStr,date_to:dStr,time_from:tf,time_to:tt}).catch(()=>{});
-      count++;
+      toInsert.push({person_id:pid,date_from:dStr,date_to:dStr,time_from:tf,time_to:tt});
     }
   }
+  let count = 0;
+  const results = await Promise.all(toInsert.map(b => API.post('broad_availabilities', b).then(()=>1).catch(()=>0)));
+  count = results.reduce((a,b) => a+b, 0);
 
-  S.broadAvails=await API.get('broad_availabilities','order=date_from.asc').catch(()=>[]);
+  // Reload avec la même fenêtre temporelle que loadAll (3 mois back, 6 mois forward)
+  { const _from = iso(addD(new Date(), -90)); S.broadAvails = await API.get('broad_availabilities', `order=date_from.asc&date_from=gte.${_from}`).catch(()=>[]); }
   // Recharger la semaine courante
   await loadFlowDispos();
   buildFlowAvailGrid();
@@ -6782,10 +6847,19 @@ function renderDispoUrgency() {
     _updateDispoBadge(0);
     return;
   }
-  // Shifts où l'user a déjà répondu (dispo OU pas dispo)
-  const answered = futureShifts.filter(sh =>
-    (S.shiftAvails||[]).some(a => a.shift_id===sh.id && a.person_id===uid && a.available !== null)
-  );
+  // Shifts où l'user a déjà répondu (shift_avail explicite OU broad_avail qui couvre le shift)
+  const answered = futureShifts.filter(sh => {
+    // 1. Réponse explicite sur ce shift
+    if ((S.shiftAvails||[]).some(a => a.shift_id===sh.id && a.person_id===uid && a.available !== null)) return true;
+    // 2. Dispo générale qui chevauche
+    const shS = t2m(sh.time_from.slice(0,5));
+    const shE = t2m(sh.time_to.slice(0,5));
+    return (S.broadAvails||[]).some(b =>
+      b.person_id === uid &&
+      b.date_from <= sh.date && sh.date <= b.date_to &&
+      t2m(b.time_from.slice(0,5)) < shE && t2m(b.time_to.slice(0,5)) > shS
+    );
+  });
   const remaining = futureShifts.length - answered.length;
   const pct = futureShifts.length ? Math.round(answered.length / futureShifts.length * 100) : 0;
   _updateDispoBadge(remaining);
