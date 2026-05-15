@@ -7370,7 +7370,7 @@ function renderFlowSessionsList() {
           ?(flow?`<span style="font-size:13px;color:var(--muted)"> Flow : ${flow.name}</span>`:`<span style="font-size:13px;color:#8a2a26">⚠ Pas de flow</span>`)
           :(guide?`<span style="font-size:13px;color:var(--muted)"> Guide : ${guide.name}</span>`:'');
         const statusBadge=isMyGuide
-          ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ SÉANCE OK':'EN ATTENTE'}</span>`
+          ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ CONFIRMÉE':'EN ATTENTE'}</span>`
           :`<span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`;
         const confirmBtn=(!isConf&&!isMyGuide)
           ?`<button class="btn btn-green" style="width:100%;padding:13px;font-size:14px;font-weight:900;min-height:50px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();confirmSessAndMark('${s.id}')">✓ CONFIRMER MA PRÉSENCE</button>`
