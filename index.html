@@ -724,7 +724,7 @@ body.cut-mode .cren-col-hint{cursor:default}
 /* Affichage conditionnel mobile/desktop pour la vue shifts */
 .flow-mob-only{display:none}
 .flow-desk-only{display:flex}
-@media(max-width:768px){
+@media(max-width:900px){
   .flow-mob-only{display:block!important}
   .flow-desk-only{display:none!important}
   /* Séances 36% gauche, shifts 64% droite sur mobile */
@@ -6635,10 +6635,10 @@ function renderFlowCal() {
       +`font-family:system-ui,-apple-system,sans-serif`;
     const timeStr=sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5);
     const ellips2='white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-    let inner=`<div style="font-size:9px;font-weight:900;color:#fff;line-height:1.15;${ellips2}">${timeStr}</div>`;
-    if(hPx>=30) inner+=`<div style="font-size:8px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.15;${ellips2}">SHIFT</div>`;
-    if(hPx>=44) inner+=`<div style="font-size:8px;color:rgba(255,255,255,.85);line-height:1.15;${ellips2}">${isConf?'✓ confirmé':'à confirmer'}</div>`;
-    if(!isConf&&hPx>=60) inner+=`<div style="margin-top:3px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border-radius:3px;padding:2px 6px;font-size:9px;font-weight:900;color:#8B6E3F;cursor:pointer">✓ CONFIRMER</span></div>`;
+    let inner=`<div style="font-size:11px;font-weight:900;color:#fff;line-height:1.15;${ellips2}">${timeStr}</div>`;
+    if(hPx>=30) inner+=`<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.95);line-height:1.15;letter-spacing:.04em;${ellips2}">SHIFT</div>`;
+    if(hPx>=44) inner+=`<div style="font-size:10px;color:rgba(255,255,255,.92);line-height:1.2;${ellips2}">${isConf?'✓ Confirmé':'⏳ À confirmer'}</div>`;
+    if(!isConf&&hPx>=68) inner+=`<div style="margin-top:4px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.95);border-radius:4px;padding:5px 8px;font-size:10px;font-weight:900;color:#8B6E3F;cursor:pointer;display:inline-block">✓ CONFIRMER</span></div>`;
     shEl.innerHTML=inner;
     shEl.addEventListener('click',()=>{
       if(!isConf) confirmShift(sh.id);
@@ -7337,7 +7337,7 @@ function renderFlowNotifs() {
       return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15)"> <div> <span style="font-weight:800;font-size:14px">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span> <span style="margin-left:8px;opacity:.9;font-size:14px">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> </div> <button onclick="confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:10px 16px;font-size:13px;font-weight:900;color:#8B6E3F;cursor:pointer;letter-spacing:.03em;flex-shrink:0;min-height:44px;-webkit-tap-highlight-color:transparent">✓ CONFIRMER</button> </div>`;
     }).join('');
     const more=pendingShifts.length>5?`<div style="font-size:11px;opacity:.75;margin-top:6px">… et ${pendingShifts.length-5} autre(s)</div>`:'';
-    div.innerHTML+=`<div class="notif-card urgent mb8" style="background:rgba(184,120,46,.88);border-left:4px solid #8B6E3F;color:#fff"> <h4 style="margin-bottom:10px;color:#fff">... ${pendingShifts.length} shift(s) en attente de votre confirmation</h4> ${items}${more} </div>`;
+    div.innerHTML+=`<div class="notif-card urgent mb8" style="background:rgba(184,120,46,.88);border-left:4px solid #8B6E3F;color:#fff"> <h4 style="margin-bottom:10px;color:#fff">⏰ ${pendingShifts.length} shift(s) en attente de votre confirmation</h4> ${items}${more} </div>`;
   }
 
   // Notif : séances flow à confirmer (planning séances)
@@ -7678,7 +7678,7 @@ function renderFlowMonthCal() {
         +`background:${isConf?'rgba(92,122,58,.9)':'rgba(184,120,46,.88)'};color:#fff;padding:2px 5px;`
         +`border-left:3px solid ${isConf?'#3d5024':'#8B6E3F'}`;
       shEl.innerHTML=`<div style="font-weight:700">${sh.time_from.slice(0,5)} SHIFT ${isConf?'✓':'—'}</div>`;
-      shEl.onclick=()=>{ if(!isConf) confirmShift(sh.id); };
+      shEl.onclick=()=>{ if(!isConf && confirm('Confirmer ce shift du '+fmtDateFr(sh.date)+' ('+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+') ?')) confirmShift(sh.id); };
       cell.appendChild(shEl);
     });
 
