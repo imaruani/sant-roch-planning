@@ -1721,6 +1721,32 @@ function typeLabel(t) {
 
 // Helpers événement
 function isEventSess(s) { return !!(s.title && s.title.startsWith('event:')); }
+
+// ──────────────────────────────────────────────
+// HELPER : fusionne shift_avails + broad_avails pour déterminer qui est dispo
+// ──────────────────────────────────────────────
+// Renvoie un tableau de Person triés (explicites d'abord, puis dispos générales)
+function getDispoFlowsForShift(sh) {
+  if (!sh) return [];
+  const shS = t2m(sh.time_from.slice(0,5));
+  const shE = t2m(sh.time_to.slice(0,5));
+  // Explicites : a.available === true
+  const explicitYes = (S.shiftAvails||[]).filter(a => a.shift_id === sh.id && a.available === true);
+  const yesIds = new Set(explicitYes.map(a => a.person_id));
+  // Explicites NON-dispo : override → on les exclut même s'ils ont une broad
+  const explicitNo  = new Set((S.shiftAvails||[]).filter(a => a.shift_id === sh.id && a.available === false).map(a => a.person_id));
+  // Dispos générales qui couvrent (overlap) ce shift, en excluant les déjà-comptés et les "no" explicites
+  const broadIds = new Set();
+  (S.broadAvails||[]).forEach(b => {
+    if (yesIds.has(b.person_id) || explicitNo.has(b.person_id)) return;
+    if (b.date_from <= sh.date && sh.date <= b.date_to &&
+        t2m(b.time_from.slice(0,5)) < shE && t2m(b.time_to.slice(0,5)) > shS) {
+      broadIds.add(b.person_id);
+    }
+  });
+  const allIds = [...yesIds, ...broadIds];
+  return allIds.map(pid => (S.people||[]).find(p => p.id === pid && p.can_be_flow)).filter(Boolean);
+}
 function eventName(s)   { return s.title && s.title.startsWith('event:') ? s.title.slice(6) : ''; }
 
 // Retourne le label d'une session en tenant compte du custom type stocké dans title
@@ -2628,9 +2654,9 @@ function renderDisposAdmin() {
       const hPx   = Math.max((eMin-sMin)/30*slotH, 32);
       const assignedP2 = sh.person_id ? S.people.find(p=>p.id===sh.person_id) : null;
       const isDraft2   = assignedP2 && sh.assignment_published === false;
-      const shAvails2  = (S.shiftAvails||[]).filter(a=>a.shift_id===sh.id && a.available);
-      const nD2        = shAvails2.length;
-      const dispNames  = shAvails2.map(a=>{ const p=S.people.find(x=>x.id===a.person_id); return p?p.name.split(' ')[0]:''; }).filter(Boolean);
+      const dispoPersons = getDispoFlowsForShift(sh);
+      const nD2        = dispoPersons.length;
+      const dispNames  = dispoPersons.map(p => p.name.split(' ')[0]);
       let bg, border;
       if (assignedP2 && !isDraft2) { bg='rgba(108,20,18,.88)'; border='#6c1412'; }
       else if (isDraft2)           { bg='rgba(200,100,0,.82)'; border='#c06000'; }
@@ -5500,8 +5526,9 @@ function renderCreneauxGrid() {
       const hPx=Math.max((toMin-fromMin)/15*slotH, 32);
       const durSlots=(toMin-fromMin)/15;
       const assigned=sh.person_id?(S.people||[]).find(p=>p.id===sh.person_id):null;
-      const shAvails=(S.shiftAvails||[]).filter(a=>a.shift_id===sh.id);
-      const dispoNames=shAvails.filter(a=>a.available).map(a=>{const p=(S.people||[]).find(x=>x.id===a.person_id);return p?.name.split(' ')[0]||'';}).filter(Boolean);
+      // Fusionne shift_avails + broad_avails pour avoir tous les flows dispo
+      const dispoPersons2 = getDispoFlowsForShift(sh);
+      const dispoNames = dispoPersons2.map(p => p.name.split(' ')[0]);
       const color=assigned?'rgba(92,122,58,.32)':dispoNames.length?'rgba(61,90,128,.28)':'rgba(108,20,18,.24)';
 
       const bandEl=document.createElement('div');
