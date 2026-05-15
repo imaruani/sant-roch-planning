@@ -2679,12 +2679,14 @@ function adminToggleShiftDispo_picker(shiftId) {
 
   const el = document.getElementById('ds-sh-'+shiftId); if (!el) return;
   const rect = el.getBoundingClientRect();
-  const popTop  = Math.min(rect.top, window.innerHeight - 380);
-  const popLeft = rect.right + 8 + 272 > window.innerWidth ? rect.left - 280 : rect.right + 8;
+  // Positionne en haut si pas la place en bas (popup peut faire jusqu'à 100vh - 24px de haut)
+  const popTop  = Math.max(12, Math.min(rect.top, window.innerHeight - 200));
+  const popLeft = rect.right + 8 + 300 > window.innerWidth ? Math.max(8, rect.left - 300) : rect.right + 8;
 
   const pop = document.createElement('div');
   pop.style.cssText = 'position:fixed;z-index:9999;background:#fff;border:1px solid var(--beige-d);'
-    + 'border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.22);padding:0;min-width:240px;max-width:280px;overflow:hidden;'
+    + 'border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.22);padding:0;min-width:240px;max-width:300px;'
+    + 'display:flex;flex-direction:column;max-height:calc(100vh - 24px);overflow:hidden;'
     + 'top:'+Math.max(8, popTop)+'px;left:'+popLeft+'px';
 
   // ── Header ──
@@ -2694,9 +2696,9 @@ function adminToggleShiftDispo_picker(shiftId) {
   let popHtml = '<div style="background:var(--bordeaux);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">'
     + '<div><div style="font-size:13px;font-weight:900">'+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div>'
     + '<div style="font-size:10px;opacity:.8">'+JOURS[d.getDay()]+' '+d.getDate()+' '+MOIS[d.getMonth()]+'</div></div>'
-    + '<button onclick="_dsPopup?.remove();_dsPopup=null" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>'
+    + '<button onclick="_dsPopup?.remove();_dsPopup=null" style="background:rgba(255,255,255,.2);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>'
     + '</div>';
-  popHtml += '<div style="padding:12px 14px">';
+  popHtml += '<div style="padding:12px 14px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch">';
 
   // ── Bloc assigné actuel ──
   if (assignedP) {
