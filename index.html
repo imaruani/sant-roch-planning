@@ -1771,6 +1771,26 @@ function typeLabel(t) {
 function isEventSess(s) { return !!(s.title && s.title.startsWith('event:')); }
 
 // ──────────────────────────────────────────────
+// HELPER : statut d'une personne sur un shift (pour l'user lui-même)
+// Renvoie : 'dispo' (explicit yes) | 'dispo-broad' (via dispo générale)
+//         | 'nodispo' (explicit no) | 'reset' (rien déclaré)
+// ──────────────────────────────────────────────
+function getMyShiftStatus(sh, uid) {
+  const av = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === uid);
+  if (av && av.available === true) return 'dispo';
+  if (av && av.available === false) return 'nodispo';
+  // Sinon : check broad qui couvre
+  const shS = t2m(sh.time_from.slice(0,5));
+  const shE = t2m(sh.time_to.slice(0,5));
+  const hasBroad = (S.broadAvails||[]).some(b =>
+    b.person_id === uid &&
+    b.date_from <= sh.date && sh.date <= b.date_to &&
+    t2m(b.time_from.slice(0,5)) < shE && t2m(b.time_to.slice(0,5)) > shS
+  );
+  return hasBroad ? 'dispo-broad' : 'reset';
+}
+
+// ──────────────────────────────────────────────
 // HELPER : fusionne shift_avails + broad_avails pour déterminer qui est dispo
 // ──────────────────────────────────────────────
 // Renvoie un tableau de Person triés (explicites d'abord, puis dispos générales)
@@ -4719,7 +4739,7 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
     // Shifts du jour
     dayShifts.forEach(sh => {
       const myAvail      = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === uid);
-      const myStatus     = myAvail ? (myAvail.available === true ? 'dispo' : myAvail.available === false ? 'nodispo' : 'reset') : 'reset';
+      const myStatus     = getMyShiftStatus(sh, uid);  // 'dispo'|'dispo-broad'|'nodispo'|'reset'
       const myNote       = myAvail ? (myAvail.note || null) : null;
       const assignedToMe = sh.person_id === uid && sh.assignment_published !== false;
       const isConfirmed  = sh.status === 'confirmed';
@@ -4727,7 +4747,7 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
       let shiftBg, shiftBorder;
       if      (assignedToMe && isConfirmed) { shiftBg = 'rgba(92,122,58,.92)';  shiftBorder = '#3d5024'; }
       else if (assignedToMe)               { shiftBg = 'rgba(184,120,46,.90)';  shiftBorder = '#8B6E3F'; }
-      else if (myStatus === 'dispo')       { shiftBg = 'rgba(92,122,58,.90)';  shiftBorder = '#3d5024'; }
+      else if (myStatus === 'dispo' || myStatus === 'dispo-broad') { shiftBg = 'rgba(92,122,58,.90)';  shiftBorder = '#3d5024'; }
       else if (myStatus === 'nodispo')     { shiftBg = 'rgba(138,42,38,.86)';  shiftBorder = '#8a2a26'; }
       else                                 { shiftBg = 'rgba(100,95,95,.75)';  shiftBorder = '#7a7070'; }
 
@@ -4752,13 +4772,17 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
         }
         html += '</div>';
       } else {
-        const statusLabel = myStatus==='dispo' ? '✓ Dispo déclarée' : myStatus==='nodispo' ? '✗ Pas disponible' : 'Pas encore répondu';
+        const statusLabel = myStatus==='dispo' ? '✓ Dispo déclarée'
+                          : myStatus==='dispo-broad' ? '✓ Dispo (via dispo générale)'
+                          : myStatus==='nodispo' ? '✗ Pas disponible'
+                          : 'Pas encore répondu';
         html += '<div style="font-size:13px;font-weight:700;opacity:.85;margin-top:4px">' + statusLabel + '</div>';
         if (myStatus==='nodispo' && myNote) {
           html += '<div style="background:rgba(0,0,0,.22);border-radius:6px;padding:6px 10px;font-size:12px;'
             + 'color:rgba(255,200,200,.95);font-style:italic;margin-top:6px"> ' + myNote + '</div>';
         }
-        const ndActive = myStatus==='nodispo', dActive = myStatus==='dispo';
+        const ndActive = myStatus==='nodispo';
+        const dActive  = (myStatus==='dispo' || myStatus==='dispo-broad');
         html += '<div style="display:flex;gap:8px;margin-top:12px">';
         html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (ndActive?'reset':'nodispo') + '\')" '
           + 'style="' + btnBase + 'background:' + (ndActive?'rgba(138,42,38,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✗ Pas dispo</button>';
@@ -4899,7 +4923,7 @@ function renderFlowShifts() {
       const hPx   = Math.max((eMin - sMin) / 30 * slotH, 36);
 
       const myAvail      = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === uid);
-      const myStatus     = myAvail ? (myAvail.available === true ? 'dispo' : myAvail.available === false ? 'nodispo' : 'reset') : 'reset';
+      const myStatus     = getMyShiftStatus(sh, uid);  // 'dispo'|'dispo-broad'|'nodispo'|'reset'
       const myNote       = myAvail?.note || null;
       const assignedToMe = sh.person_id === uid && sh.assignment_published !== false;
       const isConfirmed  = sh.status === 'confirmed';
@@ -4908,7 +4932,7 @@ function renderFlowShifts() {
       let shiftBg, shiftBorder;
       if      (assignedToMe && isConfirmed)  { shiftBg='rgba(92,122,58,.92)';  shiftBorder='#3d5024'; } // vert foncé = confirmé
       else if (assignedToMe)                 { shiftBg='rgba(184,120,46,.90)';  shiftBorder='#8B6E3F'; }
-      else if (myStatus==='dispo')           { shiftBg='rgba(92,122,58,.90)';  shiftBorder='#3d5024'; } // teal = dispo déclarée (non confirmé)
+      else if (myStatus==='dispo' || myStatus==='dispo-broad') { shiftBg='rgba(92,122,58,.90)';  shiftBorder='#3d5024'; } // olive = dispo (explicite OU dispo générale)
       else if (myStatus==='nodispo')         { shiftBg='rgba(138,42,38,.86)';  shiftBorder='#8a2a26'; }
       else                                   { shiftBg='rgba(100,95,95,.75)';  shiftBorder='#7a7070'; }
 
@@ -4950,8 +4974,11 @@ function renderFlowShifts() {
       // ── Cas : shift libre — 3 états ──
       else {
         // Ligne heure + statut
-        const statusLabel = myStatus==='dispo' ? '✓ Dispo déclarée' : myStatus==='nodispo' ? '✗ Pas disponible' : 'En attente de ta réponse';
-        const statusColor = myStatus==='dispo' ? 'rgba(255,255,255,.9)' : myStatus==='nodispo' ? 'rgba(255,180,180,.9)' : 'rgba(255,255,255,.6)';
+        const statusLabel = myStatus==='dispo' ? '✓ Dispo déclarée'
+                          : myStatus==='dispo-broad' ? '✓ Dispo (générale)'
+                          : myStatus==='nodispo' ? '✗ Pas disponible'
+                          : 'En attente de ta réponse';
+        const statusColor = (myStatus==='dispo' || myStatus==='dispo-broad') ? 'rgba(255,255,255,.9)' : myStatus==='nodispo' ? 'rgba(255,180,180,.9)' : 'rgba(255,255,255,.6)';
         inner += '<div>'
           +'<div style="font-size:10px;font-weight:900;color:#fff">'+timeStr+'</div>'
           +(hPx>=42 ? '<div style="font-size:9px;font-weight:700;color:'+statusColor+';margin-top:1px">'+statusLabel+'</div>' : '')
@@ -4974,13 +5001,13 @@ function renderFlowShifts() {
             +'background:'+(ndActive?'rgba(138,42,38,.95)':'rgba(255,255,255,.15)')+';'
             +'color:'+(ndActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(ndActive?'rgba(138,42,38,.6)':'rgba(255,255,255,.2)')+'">'
             +(ndActive?'✗ Pas dispo':'✗ Pas dispo')+'</div>';
-          // Bouton Dispo
-          const dActive = myStatus==='dispo';
+          // Bouton Dispo (actif aussi si dispo-broad)
+          const dActive = (myStatus==='dispo' || myStatus==='dispo-broad');
           inner += '<div data-act="dispo" data-sh="'+sh.id+'" '
             +'style="flex:1;text-align:center;padding:4px 2px;border-radius:4px;font-size:9px;font-weight:800;cursor:pointer;'
             +'background:'+(dActive?'rgba(92,122,58,.95)':'rgba(255,255,255,.15)')+';'
             +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(92,122,58,.5)':'rgba(255,255,255,.2)')+'">'
-            +(dActive?'✓ Dispo':'✓ Dispo')+'</div>';
+            +'✓ Dispo</div>';
           inner += '</div>';
           // Bouton note si pas dispo
           if (myStatus==='nodispo') {
@@ -6562,22 +6589,24 @@ function renderFlowCal() {
     ev.style.cursor='pointer';
     ev.style.zIndex='10';
 
-    let html=`<div style="font-size:9px;opacity:.85;white-space:nowrap">${timeStr}</div>`;
+    // Layout compact pro : line-height 1.15 partout, ellipsis sur noms longs
+    const ellips='white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    let html=`<div style="font-size:9px;opacity:.85;line-height:1.15;${ellips}">${timeStr}</div>`;
     if (isFree && isMyFlow) {
-      html+=`<div style="font-size:9px;opacity:.8;font-weight:700;letter-spacing:.03em">FREEFLOW</div>`;
-      html+=`<div style="font-size:11px;font-weight:800;line-height:1.2">${myName}${isConf?' ✓':' ...'}</div>`;
+      html+=`<div style="font-size:9px;opacity:.8;font-weight:700;letter-spacing:.03em;line-height:1.15">FREEFLOW</div>`;
+      html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName}${isConf?' ✓':' ⏳'}</div>`;
     } else if (isFree) {
-      html+=`<div style="font-size:10px;font-weight:600;opacity:.7">Freeflow</div>`;
-      if(guideP) html+=`<div style="font-size:9px;opacity:.8">${guideP.name.split(' ')[0]}</div>`;
+      html+=`<div style="font-size:10px;font-weight:600;opacity:.7;line-height:1.15">Freeflow</div>`;
+      if(guideP) html+=`<div style="font-size:9px;opacity:.8;line-height:1.15;${ellips}">${guideP.name.split(' ')[0]}</div>`;
     } else if (isEv2) {
-      html+=`<div style="font-size:10px;font-weight:800;line-height:1.2"> ${eventName(s)}</div>`;
-      if (hPx>=40) { const p=[guideP?.name.split(' ')[0],flowP?.name.split(' ')[0]].filter(Boolean).join(' · '); if(p) html+=`<div style="font-size:9px;opacity:.9">${p}</div>`; }
+      html+=`<div style="font-size:10px;font-weight:800;line-height:1.15;${ellips}">${eventName(s)}</div>`;
+      if (hPx>=38) { const p=[guideP?.name.split(' ')[0],flowP?.name.split(' ')[0]].filter(Boolean).join(' · '); if(p) html+=`<div style="font-size:9px;opacity:.9;line-height:1.15;${ellips}">${p}</div>`; }
     } else if (isMyGuide) {
-      html+=`<div style="font-size:11px;font-weight:800;line-height:1.2">${myName} · GUIDE</div>`;
-      if (hPx>=40) html+=`<div style="font-size:10px;opacity:.9">${flowP?'Flow : '+flowP.name.split(' ')[0]:'Sans flow'}</div>`;
+      html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName} · GUIDE</div>`;
+      if (hPx>=38) html+=`<div style="font-size:10px;opacity:.95;line-height:1.15;${ellips}">${flowP?'Flow · '+flowP.name.split(' ')[0]:'Sans flow'}</div>`;
     } else {
-      html+=`<div style="font-size:11px;font-weight:800;line-height:1.2">${myName} · FLOW${isConf?' ✓':''}</div>`;
-      if (hPx>=40 && guideP) html+=`<div style="font-size:10px;opacity:.9">Guide : ${guideP.name.split(' ')[0]}</div>`;
+      html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName} · FLOW${isConf?' ✓':''}</div>`;
+      if (hPx>=38 && guideP) html+=`<div style="font-size:10px;opacity:.95;line-height:1.15;${ellips}">Guide · ${guideP.name.split(' ')[0]}</div>`;
     }
     ev.innerHTML=html;
     ev.addEventListener('click', ()=>{ markSessionSeen(s.id); openFlowEventModal(s); });
