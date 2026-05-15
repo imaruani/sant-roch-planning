@@ -3440,11 +3440,18 @@ function renderUnassignedAlert() {
 
   // Construire le message
   const DAYS_FULL = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const MOIS_FULL = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const MOIS = ['janv','févr','mars','avril','mai','juin','juil','août','sept','oct','nov','déc'];
-  const periodLbl = period === 'week' ? 'cette semaine'
-                  : period === '2weeks' ? 'les 2 prochaines semaines'
-                  : period === 'month' ? 'ce mois'
-                  : 'à venir';
+  // Label de période adapté à l'intro
+  let periodLbl;
+  if (period === 'week') periodLbl = 'de la semaine';
+  else if (period === '2weeks') periodLbl = 'des 2 prochaines semaines';
+  else if (period === 'month') {
+    const m = new Date().getMonth();
+    periodLbl = 'du mois de ' + MOIS_FULL[m];
+  } else {
+    periodLbl = 'à venir';
+  }
 
   let msg;
   if (!dates.length) {
@@ -3453,10 +3460,10 @@ function renderUnassignedAlert() {
     return;
   }
 
-  msg = '🚨 Coucou, j\'ai besoin de remplir les shifts suivants ' + periodLbl + ' :\n\n';
+  msg = 'Coucou, voici les remplats à pourvoir ' + periodLbl + ' :\n\n';
   dates.forEach(d => {
     const dt = new Date(d + 'T00:00:00');
-    msg += '📅 ' + DAYS_FULL[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS[dt.getMonth()] + '\n';
+    msg += DAYS_FULL[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS[dt.getMonth()] + '\n';
     byDate[d].forEach(sh => {
       const tf = sh.time_from.slice(0,5), tt = sh.time_to.slice(0,5);
       // Si certains flows ont déclaré dispo → les lister pour rappel
@@ -3466,8 +3473,8 @@ function renderUnassignedAlert() {
     });
     msg += '\n';
   });
-  const total = target.length;
-  msg += 'Qui peut prendre un de ces ' + (total>1?total+' créneaux':'créneau') + ' ? Répondez-moi vite please 🙏';
+  msg += 'L\'un d\'entre vous est disponible ?\n';
+  msg += 'Merci de mettre un pouce vers le bas 👎 si vous ne l\'êtes pas 🙏';
   txtEl.value = msg;
 }
 
