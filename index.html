@@ -6628,13 +6628,17 @@ function renderFlowCal() {
     const bg   = isConf ? 'rgba(92,122,58,.90)'  : 'rgba(184,120,46,.88)';
     const bord = isConf ? '#3d5024'               : '#8B6E3F';
     const shEl=document.createElement('div');
-    shEl.style.cssText=`position:absolute;left:1px;right:1px;top:${topPx}px;height:${hPx}px;`
+    // Split layout : shifts à droite (50%), séances à gauche (50%) — pas de chevauchement visuel
+    shEl.style.cssText=`position:absolute;left:50%;right:1px;top:${topPx}px;height:${hPx}px;`
       +`background:${bg};border-left:4px solid ${bord};border-radius:0 4px 4px 0;`
-      +`z-index:8;overflow:hidden;padding:3px 5px 3px 5px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18)`;
+      +`z-index:8;overflow:hidden;padding:3px 5px 3px 5px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18);`
+      +`font-family:system-ui,-apple-system,sans-serif`;
     const timeStr=sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5);
-    let inner=`<div style="font-size:9px;font-weight:900;color:#fff;white-space:nowrap">${timeStr}</div>`;
-    if(hPx>=36) inner+=`<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.9)">${isConf?'✓ Shift confirmé':'À confirmer'}</div>`;
-    if(!isConf&&hPx>=52) inner+=`<div style="margin-top:3px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border-radius:3px;padding:2px 7px;font-size:9px;font-weight:900;color:#8B6E3F;cursor:pointer">✓ Confirmer</span></div>`;
+    const ellips2='white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    let inner=`<div style="font-size:9px;font-weight:900;color:#fff;line-height:1.15;${ellips2}">${timeStr}</div>`;
+    if(hPx>=30) inner+=`<div style="font-size:8px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.15;${ellips2}">SHIFT</div>`;
+    if(hPx>=44) inner+=`<div style="font-size:8px;color:rgba(255,255,255,.85);line-height:1.15;${ellips2}">${isConf?'✓ confirmé':'à confirmer'}</div>`;
+    if(!isConf&&hPx>=60) inner+=`<div style="margin-top:3px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border-radius:3px;padding:2px 6px;font-size:9px;font-weight:900;color:#8B6E3F;cursor:pointer">✓ CONFIRMER</span></div>`;
     shEl.innerHTML=inner;
     shEl.addEventListener('click',()=>{
       if(!isConf) confirmShift(sh.id);
@@ -6671,6 +6675,9 @@ function renderFlowCal() {
 
     const ev=document.createElement('div');
     ev.className='ev';
+    // Split layout : séances à gauche (0-50%), shifts à droite (50-100%)
+    ev.style.left='2px';
+    ev.style.right='50%';
     ev.style.top=`${top}px`;
     ev.style.height=`${hPx}px`;
     ev.style.background=bg;
@@ -6678,6 +6685,7 @@ function renderFlowCal() {
     ev.style.borderLeft=`4px solid ${border}`;
     ev.style.cursor='pointer';
     ev.style.zIndex='10';
+    ev.style.fontFamily='system-ui,-apple-system,sans-serif';
 
     // Layout compact pro : line-height 1.15 partout, ellipsis sur noms longs
     const ellips='white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
