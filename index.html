@@ -1550,7 +1550,7 @@ function _sessInfo(s) {
   const gc     = isFree ? '#7a6840' : isEv ? '#c0651a' : (s.guide_id ? guideColor(s.guide_id) : '#555');
   const guideP = S.people.find(p => p.id === s.guide_id);
   const flowP  = S.people.find(p => p.id === s.flow_id);
-  const typeL  = isFree ? ' Freeflow' : isEv ? (s.event_name || 'Événement') : ' Guidée';
+  const typeL  = isFree ? 'Freeflow' : isEv ? (s.event_name || 'Événement') : 'Guidée';
   const tf = s.start_time.slice(0,5), tt = s.end_time.slice(0,5);
   const dMin = t2m(tt) - t2m(tf);
   const durStr = dMin>=60 ? (dMin%60===0 ? dMin/60+'h' : Math.floor(dMin/60)+'h'+String(dMin%60).padStart(2,'0')) : dMin+'min';
@@ -1558,23 +1558,42 @@ function _sessInfo(s) {
 }
 
 function _sessBlockHtml(s, topPx, hPx) {
-  const { gc, guideP, flowP, typeL, tf, tt, durStr } = _sessInfo(s);
-  // Adapte police + lignes selon hauteur disponible
-  // chaque ligne ~ 11px (font 8px * line-height 1.35) + padding 6px = environ 11px/ligne
-  const pad = 4; const lineH = 11;
-  const linesAvail = Math.floor((hPx - pad * 2) / lineH);
-  const fs = hPx < 30 ? 7 : hPx < 48 ? 8 : 9; // police adaptative
-  const lh = 1.3;
-  let lines = '';
-  // Ligne 1 toujours : heure (légèrement plus grande)
+  const { gc, guideP, flowP, typeL, tf, tt, durStr, isFree, isEv } = _sessInfo(s);
+  // Layout compact pro — priorité : heure > guide > flow > type/durée
+  const pad = 3;
+  const inner = hPx - pad * 2;
+  // Police adaptative compacte
+  const fs = hPx >= 70 ? 11 : hPx >= 52 ? 10 : hPx >= 36 ? 9 : hPx >= 22 ? 8 : 7;
   const fsTime = fs + 1;
-  lines += `<div style="font-size:${fsTime}px;font-weight:900;color:#fff;line-height:${lh};white-space:nowrap">${tf}–${tt}</div>`;
-  if (linesAvail >= 2) lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.75);line-height:${lh}">${durStr} · ${typeL}</div>`;
-  if (linesAvail >= 3 && guideP) lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh}"> ${guideP.name}</div>`;
-  if (linesAvail >= 4 && flowP)  lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.9);line-height:${lh}"> ${flowP.name}</div>`;
+  const lh = 1.15;
+  const lineH = Math.ceil(fs * lh);
+  const lineTime = Math.ceil(fsTime * lh) + 1;
+  let used = 0;
+  const fit = (h) => { if (used + h <= inner) { used += h; return true; } return false; };
+  const ellips = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  let lines = '';
+  // 1. Heure (toujours)
+  if (fit(lineTime)) {
+    lines += `<div style="font-size:${fsTime}px;font-weight:900;color:#fff;line-height:${lh};letter-spacing:.01em;${ellips};margin-bottom:1px">${tf}–${tt}</div>`;
+  }
+  // 2. Guide
+  if (guideP && fit(lineH)) {
+    lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh};${ellips}"><span style="opacity:.55;font-weight:500;font-size:${fs-1}px">G&nbsp;</span>${guideP.name}</div>`;
+  }
+  // 3. Flow (ou "Sans flow" si séance guidée sans flow attribué)
+  if (flowP && fit(lineH)) {
+    lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.96);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.55;font-weight:500;font-size:${fs-1}px">F&nbsp;</span>${flowP.name}</div>`;
+  } else if (!flowP && !isFree && !isEv && fit(lineH)) {
+    lines += `<div style="font-size:${fs}px;color:rgba(255,200,200,.95);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.55;font-weight:500;font-size:${fs-1}px">F&nbsp;</span>—</div>`;
+  }
+  // 4. Type · durée (priorité la plus basse)
+  if (fit(lineH)) {
+    lines += `<div style="font-size:${Math.max(7,fs-1)}px;color:rgba(255,255,255,.72);line-height:${lh};letter-spacing:.02em;${ellips}">${typeL} · ${durStr}</div>`;
+  }
   return `<div class="sess-split-sess" style="position:absolute;left:0;right:54%;top:${topPx}px;height:${hPx}px;`
     +`background:${gc};border-right:2px solid rgba(255,255,255,.2);`
-    +`pointer-events:none;z-index:5;overflow:hidden;padding:${pad}px 4px;box-sizing:border-box">${lines}</div>`;
+    +`pointer-events:none;z-index:5;overflow:hidden;padding:${pad}px 6px;box-sizing:border-box;`
+    +`font-family:system-ui,-apple-system,sans-serif">${lines}</div>`;
 }
 
 // Version DOM
@@ -6117,7 +6136,7 @@ function renderGlobalCalMobile(container, ws, we, uid, allSessions) {
       else if (isEv)                     { gc='rgba(192,100,26,.80)'; alpha='.85'; }
       else if (isConf)                   { gc='rgba(42,122,75,.55)'; alpha='.80'; }
       else                               { gc='rgba(130,120,115,.55)'; alpha='.75'; }
-      const typeL=isFree?' Freeflow':isEv?(s.event_name||'Événement'):' Guidée';
+      const typeL=isFree?'Freeflow':isEv?(s.event_name||'Événement'):'Guidée';
       const tf=s.start_time.slice(0,5), tt=s.end_time.slice(0,5);
       const meBadge=isMe?('<span style="background:rgba(255,255,255,.28);padding:2px 8px;border-radius:7px;font-size:11px;font-weight:800;flex-shrink:0">'+(isMyGuide?'MOI · GUIDE':'MOI · FLOW')+'</span>'):'';
       html+='<div style="background:'+gc+';color:#fff;border-radius:10px;padding:12px 14px;opacity:'+alpha+'">';
