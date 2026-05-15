@@ -6,13 +6,26 @@
 <title>Sant Roch — Planning</title>
 <style>
 :root {
-  --bordeaux:#6C1412;--bordeaux-l:#8a1a17;--creme:#F9F9F2;--beige:#ddd7c9;
-  --beige-d:#c8c0af;--white:#fff;--text:#1a1a1a;--muted:#666;
-  --blue:#2a5fa5;--blue-l:rgba(42,95,165,0.15);
-  --green:#2a7a4b;--green-l:rgba(42,122,75,0.15);
-  --violet:#6b3fa0;--red:#c0392b;--orange:#e67e22;
-  --danger:#d63031;--danger-l:rgba(214,48,49,.12);
-  --shadow:0 2px 8px rgba(0,0,0,.12);
+  /* Brand palette Sant Roch — terres & bordeaux, look premium */
+  --bordeaux:#6C1412;--bordeaux-l:#8a1a17;--bordeaux-d:#4a0d0c;
+  --creme:#F5F0E5;                /* off-white chaleureux */
+  --beige:#DBCFB5;                /* sand brand */
+  --beige-d:#b8a888;
+  --bronze:#8B6E3F;               /* brown/golden brand (utilisé pour event/freeflow accents) */
+  --bronze-l:#a98a5c;
+  --bronze-d:#6a5430;
+  --black:#1a1a1a;
+  --white:#fff;
+  --text:#1a1a1a;
+  --muted:#8a7a64;                /* warm muted (au lieu du gris froid) */
+  /* Sémantique tonée vers le brand (toujours distinguable, jamais criard) */
+  --blue:#3d5a80;                 --blue-l:rgba(61,90,128,.12);   /* slate doux */
+  --green:#5c7a3a;                --green-l:rgba(92,122,58,.14);  /* olive */
+  --violet:#6a4a5a;
+  --red:#8a2a26;                  /* rouge profond (jamais vif) */
+  --orange:#b8782e;               /* bronze warm */
+  --danger:#8a2a26;               --danger-l:rgba(138,42,38,.12);
+  --shadow:0 2px 8px rgba(74,42,30,.10);
   --font:Georgia,'Times New Roman',serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -90,10 +103,10 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .badge{display:inline-block;padding:2px 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .b-flow{background:var(--blue-l);color:var(--blue)}
 .b-guide{background:rgba(108,20,18,.12);color:var(--bordeaux)}
-.b-free{background:rgba(210,198,172,.5);color:#5a4a30}
+.b-free{background:rgba(219,207,181,.5);color:#5a4530}
 .b-ok{background:var(--green-l);color:var(--green)}
-.b-wait{background:rgba(230,126,34,.15);color:var(--orange)}
-.b-miss{background:rgba(192,57,43,.12);color:var(--red)}
+.b-wait{background:rgba(139,110,63,.15);color:var(--orange)}
+.b-miss{background:rgba(138,42,38,.12);color:var(--red)}
 
 /* CALENDRIER */
 .cal-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
@@ -112,17 +125,17 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .ev-time{font-size:10px;opacity:.85}
 /* Couleurs events */
 .ev-guide{background:rgba(108,20,18,.85);color:var(--creme);border-color:var(--bordeaux)}
-.ev-flow{background:rgba(42,95,165,.85);color:#fff;border-color:var(--blue)}
-.ev-free{background:rgba(210,198,172,.85);color:#5a4a30;border-color:#b5a88a}
+.ev-flow{background:rgba(61,90,128,.85);color:#fff;border-color:var(--blue)}
+.ev-free{background:rgba(219,207,181,.85);color:#5a4530;border-color:#b8a888}
 .ev-none{background:rgba(150,150,150,.7);color:#fff;border-color:#888}
 /* ── États des séances (flow view) ──
    Règle : couleur TOUJOURS visible quelle que soit la hauteur du bloc.
    Le badge texte (.ev-state-chip) s'affiche si hauteur suffisante. */
-.ev-pending{background:rgba(42,95,165,.82);color:#fff;border-left:4px solid var(--blue)!important}
-.ev-confirmed{background:rgba(42,122,75,.88);color:#fff;border-left:4px solid var(--green)!important}
+.ev-pending{background:rgba(61,90,128,.82);color:#fff;border-left:4px solid var(--blue)!important}
+.ev-confirmed{background:rgba(92,122,58,.88);color:#fff;border-left:4px solid var(--green)!important}
 .ev-other-pending{background:rgba(150,150,150,.45);color:#fff;border-left:3px solid #aaa!important}
-.ev-other-confirmed{background:rgba(42,122,75,.28);color:#2a5e3a;border-left:3px solid var(--green)!important}
-.ev-noflow{background:rgba(192,57,43,.35);color:var(--red);border-left:3px solid var(--red)!important}
+.ev-other-confirmed{background:rgba(92,122,58,.28);color:#3d5024;border-left:3px solid var(--green)!important}
+.ev-noflow{background:rgba(138,42,38,.35);color:var(--red);border-left:3px solid var(--red)!important}
 .ev-guide{background:rgba(108,20,18,.88);color:var(--creme);border-left:4px solid var(--bordeaux)!important}
 .chip-guide{background:rgba(255,255,255,.22);color:var(--creme)}
 /* Puce d'état — affichée via JS selon la hauteur du bloc */
@@ -130,8 +143,8 @@ tr:hover td{background:rgba(221,215,201,.2)}
   padding:1px 4px;display:inline-block;line-height:1.4;margin-top:1px;border-radius:2px}
 .chip-pending{background:rgba(255,255,255,.25);color:#fff}
 .chip-confirmed{background:rgba(255,255,255,.3);color:#fff}
-.chip-other-confirmed{background:rgba(42,122,75,.2);color:#1a5c30}
-.chip-noflow{background:rgba(192,57,43,.15);color:var(--red)}
+.chip-other-confirmed{background:rgba(92,122,58,.2);color:#3d5024}
+.chip-noflow{background:rgba(138,42,38,.15);color:var(--red)}
 .ev-resize{position:absolute;bottom:0;left:0;right:0;height:6px;cursor:s-resize;background:rgba(255,255,255,.2)}
 .ev-resize:hover{background:rgba(255,255,255,.4)}
 
@@ -144,8 +157,8 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .mday-num{font-weight:600;font-size:12px;margin-bottom:3px;color:var(--muted)}
 .mev{padding:2px 4px;margin-bottom:2px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .mev-guide{background:rgba(108,20,18,.8);color:var(--creme)}
-.mev-flow{background:rgba(42,95,165,.8);color:#fff}
-.mev-free{background:rgba(210,198,172,.9);color:#5a4a30}
+.mev-flow{background:rgba(61,90,128,.8);color:#fff}
+.mev-free{background:rgba(219,207,181,.9);color:#5a4530}
 .mev-none{background:rgba(150,150,150,.6);color:#fff}
 
 /* GRILLE DISPOS */
@@ -156,10 +169,10 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .ag-cell:hover{background:rgba(108,20,18,.08)}
 .ag-cell.sel{background:rgba(108,20,18,.25)}
 /* Vue globale dispos */
-.ag-cell.flow0{background:rgba(192,57,43,.15)}
-.ag-cell.flow1{background:rgba(230,126,34,.12)}
-.ag-cell.flow2{background:rgba(42,122,75,.12)}
-.ag-cell.flow3plus{background:rgba(42,122,75,.22)}
+.ag-cell.flow0{background:rgba(138,42,38,.15)}
+.ag-cell.flow1{background:rgba(139,110,63,.12)}
+.ag-cell.flow2{background:rgba(92,122,58,.12)}
+.ag-cell.flow3plus{background:rgba(92,122,58,.22)}
 .flow-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;pointer-events:none}
 .flow-count.zero{color:var(--red)}
 .flow-count.low{color:var(--orange)}
@@ -209,7 +222,7 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .mft{padding:14px 20px;border-top:1px solid var(--beige);display:flex;gap:8px;justify-content:flex-end}
 
 /* CONFIRM BATCH */
-.confirm-batch{border:2px solid var(--blue);padding:16px;margin-bottom:20px;background:rgba(42,95,165,.04)}
+.confirm-batch{border:2px solid var(--blue);padding:16px;margin-bottom:20px;background:rgba(61,90,128,.04)}
 .confirm-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--beige)}
 .confirm-item:last-child{border-bottom:none}
 .confirm-dot{width:12px;height:12px;border-radius:50%}
@@ -217,8 +230,8 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .dot-confirmed{background:var(--green)}
 
 /* NOTIF CARD */
-.notif-card{border-left:4px solid var(--orange);padding:14px 16px;background:rgba(230,126,34,.06);margin-bottom:10px}
-.notif-card.urgent{border-color:var(--red);background:rgba(192,57,43,.06)}
+.notif-card{border-left:4px solid var(--orange);padding:14px 16px;background:rgba(139,110,63,.06);margin-bottom:10px}
+.notif-card.urgent{border-color:var(--red);background:rgba(138,42,38,.06)}
 .notif-card h4{font-size:13px;font-weight:600;margin-bottom:4px}
 .notif-card p{font-size:12px;color:var(--muted)}
 
@@ -327,7 +340,7 @@ body.flow-mode #mob-flow-nav{display:flex}
   /* ── CONFIRMATION BATCH ── */
   .confirm-batch{
     border-radius:10px;padding:14px;border:none;
-    background:linear-gradient(135deg,rgba(42,95,165,.08),rgba(42,95,165,.03));
+    background:linear-gradient(135deg,rgba(61,90,128,.08),rgba(61,90,128,.03));
     border-left:4px solid var(--blue);
   }
   .confirm-batch .btn-green{width:100%;padding:16px;font-size:15px;font-weight:800;border-radius:6px}
@@ -428,31 +441,31 @@ body.flow-mode #mob-flow-nav{display:flex}
 
 /* Session type badge dans les grilles */
 .sess-badge-guidee{background:rgba(108,20,18,.15);color:var(--bordeaux);padding:1px 6px;font-size:10px;font-weight:700}
-.sess-badge-free{background:rgba(210,198,172,.5);color:#5a4a30;padding:1px 6px;font-size:10px;font-weight:700}
-.sess-badge-event{background:rgba(230,126,34,.18);color:#c0651a;padding:1px 6px;font-size:10px;font-weight:700}
+.sess-badge-free{background:rgba(219,207,181,.5);color:#5a4530;padding:1px 6px;font-size:10px;font-weight:700}
+.sess-badge-event{background:rgba(139,110,63,.18);color:#6a5430;padding:1px 6px;font-size:10px;font-weight:700}
 
 /* Cellule absolue dans grille dispo flow (nouvelle structure colonne) */
 .ag-cell-abs{position:absolute;left:0;right:0;cursor:pointer;transition:background .08s;z-index:1}
-.ag-cell-abs:hover{background:rgba(42,122,75,.10)!important}
-.ag-cell-abs.sel{background:rgba(42,122,75,.35)!important;border-left:2px solid rgba(42,122,75,.7)!important}
+.ag-cell-abs:hover{background:rgba(92,122,58,.10)!important}
+.ag-cell-abs.sel{background:rgba(92,122,58,.35)!important;border-left:2px solid rgba(92,122,58,.7)!important}
 /* Bloc séance dans grille dispo flow — strong contrast */
 .ag-sess-blk{position:absolute;left:2px;right:2px;z-index:10;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer;transition:outline .1s}
 .ag-sess-blk.guidee{background:rgba(108,20,18,.88);border-left:3px solid var(--bordeaux);color:#fff}
-.ag-sess-blk.freeflow{background:rgba(210,198,172,.90);border-left:3px solid #b5a88a;color:#5a4a30}
+.ag-sess-blk.freeflow{background:rgba(219,207,181,.90);border-left:3px solid #b8a888;color:#5a4530}
 .ag-sess-blk-title{font-size:9px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 4px 0}
 .ag-sess-blk-time{font-size:8px;opacity:.75;padding:0 4px 1px}
 /* Overlay dispo sur bloc séance */
 .ag-dispo-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;pointer-events:none}
-.ag-dispo-overlay.full{background:rgba(42,122,75,.55)}
+.ag-dispo-overlay.full{background:rgba(92,122,58,.55)}
 .ag-dispo-check{font-size:18px;line-height:1;text-shadow:0 0 6px rgba(0,0,0,.4);color:#fff}
 .ag-dispo-badge{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#fff;padding:1px 5px;border-radius:2px}
-.ag-dispo-badge.full{background:rgba(30,100,55,.95)}
+.ag-dispo-badge.full{background:rgba(92,122,58,.95)}
 .ag-dispo-hint{position:absolute;bottom:2px;right:3px;font-size:7px;opacity:.7;color:#fff;pointer-events:none}
 /* Équité compacte — pills */
 .eq-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--beige);font-size:11px;margin:2px}
 .eq-pill-bar{display:inline-block;height:6px;background:var(--blue);min-width:4px;max-width:60px;vertical-align:middle}
 /* Alerte flow non disponible */
-.flow-unavail-row{opacity:.55;background:rgba(192,57,43,.04)}
+.flow-unavail-row{opacity:.55;background:rgba(138,42,38,.04)}
 .flow-avail-badge{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 /* ── GUIDE "COMMENT ÇA MARCHE" ── */
@@ -468,14 +481,14 @@ body.flow-mode #mob-flow-nav{display:flex}
 .guide-num{width:26px;height:26px;border-radius:50%;background:var(--bordeaux);color:var(--creme);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .guide-step-title{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
 .guide-step-body{font-size:12px;color:var(--muted);line-height:1.55}
-.guide-tip{grid-column:1/-1;background:rgba(42,95,165,.05);border-top:1px solid var(--beige);padding:10px 18px;font-size:11px;color:var(--blue);display:flex;align-items:flex-start;gap:8px}
+.guide-tip{grid-column:1/-1;background:rgba(61,90,128,.05);border-top:1px solid var(--beige);padding:10px 18px;font-size:11px;color:var(--blue);display:flex;align-items:flex-start;gap:8px}
 @media(max-width:600px){.guide-body{grid-template-columns:1fr}.guide-step{border-right:none;border-bottom:1px solid var(--beige)}}
 
 /* ── ASSIGN LIST (admin dispos) ── */
 .asl-day{padding:6px 14px 2px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--creme);border-bottom:1px solid var(--beige);position:sticky;top:40px;z-index:3}
 .asl-row{padding:9px 12px;border-bottom:1px solid var(--beige);cursor:pointer;transition:background .1s;display:flex;flex-direction:column;gap:3px}
 .asl-row:hover{background:rgba(108,20,18,.04)}
-.asl-row.selected{background:rgba(42,95,165,.07);border-left:3px solid var(--blue)}
+.asl-row.selected{background:rgba(61,90,128,.07);border-left:3px solid var(--blue)}
 .asl-row.sel-free{border-left-color:#c9a700}
 .asl-time{font-size:12px;font-weight:700;color:var(--text)}
 .asl-guide{font-size:11px;color:var(--muted)}
@@ -499,17 +512,17 @@ body.flow-mode #mob-flow-nav{display:flex}
 .fb-dispo-btn.active{opacity:1}
 .fb-dispo-yes{background:var(--green-l);color:var(--green);border:1.5px solid var(--green)}
 .fb-dispo-yes.active{background:var(--green);color:#fff}
-.fb-dispo-no{background:rgba(192,57,43,.08);color:var(--red);border:1.5px solid var(--red)}
+.fb-dispo-no{background:rgba(138,42,38,.08);color:var(--red);border:1.5px solid var(--red)}
 .fb-dispo-no.active{background:var(--red);color:#fff}
 .fb-empty{padding:40px 0;text-align:center;color:var(--muted);font-style:italic;font-size:14px}
 /* Matrice admin — section assignation sur bloc validé */
-.mat-assign-section{margin-top:10px;padding:10px;background:rgba(42,95,165,.05);border:1px solid rgba(42,95,165,.2)}
+.mat-assign-section{margin-top:10px;padding:10px;background:rgba(61,90,128,.05);border:1px solid rgba(61,90,128,.2)}
 .mat-assign-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--blue);margin-bottom:8px}
 .mat-assign-dispo-line{font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .mat-assign-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .12s}
 .mat-assign-chip.avail{background:var(--green-l);border-color:var(--green);color:var(--green)}
 .mat-assign-chip.avail:hover,.mat-assign-chip.avail.assigned{background:var(--green);color:#fff}
-.mat-assign-chip.unavail{background:rgba(192,57,43,.08);border-color:#ddd;color:#aaa;cursor:default}
+.mat-assign-chip.unavail{background:rgba(138,42,38,.08);border-color:#ddd;color:#aaa;cursor:default}
 .mat-assign-chip.no-ans{background:var(--beige);border-color:var(--beige-d);color:var(--muted);cursor:pointer}
 .mat-assign-chip.no-ans:hover{border-color:var(--bordeaux);color:var(--bordeaux)}
 .mat-assigned-badge{background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;display:inline-block;margin-top:4px}
@@ -529,7 +542,7 @@ body.flow-mode #mob-flow-nav{display:flex}
 .flow-sess-row.confirmed{border-left:4px solid var(--green)}
 .flow-sess-row.as-guide{border-left:4px solid var(--bordeaux);background:rgba(108,20,18,.03)}
 .role-badge-guide{background:rgba(108,20,18,.12);color:var(--bordeaux);padding:2px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.role-badge-flow{background:rgba(42,95,165,.12);color:var(--blue);padding:2px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.role-badge-flow{background:rgba(61,90,128,.12);color:var(--blue);padding:2px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
 .read-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
 .read-dot.seen{background:var(--green)}.read-dot.unseen{background:var(--orange)}
 
@@ -544,24 +557,24 @@ body.flow-mode #mob-flow-nav{display:flex}
 .dispo-card-summary{padding:0 14px 8px;font-size:12px;min-height:18px}
 .dispo-presets{display:flex;gap:6px;padding:0 14px 12px;flex-wrap:wrap}
 .dispo-preset{flex:1;min-width:80px;padding:10px 6px;border:2px solid var(--beige-d);background:var(--white);border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;text-align:center;line-height:1.4;transition:all .15s;color:var(--muted);-webkit-tap-highlight-color:transparent}
-.dispo-preset.active{border-color:var(--green);background:rgba(42,122,75,.08);color:var(--green)}
-.dispo-preset.active.all{border-color:#1a6b3a;background:rgba(42,122,75,.15)}
+.dispo-preset.active{border-color:var(--green);background:rgba(92,122,58,.08);color:var(--green)}
+.dispo-preset.active.all{border-color:#3d5024;background:rgba(92,122,58,.15)}
 .dispo-clear-btn{background:none;border:none;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;text-decoration:underline}
 .dispo-sess-list{border-top:1px solid var(--beige);padding:8px 14px 12px}
 .dispo-sess-list-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
 .dispo-sess-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(221,215,201,.6)}
 .dispo-sess-row:last-child{border-bottom:none}
 .dispo-sess-btn{padding:6px 12px;border-radius:20px;border:2px solid var(--beige-d);background:var(--white);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .15s;-webkit-tap-highlight-color:transparent;color:var(--muted)}
-.dispo-sess-btn.is-dispo{border-color:var(--green);background:rgba(42,122,75,.1);color:var(--green)}
+.dispo-sess-btn.is-dispo{border-color:var(--green);background:rgba(92,122,58,.1);color:var(--green)}
 .dispo-save-bar{position:sticky;bottom:0;background:var(--white);border-top:1px solid var(--beige);padding:10px 14px;z-index:50;display:flex;gap:8px;align-items:center}
 .dispo-save-bar .btn-p{flex:1;padding:14px;font-size:14px;font-weight:800;letter-spacing:.05em}
-.dispo-save-bar.modified{border-top-color:var(--green);background:rgba(42,122,75,.05);padding-top:12px;padding-bottom:12px}
-@keyframes savePulse{0%,100%{box-shadow:0 0 0 0 rgba(42,122,75,.4)}50%{box-shadow:0 0 0 6px rgba(42,122,75,0)}}
+.dispo-save-bar.modified{border-top-color:var(--green);background:rgba(92,122,58,.05);padding-top:12px;padding-bottom:12px}
+@keyframes savePulse{0%,100%{box-shadow:0 0 0 0 rgba(92,122,58,.4)}50%{box-shadow:0 0 0 6px rgba(92,122,58,0)}}
 .dispo-save-bar.modified #btn-save-dispos{animation:savePulse 2s infinite;background:var(--green)!important}
 /* ── Dispo calendrier shifts ── */
 .dsc-list{border-top:1px solid var(--beige)}
 .dsc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--beige);transition:background .1s}
-.dsc-row.dsc-on{background:rgba(42,122,75,.05)}
+.dsc-row.dsc-on{background:rgba(92,122,58,.05)}
 .dsc-left{display:flex;flex-direction:column;gap:2px;min-width:0}
 .dsc-time{font-size:13px;font-weight:800;color:var(--text);padding-left:8px;white-space:nowrap}
 .dsc-sep{color:var(--muted);font-weight:400;margin:0 2px}
@@ -575,18 +588,18 @@ body.flow-mode #mob-flow-nav{display:flex}
 .dsc-add-btn:hover{border-color:var(--bordeaux);color:var(--bordeaux)}
 /* Plages libres mini-chips */
 .dispo-ranges{display:flex;flex-wrap:wrap;gap:6px;padding:6px 14px 10px}
-.dispo-range-chip{display:flex;align-items:center;gap:8px;background:rgba(42,122,75,.1);border:2px solid var(--green);border-radius:24px;padding:8px 8px 8px 14px;font-size:14px;font-weight:800;color:var(--green);line-height:1}
+.dispo-range-chip{display:flex;align-items:center;gap:8px;background:rgba(92,122,58,.1);border:2px solid var(--green);border-radius:24px;padding:8px 8px 8px 14px;font-size:14px;font-weight:800;color:var(--green);line-height:1}
 .dispo-range-chip button{background:none;border:none;color:var(--green);cursor:pointer;font-size:16px;font-weight:900;padding:0 4px;line-height:1;opacity:.6;-webkit-tap-highlight-color:transparent}
 .dispo-range-chip button:hover{opacity:1;color:var(--red)}
 .dispo-no-range{padding:4px 14px 8px;color:var(--muted);font-size:12px;font-style:italic}
 .dispo-time-input{width:120px!important;padding:10px!important;font-size:15px!important;font-weight:700!important}
 .dispo-add-form{background:var(--creme);border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid var(--beige-d)}
 .dispo-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.dispo-range-mini{display:inline-flex;align-items:center;gap:4px;background:rgba(42,95,165,.08);border:1px solid rgba(42,95,165,.3);border-radius:12px;padding:3px 6px 3px 10px;font-size:11px;font-weight:700;color:var(--blue)}
+.dispo-range-mini{display:inline-flex;align-items:center;gap:4px;background:rgba(61,90,128,.08);border:1px solid rgba(61,90,128,.3);border-radius:12px;padding:3px 6px 3px 10px;font-size:11px;font-weight:700;color:var(--blue)}
 .dispo-range-mini button{background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;font-weight:900;padding:0 2px;opacity:.6}
 .dispo-range-mini button:hover{opacity:1;color:var(--red)}
 /* Bloc remplissage mensuel */
-.fill-month-block{margin:8px 0 0;padding:16px 14px;background:linear-gradient(135deg,rgba(108,20,18,.04),rgba(42,95,165,.04));border:1.5px solid var(--beige-d);border-radius:8px}
+.fill-month-block{margin:8px 0 0;padding:16px 14px;background:linear-gradient(135deg,rgba(108,20,18,.04),rgba(61,90,128,.04));border:1.5px solid var(--beige-d);border-radius:8px}
 .fill-month-title{font-size:13px;font-weight:800;color:var(--bordeaux);letter-spacing:.02em;margin-bottom:4px}
 .fill-month-desc{font-size:11px;color:var(--muted);line-height:1.5}
 /* Grille heures dispo */
@@ -597,7 +610,7 @@ body.flow-mode #mob-flow-nav{display:flex}
 .hour-slot.on.has-sess{background:var(--bordeaux);border-color:var(--bordeaux)}
 @media(max-width:480px){.hour-slot{padding:12px 2px;font-size:13px}}
 .dispo-preset-sm{padding:6px 10px;border:1.5px solid var(--beige-d);background:var(--white);border-radius:20px;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
-.dispo-preset-sm:active,.dispo-preset-sm.active{background:rgba(42,122,75,.1);border-color:var(--green);color:var(--green)}
+.dispo-preset-sm:active,.dispo-preset-sm.active{background:rgba(92,122,58,.1);border-color:var(--green);color:var(--green)}
 #dispo-modified-dot{width:10px;height:10px;border-radius:50%;background:var(--orange);flex-shrink:0;display:none}
 #dispo-modified-dot.show{display:block}
 /* ── CRÉNEAUX DISPO ── */
@@ -662,7 +675,7 @@ body.cut-mode .cren-col-hint{cursor:default}
   margin-bottom:14px;box-shadow:0 4px 16px rgba(108,20,18,.25);
   display:flex;align-items:center;gap:14px;
 }
-.dispo-urgency.ok{background:linear-gradient(135deg,#2a7a4b,#1a5c38)}
+.dispo-urgency.ok{background:linear-gradient(135deg,#5c7a3a,#3d5024)}
 .dispo-urgency-icon{font-size:32px;line-height:1;flex-shrink:0}
 .dispo-urgency-body{flex:1;min-width:0}
 .dispo-urgency-title{font-size:15px;font-weight:900;letter-spacing:.02em;line-height:1.2;margin-bottom:3px}
@@ -702,7 +715,7 @@ body.cut-mode .cren-col-hint{cursor:default}
   margin:8px 0 12px;position:relative;
 }
 .dispo-progress-fill{
-  height:100%;background:linear-gradient(90deg,#c0392b,#e67e22,#2a7a4b);
+  height:100%;background:linear-gradient(90deg,#8a2a26,#b8782e,#5c7a3a);
   background-size:300% 100%;background-position:0 0;
   transition:width .4s ease,background-position .4s ease;
 }
@@ -737,9 +750,18 @@ const CFG = {
   ADMIN_EMAIL:  '' // à remplir dans Paramètres
 };
 // Palette de couleurs pour les guides (une par personne, cyclique)
+// Palette guides — toutes en tons terreux brand-aligned (bordeaux, bronze, taupe, olive, chocolate)
 const GUIDE_PALETTE = [
-  '#6C1412','#2a5fa5','#2a7a4b','#7a4f00','#6b3fa0',
-  '#c0392b','#1a6b6b','#8b5e3c','#3d5a80','#5c4033'
+  '#6C1412',  // bordeaux
+  '#8B6E3F',  // bronze brand
+  '#4a3328',  // chocolate
+  '#5c7a3a',  // olive
+  '#a98a5c',  // bronze clair
+  '#3d2e26',  // dark chocolate
+  '#7a5c3d',  // brown medium
+  '#5a4530',  // taupe foncé
+  '#856b3b',  // ochre
+  '#2e3528'   // forêt sombre
 ];
 // Cache couleur guide : { personId: '#hexcolor' }
 const _guideColors = {};
@@ -760,16 +782,16 @@ function loadGuideColors() {
   Object.assign(_guideColors, custom);
 }
 </script> <!-- LOGIN -->
-<div id="login"> <div class="login-box"> <div class="login-logo">Sant Roch</div> <div class="login-sub">Gestion du planning flow</div> <div class="login-tabs"> <button class="ltab on" onclick="ltab('team')" id="lt-team">ÉQUIPE</button> <button class="ltab"    onclick="ltab('admin')" id="lt-admin">ADMIN</button> </div> <div id="lp-team"> <p class="text-muted mb8" style="font-size:13px">Sélectionnez votre prénom</p> <div class="plist" id="plist"></div> <div id="lp-pass-step" class="hidden" style="margin-top:16px;border-top:1px solid var(--beige);padding-top:16px"> <div style="font-size:13px;font-weight:600;margin-bottom:10px">Bonjour <span id="lp-pass-name" style="color:var(--bordeaux)"></span> </div> <div class="fg"> <label>Mot de passe</label> <input type="password" id="fpass" class="fc" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginFlowPass()"> </div> <div style="display:flex;gap:8px"> <button class="btn btn-g btn-sm" onclick="cancelPassStep()">← RETOUR</button> <button class="btn btn-p" style="flex:1" onclick="loginFlowPass()">CONNEXION</button> </div> <div id="fperr" class="hidden mt8" style="background:rgba(192,57,43,.1);border:1.5px solid rgba(192,57,43,.4);border-radius:6px;padding:10px 12px;font-size:12px;color:#c0392b;font-weight:600"> Mot de passe incorrect. Contactez l'administrateur si vous avez oublié votre mot de passe. </div> </div> </div> <div id="lp-admin" class="hidden"> <div class="fg"> <label>Mot de passe admin</label> <input type="password" id="apass" class="fc" placeholder="••••••••"
-          onkeydown="if(event.key==='Enter')loginAdmin()"> </div> <button class="btn btn-p w100" onclick="loginAdmin()">CONNEXION</button> <div id="aerr" class="hidden mt8" style="background:rgba(192,57,43,.1);border:1.5px solid rgba(192,57,43,.4);border-radius:6px;padding:10px 12px;font-size:12px;color:#c0392b;font-weight:600"> Mot de passe admin incorrect. </div> </div> </div>
+<div id="login"> <div class="login-box"> <div class="login-logo">Sant Roch</div> <div class="login-sub">Gestion du planning flow</div> <div class="login-tabs"> <button class="ltab on" onclick="ltab('team')" id="lt-team">ÉQUIPE</button> <button class="ltab"    onclick="ltab('admin')" id="lt-admin">ADMIN</button> </div> <div id="lp-team"> <p class="text-muted mb8" style="font-size:13px">Sélectionnez votre prénom</p> <div class="plist" id="plist"></div> <div id="lp-pass-step" class="hidden" style="margin-top:16px;border-top:1px solid var(--beige);padding-top:16px"> <div style="font-size:13px;font-weight:600;margin-bottom:10px">Bonjour <span id="lp-pass-name" style="color:var(--bordeaux)"></span> </div> <div class="fg"> <label>Mot de passe</label> <input type="password" id="fpass" class="fc" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginFlowPass()"> </div> <div style="display:flex;gap:8px"> <button class="btn btn-g btn-sm" onclick="cancelPassStep()">← RETOUR</button> <button class="btn btn-p" style="flex:1" onclick="loginFlowPass()">CONNEXION</button> </div> <div id="fperr" class="hidden mt8" style="background:rgba(138,42,38,.1);border:1.5px solid rgba(138,42,38,.4);border-radius:6px;padding:10px 12px;font-size:12px;color:#8a2a26;font-weight:600"> Mot de passe incorrect. Contactez l'administrateur si vous avez oublié votre mot de passe. </div> </div> </div> <div id="lp-admin" class="hidden"> <div class="fg"> <label>Mot de passe admin</label> <input type="password" id="apass" class="fc" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')loginAdmin()"> </div> <button class="btn btn-p w100" onclick="loginAdmin()">CONNEXION</button> <div id="aerr" class="hidden mt8" style="background:rgba(138,42,38,.1);border:1.5px solid rgba(138,42,38,.4);border-radius:6px;padding:10px 12px;font-size:12px;color:#8a2a26;font-weight:600"> Mot de passe admin incorrect. </div> </div> </div>
 </div> <!-- HEADER -->
 <header id="hdr"> <h1>Sant Roch — Planning</h1> <div id="hdr-right"> <span id="mode-badge">—</span> <button class="hdr-btn" onclick="logout()">DÉCONNEXION</button> </div>
 </header> <!-- APP -->
 <main id="main"> <!-- ═══════════════════════ ADMIN ═══════════════════════ -->
-<div id="v-admin" class="hidden"> <!-- ── GUIDE ADMIN ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('admin-guide')"> <div class="guide-hdr-title"> <span>Comment utiliser l'interface admin</span> </div> <span class="guide-hdr-toggle" id="admin-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="admin-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Créer les séances</div> </div> <div class="guide-step-body"> Allez dans <strong>SÉANCES</strong> → <em>+ Nouvelle Séance</em>.<br> Choisissez le type (Guidée / Freeflow), la date, l'heure et la durée.<br> Pour une séance guidée, un guide est obligatoire.<br> Utilisez <strong>Copier Semaine</strong> pour dupliquer un programme existant. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Consulter les dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>DISPONIBILITÉS</strong>.<br> Le fond de chaque créneau indique combien de flows sont disponibles :<br> <span style="color:var(--red)">■ rouge</span> = 0 flow · <span style="color:var(--orange)">■ orange</span> = 1 · <span style="color:var(--green)">■ vert</span> = 2+<br> Les points colorés = les flows disponibles sur ce créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Assigner les flows</div> </div> <div class="guide-step-body"> Cliquez sur un bloc séance dans la grille pour ouvrir le panneau d'assignation.<br> Vous voyez les flows disponibles, triés par équité (moins de séances ce mois d'abord).<br> Cliquez <strong>ASSIGNER</strong> — le flow reçoit un email et doit confirmer. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Auto-assigner</div> </div> <div class="guide-step-body"> Le bouton <strong>Auto-Assigner</strong> assigne automatiquement les flows disponibles sur chaque créneau libre, en respectant l'équité.<br> Vous pouvez ensuite modifier manuellement chaque assignation. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Publier le planning</div> </div> <div class="guide-step-body"> Une fois les assignations prêtes, cliquez <strong>Publier</strong> depuis l'onglet Séances.<br> Chaque flow reçoit un email avec ses séances de la semaine.<br> Ils doivent confirmer leur présence depuis leur espace. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">6</div> <div class="guide-step-title">Suivre les confirmations</div> </div> <div class="guide-step-body"> Dans la grille des disponibilités : <strong>✓ vert</strong> = confirmé, <strong>...</strong> = en attente.<br> Dans <strong>PARAMÈTRES → Statut des confirmations</strong> : vue globale de toutes les séances à venir. </div> </div> <div class="guide-tip"> <span><strong>Astuce :</strong> Personnalisez les couleurs de chaque guide pour les retrouver facilement sur le calendrier.</span> </div> </div> </div> <div class="tabs"> <button class="tab on"  onclick="atab('creneaux')"   id="at-creneaux">SHIFTS<span class="tab-sub">Créer & organiser</span></button> <button class="tab"     onclick="atab('seances')"    id="at-seances">SÉANCES<span class="tab-sub">Calendrier</span></button> <button class="tab"     onclick="atab('personnes')"  id="at-personnes">PERSONNES<span class="tab-sub">Équipe</span></button> <button class="tab"     onclick="atab('dispos')"     id="at-dispos">DISPONIBILITÉS<span class="tab-sub">Qui est dispo</span></button> <button class="tab"     onclick="atab('stats')"      id="at-stats">STATISTIQUES<span class="tab-sub">Équité & charge</span></button> <button class="tab"     onclick="atab('params')"     id="at-params">PARAMÈTRES<span class="tab-sub">Config</span></button> </div> <!-- ── SÉANCES ── --> <div class="panel on" id="ap-seances"> <div class="toolbar"> <button class="btn btn-p btn-sm" onclick="openCreateSession()">+ NOUVELLE SÉANCE</button> <button class="btn btn-s btn-sm" onclick="omo_copy_week()" title="Copier toutes les séances de cette semaine vers une autre">COPIER SEMAINE</button> <button class="btn btn-d btn-sm" onclick="toggleBulkDelete()" id="btn-bulk-del">✓ SUPPR. MULTIPLE</button> <!-- bouton import supprimé (données de dev uniquement) --> <select class="fc" style="width:180px" id="filt-person" onchange="renderCal()"> <option value="">Toutes les personnes</option> </select> <div style="flex:1"></div> <div class="pbtn-group"> <button class="pbtn on" onclick="setCalView('week')"    id="cv-week">SEMAINE</button> <button class="pbtn"    onclick="setCalView('month')"   id="cv-month">MOIS</button> <button class="pbtn"    onclick="setCalView('quarter')" id="cv-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="setCalView('list')"    id="cv-list">LISTE</button> </div> </div> <!-- navigation --> <div class="cal-ctrl"> <button class="btn btn-g btn-sm" onclick="navCal(-1)">◀</button> <span class="wlbl" id="nav-label">—</span> <button class="btn btn-g btn-sm" onclick="navCal(1)">▶</button> <span id="publish-status-badge" class="hidden" style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.05em;margin-left:8px">✓ PUBLIÉ</span> </div> <!-- équité compacte --> <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--beige);margin-bottom:14px;flex-wrap:wrap" id="eq-card"> <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);white-space:nowrap;letter-spacing:.06em">ÉQUITÉ :</span> <div class="pbtn-group"> <button class="pbtn on" onclick="eqPeriod('week')"    id="ep-week" style="padding:3px 8px;font-size:10px">SEM</button> <button class="pbtn"    onclick="eqPeriod('month')"   id="ep-month" style="padding:3px 8px;font-size:10px">MOIS</button> <button class="pbtn"    onclick="eqPeriod('quarter')" id="ep-quarter" style="padding:3px 8px;font-size:10px">TRIM</button> </div> <div id="eq-bars" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;align-items:center"></div> </div> <div id="cal-week-view"><div style="overflow-x:auto"><div class="calendar" id="main-cal"></div></div></div> <div id="cal-month-view" class="hidden"><div style="overflow-x:auto"><div class="month-grid" id="month-cal"></div></div></div> <div id="cal-quarter-view" class="hidden"><div id="quarter-cal"></div></div> <div id="cal-list-view" class="hidden"> <div class="tw"><table id="sess-tbl"> <thead><tr><th>DATE</th><th>HORAIRE</th><th>TYPE</th><th>FLOW</th><th>ACTIONS</th></tr></thead> <tbody id="sess-tbody"></tbody> </table></div> </div> </div> <!-- ── PERSONNES ── --> <div class="panel" id="ap-personnes"> <div class="card"> <div class="card-hdr"> <span class="card-title">Membres de l'équipe</span> <button class="btn btn-p btn-sm" onclick="openPersonModal()">+ AJOUTER</button> </div> <div class="tw"><table> <thead><tr><th>NOM</th><th>EMAIL</th><th>TÉLÉPHONE</th><th>PRIX / SÉANCE</th><th>RÔLE</th><th>ACTIONS</th></tr></thead> <tbody id="people-tbody"></tbody> </table></div> </div> </div> <!-- ── DISPONIBILITÉS & ASSIGNATIONS ── --> <div class="panel" id="ap-dispos"> <!-- Barre de contrôle --> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px"> <button class="btn btn-g btn-sm" onclick="navDispo(-1)">◀</button> <span class="wlbl" id="dispo-nav-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navDispo(1)">▶</button> <button class="btn-today" onclick="navDispoToday()" title="Revenir à la semaine courante">Aujourd'hui</button> <div style="flex:1"></div> <div class="pbtn-group"><button class="pbtn on" id="adm-dispo-view-shift" onclick="switchAdminDispoView('shift')">PAR SHIFT</button><button class="pbtn" id="adm-dispo-view-person" onclick="switchAdminDispoView('person')">PAR PERSONNE</button></div> <button class="btn btn-s btn-sm" onclick="openImportDispos()" title="Importer des dispos depuis un message WhatsApp/SMS">📥 IMPORT MSG</button> <button class="btn btn-s btn-sm" onclick="openExportMsg()" title="Exporter le planning par personne sous forme de message">📤 EXPORT MSG</button> </div> <!-- Vue par personne (toggle) --> <div id="admin-dispo-by-person" class="hidden"></div> <!-- Notes flow semaine --> <div id="admin-week-notes" class="hidden" style="margin-bottom:16px"></div> <!-- Liste shifts --> <div id="dispos-shifts-list"></div> <!-- Éléments conservés pour compatibilité --> <div id="assign-session-list" class="hidden"></div> <div id="assign-count-badge" class="hidden"></div> <div id="unified-dispo-cal" class="hidden"></div> <div id="unified-assign-panel" class="hidden"></div> <div id="confirm-status-bar" class="hidden"><div id="confirm-status-content"></div></div> <div id="dispo-stats-bar" class="hidden"></div> </div> <!-- ── STATS ── --> <div class="panel" id="ap-stats"> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="statPeriod('month')"   id="sp-month">MOIS</button> <button class="pbtn"    onclick="statPeriod('quarter')" id="sp-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="statPeriod('year')"    id="sp-year">ANNÉE</button> <button class="pbtn"    onclick="statPeriod('all')"     id="sp-all">TOUT</button> </div> <button class="btn btn-s btn-sm" onclick="exportCSV()">EXPORT EXCEL</button> </div> <div class="row2"> <div class="card"> <div class="card-hdr"><span class="card-title">Séances par personne (Flow)</span></div> <div id="stat-bars"></div> </div> <div class="card"> <div class="card-hdr"><span class="card-title">Vue d'ensemble</span></div> <div id="stat-overview"></div> </div> </div> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Détail + Rémunération</span></div> <div class="tw"><table> <thead><tr><th>NOM</th><th>SÉANCES FLOW</th><th>PRIX / SÉA.</th><th>TOTAL ESTIMÉ</th></tr></thead> <tbody id="stat-tbody"></tbody> </table></div> </div> </div> <!-- ── PARAMÈTRES ── --> <div class="panel" id="ap-params"> <!-- Mots de passe membres --> <div class="card mt16"> <div class="card-hdr"> <span class="card-title">Mots de passe membres (connexion flow)</span> <button class="btn btn-p btn-sm" onclick="saveFlowPasswords()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Définissez un mot de passe par membre. Laissez vide = accès libre sans mot de passe.</p> <div id="flow-passwords-wrap" style="display:flex;flex-direction:column;gap:10px"></div> </div> <!-- Clé API Anthropic (import auto des dispos via Claude) --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Clé API Anthropic (import auto)</span> <button class="btn btn-p btn-sm" onclick="saveAnthropicKey()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Permet d'importer les dispos automatiquement (1 clic, ~0,001€ par import). La clé est stockée localement sur ton appareil uniquement.</p> <input type="password" class="fc" id="anthropic-api-key" placeholder="sk-ant-..." style="font-family:monospace;font-size:12px"> <p class="text-muted text-sm mt8">Obtenir une clé : <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--bordeaux);font-weight:700">console.anthropic.com</a></p> </div> <!-- Couleurs des guides --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Couleurs des Guides</span> <button class="btn btn-p btn-sm" onclick="saveGuideColors()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Choisissez une couleur par guide — visible sur le calendrier et dans le planning des flows.</p> <div id="guide-colors-wrap" style="display:flex;flex-direction:column;gap:12px"></div> </div> <!-- Réinitialisation des assignations --> <div class="card mt16" style="border:1px solid rgba(180,90,0,.25)"> <div class="card-hdr"><span class="card-title" style="color:rgba(150,70,0,1)">Réinitialiser les assignations de la semaine</span></div> <p class="text-muted text-sm mb12">Retire tous les flows assignés aux séances de la semaine affichée dans le calendrier. Les séances, membres et dispos ne sont pas touchés.</p> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"> <span style="font-size:12px;color:var(--muted)">Semaine concernée :</span> <input type="week" id="reset-assign-week" class="fc" style="width:180px"> <button class="btn mt0" style="background:rgba(180,90,0,.85);color:#fff" onclick="resetWeekAssignments()">RETIRER LES FLOWS</button> </div> </div> <!-- Réinitialisation des profils --> <div class="card mt16" style="border:1px solid rgba(192,57,43,.25)"> <div class="card-hdr"><span class="card-title" style="color:#c0392b">Réinitialisation des profils utilisateurs</span></div> <p class="text-muted text-sm mb12">Efface les données liées aux profils : disponibilités, confirmations de séances et marqueurs "vu". Les séances et les membres ne sont pas supprimés.</p> <div style="display:flex;flex-direction:column;gap:8px"> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-avails" checked> Effacer toutes les disponibilités </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-confirmations">Réinitialiser les confirmations de séances (repasse en "draft") </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-seen"> Effacer les marqueurs "vu" (notifications) </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-passwords"> Effacer les mots de passe membres </label> </div> <button class="btn mt12" style="background:#c0392b;color:#fff" onclick="resetUserProfiles()">RÉINITIALISER LES PROFILS</button> </div> <!-- Statut des confirmations --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Statut des confirmations (séances à venir)</span></div> <p class="text-muted text-sm mb8">Vue globale des séances avec un flow assigné et leur statut de confirmation.</p> <div id="read-status-table"></div> </div> </div> <!-- ── CRÉNEAUX DISPO ── --> <div class="panel" id="ap-creneaux"> <div class="toolbar" style="flex-wrap:wrap;gap:8px"> <div style="display:flex;align-items:center;gap:8px"> <button class="btn btn-s btn-sm" onclick="navCreneaux(-1)">◀</button> <span id="cren-week-label" style="font-size:13px;font-weight:700;min-width:190px;text-align:center">—</span> <button class="btn btn-s btn-sm" onclick="navCreneaux(1)">▶</button> <button class="btn-today" onclick="navCreneauxToday()" title="Revenir à la semaine courante">Aujourd'hui</button> </div> <div style="display:flex;gap:6px;flex-wrap:wrap"> <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="autoGenCreneauxWeek()" title="Génère automatiquement les créneaux depuis les séances (buffer 30min)">AUTO</button> <button class="btn btn-s btn-sm" id="cren-undo-btn" onclick="undoCren()" disabled>← ANNULER</button> <button class="btn btn-sm" id="cren-cut-btn" onclick="toggleCutMode()" title="Mode ciseau : cliquez un shift pour le couper en deux">CISEAU</button> <button class="btn btn-d btn-sm" onclick="resetCreneauxWeek()">RESET SEMAINE</button> </div> </div> <p style="font-size:11px;color:var(--muted);margin:8px 0 12px">Cliquez-glissez sur la grille pour créer un créneau de disponibilité. Cliquez sur un créneau existant pour assigner une personne ou le supprimer.</p> <div id="cren-grid-container"></div> </div> </div><!-- /v-admin --> <!-- ═══════════════════════ FLOW ═══════════════════════ -->
-<div id="v-flow" class="hidden"> <!-- ── GUIDE FLOW ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('flow-guide')"> <div class="guide-hdr-title"> <span>Comment ça marche — Bienvenue dans votre espace</span> </div> <span class="guide-hdr-toggle" id="flow-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="flow-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Renseignez vos dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>MES DISPONIBILITÉS</strong>.<br> Cliquez-glissez sur la grille pour cocher les créneaux où vous êtes disponible.<br> Cliquez <strong>ENREGISTRER</strong> — l'admin reçoit une notification. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Séances visibles sur la grille</div> </div> <div class="guide-step-body"> Les créneaux avec un fond coloré = une séance est déjà planifiée.<br> <span style="color:var(--bordeaux)">■ bordeaux</span> = séance guidée · <span style="color:#b5a88a">■ beige</span> = freeflow<br> Le nom du guide est affiché directement sur le créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Vous recevez une assignation</div> </div> <div class="guide-step-body"> Quand l'admin vous assigne une séance, vous recevez un email.<br> Une notification apparaît en haut de votre espace.<br> Rendez-vous dans <strong>MON PLANNING</strong> pour la voir. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Confirmez votre présence</div> </div> <div class="guide-step-body"> Dans <strong>MON PLANNING</strong>, les séances <span style="color:var(--blue)">■ bleues</span> = en attente de confirmation.<br> Cliquez sur une séance ou cochez la case → <strong>CONFIRMER</strong>.<br> Une fois confirmée, la séance passe au <span style="color:var(--green)">■ vert</span>. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Vue liste &amp; export</div> </div> <div class="guide-step-body"> Basculez en <strong>LISTE</strong> pour voir vos séances semaine par semaine ou mois par mois. </div> </div> <div class="guide-tip"> <span><strong>Important :</strong> Renseignez vos disponibilités <em>avant</em> la date de planification — sans vos dispos, l'admin ne peut pas vous assigner de séances. Plus vous indiquez de créneaux, plus vous avez de chances d'être assigné(e).</span> </div> </div> </div> <div class="tabs"> <button class="tab on" onclick="ftab('dispos')"   id="ft-dispos">📋 MES DISPOS</button> <button class="tab"    onclick="ftab('planning')" id="ft-planning">📅 MON PLANNING</button> <button class="tab"    onclick="ftab('global')"   id="ft-global">👥 SANT-ROCH</button> <button onclick="omo('mo-faq')" style="background:none;border:1.5px solid var(--beige-d);border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:900;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px" title="Aide & FAQ">?</button> </div> <!-- Navigation bottom mobile (flow users) --> <div id="mob-flow-nav"> <button class="mnb on" id="mnb-dispos"   onclick="ftab('dispos')"><span class="mni">📋</span><span>DISPOS</span><span id="mnb-dispos-badge" class="mnb-badge hidden"></span></button> <button class="mnb"    id="mnb-planning" onclick="ftab('planning')"><span class="mni">📅</span><span>PLANNING</span></button> <button class="mnb"    id="mnb-global"   onclick="ftab('global')"><span class="mni">👥</span><span>ÉQUIPE</span></button> <button class="mnb" onclick="omo('mo-faq')"><span class="mni">❓</span><span>AIDE</span></button> </div> <!-- ── DISPOS FLOW V2 (page d'accueil par défaut) ── --> <div class="panel on" id="fp-dispos"> <!-- Bannière urgence dispos --> <div id="dispo-urgency-wrap"></div> <!-- Toggle vue semaine/mois + nav --> <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap"> <div style="display:flex;gap:4px;background:var(--beige);border-radius:6px;padding:3px"> <button id="fdv-week" class="btn btn-sm on" onclick="flowDispoView('week')" style="font-size:10px;padding:5px 12px;border-radius:4px">Semaine</button> <button id="fdv-month" class="btn btn-sm" onclick="flowDispoView('month')" style="font-size:10px;padding:5px 12px;border-radius:4px">Mois</button> </div> </div> <!-- Navigation --> <div class="dispo-week-nav" id="fdispo-week-nav"> <button class="btn btn-g btn-sm" onclick="navFlowDispo(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button> <span class="wlbl" id="fdispo-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navFlowDispo(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button> <button class="btn-today" onclick="navFlowDispoToday()" style="margin-left:4px">Aujourd'hui</button> </div> <!-- Navigation mois --> <div class="dispo-week-nav hidden" id="fdispo-month-nav"> <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button> <span class="wlbl" id="fdispo-month-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button> </div> <!-- Aide contextuelle dispos --> <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap"> <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:11px"> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(100,95,95,.75)"></span><span style="color:var(--muted)">Pas répondu</span></span> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(0,135,115,.90)"></span><span style="color:var(--muted)">Dispo déclarée</span></span> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(180,40,40,.86)"></span><span style="color:var(--muted)">Pas dispo</span></span> <button onclick="omo('mo-faq')" style="background:none;border:1px solid var(--beige-d);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700">? Comment ça marche ?</button> </div> </div> <!-- Vue shifts semaine --> <div id="fdm-shifts-wrap"> <!-- Mobile : liste par jour (cachée sur desktop) --> <div id="flow-shifts-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine (cachée sur mobile) --> <div id="fdm-shifts-inner" class="flow-desk-only" style="display:flex;gap:12px;align-items:flex-start"> <div style="flex:1;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch"> <div id="flow-shifts-list"></div> </div> <div id="flow-week-note-panel" style="display:none"></div> </div> </div> <!-- Vue shifts mois --> <div id="fdm-month-wrap" class="hidden"> <div id="flow-shifts-month"></div> </div> <!-- Éléments cachés conservés pour compat --> <div id="fdm-shifts" class="hidden"></div> <div id="fdm-cards" class="hidden"></div> <div id="fdm-list" class="hidden"></div> <div id="fdm-cards-wrap" class="hidden"> <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"> <div class="ag" id="flow-avail-grid"></div> </div> <div class="fill-month-block" id="fill-month-block"> <div class="fill-month-title"> Appliquer ce modèle à un mois entier</div> <div class="fill-month-desc">La semaine visible sera répétée sur tous les jours du mois choisi.</div> <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"> <select class="fc" id="fill-month-sel" style="flex:1;min-width:160px;font-size:14px;font-weight:700"></select> <button class="btn btn-p" onclick="applyWeekPatternToMonth()" style="white-space:nowrap;padding:12px 18px;font-size:13px">Remplir ce mois</button> </div> <div id="fill-month-preview" style="margin-top:8px;font-size:11px;color:var(--muted)"></div> </div> <div class="dispo-save-bar" id="dispo-save-bar" style="justify-content:center"> <span id="dispo-save-status" style="font-size:12px;font-weight:700;color:var(--muted)">✓ À jour</span> </div> </div> <div id="fdm-list-wrap" class="hidden"> <div class="flex gap8 mb12"> <button class="btn btn-d btn-sm" onclick="clearAllFlowDispos()">TOUT EFFACER</button> </div> <div id="flow-dispo-list"></div> </div> <div id="flow-dispo-cards" class="hidden"></div> <div id="fdt-month-wrap" class="hidden"><div id="flow-dispo-month"></div></div> </div> <!-- ── PLANNING FLOW ── --> <div class="panel" id="fp-planning"> <!-- Notifications shifts (confirmations en attente) --> <div id="flow-notifs"></div> <!-- Toolbar mode vue --> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="flowPlanView('cal')"   id="fpv-cal">SEMAINE</button> <button class="pbtn"    onclick="flowPlanView('month')" id="fpv-month">MOIS</button> <button class="pbtn"    onclick="flowPlanView('list')"  id="fpv-list">LISTE</button> </div> <button class="btn btn-g btn-sm" id="fcal-nav-prev" onclick="navFlowCal(-1)">◀</button> <span class="wlbl" id="fcal-lbl">—</span> <button class="btn btn-g btn-sm" id="fcal-nav-next" onclick="navFlowCal(1)">▶</button> <!-- filtre période pour la vue liste --> <div class="pbtn-group hidden" id="list-period-group"> <button class="pbtn on" onclick="setFlowListPeriod('all')"   id="flp-all">TOUT</button> <button class="pbtn"    onclick="setFlowListPeriod('week')"  id="flp-week">SEMAINE</button> <button class="pbtn"    onclick="setFlowListPeriod('month')" id="flp-month">MOIS</button> </div> </div> <!-- Confirmation groupée (visible dans tous les modes) --> <div id="confirm-batch-wrap" class="hidden"> <div class="confirm-batch"> <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px"> <h3 style="font-size:15px">⚠ Séances en attente de confirmation</h3> <div style="display:flex;gap:8px;flex-wrap:wrap"> <button class="btn btn-green" style="padding:10px 20px;font-size:14px;font-weight:800" onclick="confirmAllPending()">✓ TOUT CONFIRMER</button> <button class="btn btn-g btn-sm" onclick="toggleAllConfirmChecks()">Sélection manuelle</button> <button class="btn btn-green btn-sm" onclick="confirmChecked()">✓ Confirmer la sélection</button> </div> </div> <div id="confirm-list"></div> </div> </div> <!-- Légende états (masquée sur mobile) --> <div id="fp-planning-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px"> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,122,75,.90);border-left:4px solid #1a5c38;display:inline-block"></span> <strong>Shift confirmé</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(170,90,0,.88);border-left:4px solid #a06000;display:inline-block"></span> <strong>Shift à confirmer</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span> <strong>Guide</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,95,165,.88);border-left:4px solid #2a5fa5;display:inline-block"></span> <strong>Flow</strong> <span style="color:var(--muted)">(vert = confirmé)</span> </span> </div> <!-- Vue calendrier semaine --> <div id="fpv-cal-wrap"> <!-- Mobile : liste par jour (cachée sur desktop) --> <div id="flow-cal-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine (cachée sur mobile) --> <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="flow-cal"></div></div> </div> <!-- Vue mois --> <div id="fpv-month-wrap" class="hidden"> <!-- Mobile : liste par jour --> <div id="flow-month-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille mois --> <div class="flow-desk-only" style="overflow-x:auto"><div class="month-grid" id="flow-month-cal"></div></div> </div> <!-- Vue liste --> <div id="fpv-list-wrap" class="hidden"> <div id="flow-sessions-list"></div> </div> </div> <!-- ── PLANNING SANT-ROCH (vue globale lecture seule) ── --> <div class="panel" id="fp-global"> <div class="toolbar"> <button class="btn btn-g btn-sm" onclick="navGlobalCal(-1)" style="min-width:44px;min-height:44px;font-size:20px">◀</button> <span class="wlbl" id="global-cal-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navGlobalCal(1)"  style="min-width:44px;min-height:44px;font-size:20px">▶</button> </div> <!-- Légende (masquée sur mobile) --> <div id="fp-global-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px"> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span> <strong>Je suis GUIDE</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,95,165,.88);border-left:4px solid #2a5fa5;display:inline-block"></span> <strong>Je suis FLOW</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(42,122,75,.28);border-left:3px solid var(--green);display:inline-block"></span> Autre séance confirmée </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(150,150,150,.45);border-left:3px solid #aaa;display:inline-block"></span> Autre séance </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(210,198,172,.85);border-left:3px solid #b5a88a;display:inline-block"></span> Freeflow </span> </div> <!-- Mobile : liste par jour --> <div id="global-cal-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine --> <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="global-cal"></div></div> </div>
+<div id="v-admin" class="hidden"> <!-- ── GUIDE ADMIN ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('admin-guide')"> <div class="guide-hdr-title"> <span>Comment utiliser l'interface admin</span> </div> <span class="guide-hdr-toggle" id="admin-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="admin-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Créer les séances</div> </div> <div class="guide-step-body"> Allez dans <strong>SÉANCES</strong> → <em>+ Nouvelle Séance</em>.<br> Choisissez le type (Guidée / Freeflow), la date, l'heure et la durée.<br> Pour une séance guidée, un guide est obligatoire.<br> Utilisez <strong>Copier Semaine</strong> pour dupliquer un programme existant. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Consulter les dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>DISPONIBILITÉS</strong>.<br> Le fond de chaque créneau indique combien de flows sont disponibles :<br> <span style="color:var(--red)">■ rouge</span> = 0 flow · <span style="color:var(--orange)">■ orange</span> = 1 · <span style="color:var(--green)">■ vert</span> = 2+<br> Les points colorés = les flows disponibles sur ce créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Assigner les flows</div> </div> <div class="guide-step-body"> Cliquez sur un bloc séance dans la grille pour ouvrir le panneau d'assignation.<br> Vous voyez les flows disponibles, triés par équité (moins de séances ce mois d'abord).<br> Cliquez <strong>ASSIGNER</strong> — le flow reçoit un email et doit confirmer. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Auto-assigner</div> </div> <div class="guide-step-body"> Le bouton <strong>Auto-Assigner</strong> assigne automatiquement les flows disponibles sur chaque créneau libre, en respectant l'équité.<br> Vous pouvez ensuite modifier manuellement chaque assignation. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Publier le planning</div> </div> <div class="guide-step-body"> Une fois les assignations prêtes, cliquez <strong>Publier</strong> depuis l'onglet Séances.<br> Chaque flow reçoit un email avec ses séances de la semaine.<br> Ils doivent confirmer leur présence depuis leur espace. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">6</div> <div class="guide-step-title">Suivre les confirmations</div> </div> <div class="guide-step-body"> Dans la grille des disponibilités : <strong>✓ vert</strong> = confirmé, <strong>...</strong> = en attente.<br> Dans <strong>PARAMÈTRES → Statut des confirmations</strong> : vue globale de toutes les séances à venir. </div> </div> <div class="guide-tip"> <span><strong>Astuce :</strong> Personnalisez les couleurs de chaque guide pour les retrouver facilement sur le calendrier.</span> </div> </div> </div> <div class="tabs"> <button class="tab on"  onclick="atab('creneaux')"   id="at-creneaux">SHIFTS<span class="tab-sub">Créer & organiser</span></button> <button class="tab"     onclick="atab('seances')"    id="at-seances">SÉANCES<span class="tab-sub">Calendrier</span></button> <button class="tab"     onclick="atab('personnes')"  id="at-personnes">PERSONNES<span class="tab-sub">Équipe</span></button> <button class="tab"     onclick="atab('dispos')"     id="at-dispos">DISPONIBILITÉS<span class="tab-sub">Qui est dispo</span></button> <button class="tab"     onclick="atab('stats')"      id="at-stats">STATISTIQUES<span class="tab-sub">Équité & charge</span></button> <button class="tab"     onclick="atab('params')"     id="at-params">PARAMÈTRES<span class="tab-sub">Config</span></button> </div> <!-- ── SÉANCES ── --> <div class="panel on" id="ap-seances"> <div class="toolbar"> <button class="btn btn-p btn-sm" onclick="openCreateSession()">+ NOUVELLE SÉANCE</button> <button class="btn btn-s btn-sm" onclick="omo_copy_week()" title="Copier toutes les séances de cette semaine vers une autre">COPIER SEMAINE</button> <button class="btn btn-d btn-sm" onclick="toggleBulkDelete()" id="btn-bulk-del">✓ SUPPR. MULTIPLE</button> <!-- bouton import supprimé (données de dev uniquement) --> <select class="fc" style="width:180px" id="filt-person" onchange="renderCal()"> <option value="">Toutes les personnes</option> </select> <div style="flex:1"></div> <div class="pbtn-group"> <button class="pbtn on" onclick="setCalView('week')"    id="cv-week">SEMAINE</button> <button class="pbtn"    onclick="setCalView('month')"   id="cv-month">MOIS</button> <button class="pbtn"    onclick="setCalView('quarter')" id="cv-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="setCalView('list')"    id="cv-list">LISTE</button> </div> </div> <!-- navigation --> <div class="cal-ctrl"> <button class="btn btn-g btn-sm" onclick="navCal(-1)">◀</button> <span class="wlbl" id="nav-label">—</span> <button class="btn btn-g btn-sm" onclick="navCal(1)">▶</button> <span id="publish-status-badge" class="hidden" style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.05em;margin-left:8px">✓ PUBLIÉ</span> </div> <!-- équité compacte --> <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--beige);margin-bottom:14px;flex-wrap:wrap" id="eq-card"> <span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);white-space:nowrap;letter-spacing:.06em">ÉQUITÉ :</span> <div class="pbtn-group"> <button class="pbtn on" onclick="eqPeriod('week')"    id="ep-week" style="padding:3px 8px;font-size:10px">SEM</button> <button class="pbtn"    onclick="eqPeriod('month')"   id="ep-month" style="padding:3px 8px;font-size:10px">MOIS</button> <button class="pbtn"    onclick="eqPeriod('quarter')" id="ep-quarter" style="padding:3px 8px;font-size:10px">TRIM</button> </div> <div id="eq-bars" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;align-items:center"></div> </div> <div id="cal-week-view"><div style="overflow-x:auto"><div class="calendar" id="main-cal"></div></div></div> <div id="cal-month-view" class="hidden"><div style="overflow-x:auto"><div class="month-grid" id="month-cal"></div></div></div> <div id="cal-quarter-view" class="hidden"><div id="quarter-cal"></div></div> <div id="cal-list-view" class="hidden"> <div class="tw"><table id="sess-tbl"> <thead><tr><th>DATE</th><th>HORAIRE</th><th>TYPE</th><th>FLOW</th><th>ACTIONS</th></tr></thead> <tbody id="sess-tbody"></tbody> </table></div> </div> </div> <!-- ── PERSONNES ── --> <div class="panel" id="ap-personnes"> <div class="card"> <div class="card-hdr"> <span class="card-title">Membres de l'équipe</span> <button class="btn btn-p btn-sm" onclick="openPersonModal()">+ AJOUTER</button> </div> <div class="tw"><table> <thead><tr><th>NOM</th><th>EMAIL</th><th>TÉLÉPHONE</th><th>PRIX / SÉANCE</th><th>RÔLE</th><th>ACTIONS</th></tr></thead> <tbody id="people-tbody"></tbody> </table></div> </div> </div> <!-- ── DISPONIBILITÉS & ASSIGNATIONS ── --> <div class="panel" id="ap-dispos"> <!-- Barre de contrôle --> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px"> <button class="btn btn-g btn-sm" onclick="navDispo(-1)">◀</button> <span class="wlbl" id="dispo-nav-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navDispo(1)">▶</button> <button class="btn-today" onclick="navDispoToday()" title="Revenir à la semaine courante">Aujourd'hui</button> <div style="flex:1"></div> <div class="pbtn-group"><button class="pbtn on" id="adm-dispo-view-shift" onclick="switchAdminDispoView('shift')">PAR SHIFT</button><button class="pbtn" id="adm-dispo-view-person" onclick="switchAdminDispoView('person')">PAR PERSONNE</button></div> <button class="btn btn-s btn-sm" onclick="openImportDispos()" title="Importer des dispos depuis un message WhatsApp/SMS">📥 IMPORT MSG</button> <button class="btn btn-s btn-sm" onclick="openExportMsg()" title="Exporter le planning par personne sous forme de message">📤 EXPORT MSG</button> </div> <!-- Vue par personne (toggle) --> <div id="admin-dispo-by-person" class="hidden"></div> <!-- Notes flow semaine --> <div id="admin-week-notes" class="hidden" style="margin-bottom:16px"></div> <!-- Liste shifts --> <div id="dispos-shifts-list"></div> <!-- Éléments conservés pour compatibilité --> <div id="assign-session-list" class="hidden"></div> <div id="assign-count-badge" class="hidden"></div> <div id="unified-dispo-cal" class="hidden"></div> <div id="unified-assign-panel" class="hidden"></div> <div id="confirm-status-bar" class="hidden"><div id="confirm-status-content"></div></div> <div id="dispo-stats-bar" class="hidden"></div> </div> <!-- ── STATS ── --> <div class="panel" id="ap-stats"> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="statPeriod('month')"   id="sp-month">MOIS</button> <button class="pbtn"    onclick="statPeriod('quarter')" id="sp-quarter">TRIMESTRE</button> <button class="pbtn"    onclick="statPeriod('year')"    id="sp-year">ANNÉE</button> <button class="pbtn"    onclick="statPeriod('all')"     id="sp-all">TOUT</button> </div> <button class="btn btn-s btn-sm" onclick="exportCSV()">EXPORT EXCEL</button> </div> <div class="row2"> <div class="card"> <div class="card-hdr"><span class="card-title">Séances par personne (Flow)</span></div> <div id="stat-bars"></div> </div> <div class="card"> <div class="card-hdr"><span class="card-title">Vue d'ensemble</span></div> <div id="stat-overview"></div> </div> </div> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Détail + Rémunération</span></div> <div class="tw"><table> <thead><tr><th>NOM</th><th>SÉANCES FLOW</th><th>PRIX / SÉA.</th><th>TOTAL ESTIMÉ</th></tr></thead> <tbody id="stat-tbody"></tbody> </table></div> </div> </div> <!-- ── PARAMÈTRES ── --> <div class="panel" id="ap-params"> <!-- Mots de passe membres --> <div class="card mt16"> <div class="card-hdr"> <span class="card-title">Mots de passe membres (connexion flow)</span> <button class="btn btn-p btn-sm" onclick="saveFlowPasswords()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Définissez un mot de passe par membre. Laissez vide = accès libre sans mot de passe.</p> <div id="flow-passwords-wrap" style="display:flex;flex-direction:column;gap:10px"></div> </div> <!-- Clé API Anthropic (import auto des dispos via Claude) --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Clé API Anthropic (import auto)</span> <button class="btn btn-p btn-sm" onclick="saveAnthropicKey()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Permet d'importer les dispos automatiquement (1 clic, ~0,001€ par import). La clé est stockée localement sur ton appareil uniquement.</p> <input type="password" class="fc" id="anthropic-api-key" placeholder="sk-ant-..." style="font-family:monospace;font-size:12px"> <p class="text-muted text-sm mt8">Obtenir une clé : <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--bordeaux);font-weight:700">console.anthropic.com</a></p> </div> <!-- Couleurs des guides --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Couleurs des Guides</span> <button class="btn btn-p btn-sm" onclick="saveGuideColors()">ENREGISTRER</button> </div> <p class="text-muted text-sm mb8">Choisissez une couleur par guide — visible sur le calendrier et dans le planning des flows.</p> <div id="guide-colors-wrap" style="display:flex;flex-direction:column;gap:12px"></div> </div> <!-- Réinitialisation des assignations --> <div class="card mt16" style="border:1px solid rgba(180,90,0,.25)"> <div class="card-hdr"><span class="card-title" style="color:rgba(138,42,38,1)">Réinitialiser les assignations de la semaine</span></div> <p class="text-muted text-sm mb12">Retire tous les flows assignés aux séances de la semaine affichée dans le calendrier. Les séances, membres et dispos ne sont pas touchés.</p> <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"> <span style="font-size:12px;color:var(--muted)">Semaine concernée :</span> <input type="week" id="reset-assign-week" class="fc" style="width:180px"> <button class="btn mt0" style="background:rgba(180,90,0,.85);color:#fff" onclick="resetWeekAssignments()">RETIRER LES FLOWS</button> </div> </div> <!-- Réinitialisation des profils --> <div class="card mt16" style="border:1px solid rgba(138,42,38,.25)"> <div class="card-hdr"><span class="card-title" style="color:#8a2a26">Réinitialisation des profils utilisateurs</span></div> <p class="text-muted text-sm mb12">Efface les données liées aux profils : disponibilités, confirmations de séances et marqueurs "vu". Les séances et les membres ne sont pas supprimés.</p> <div style="display:flex;flex-direction:column;gap:8px"> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-avails" checked> Effacer toutes les disponibilités </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-confirmations">Réinitialiser les confirmations de séances (repasse en "draft") </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-seen"> Effacer les marqueurs "vu" (notifications) </label> <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"> <input type="checkbox" id="reset-passwords"> Effacer les mots de passe membres </label> </div> <button class="btn mt12" style="background:#8a2a26;color:#fff" onclick="resetUserProfiles()">RÉINITIALISER LES PROFILS</button> </div> <!-- Statut des confirmations --> <div class="card mt16"> <div class="card-hdr"><span class="card-title">Statut des confirmations (séances à venir)</span></div> <p class="text-muted text-sm mb8">Vue globale des séances avec un flow assigné et leur statut de confirmation.</p> <div id="read-status-table"></div> </div> </div> <!-- ── CRÉNEAUX DISPO ── --> <div class="panel" id="ap-creneaux"> <div class="toolbar" style="flex-wrap:wrap;gap:8px"> <div style="display:flex;align-items:center;gap:8px"> <button class="btn btn-s btn-sm" onclick="navCreneaux(-1)">◀</button> <span id="cren-week-label" style="font-size:13px;font-weight:700;min-width:190px;text-align:center">—</span> <button class="btn btn-s btn-sm" onclick="navCreneaux(1)">▶</button> <button class="btn-today" onclick="navCreneauxToday()" title="Revenir à la semaine courante">Aujourd'hui</button> </div> <div style="display:flex;gap:6px;flex-wrap:wrap"> <button class="btn btn-sm" style="background:var(--green);color:#fff" onclick="autoGenCreneauxWeek()" title="Génère automatiquement les créneaux depuis les séances (buffer 30min)">AUTO</button> <button class="btn btn-s btn-sm" id="cren-undo-btn" onclick="undoCren()" disabled>← ANNULER</button> <button class="btn btn-sm" id="cren-cut-btn" onclick="toggleCutMode()" title="Mode ciseau : cliquez un shift pour le couper en deux">CISEAU</button> <button class="btn btn-d btn-sm" onclick="resetCreneauxWeek()">RESET SEMAINE</button> </div> </div> <p style="font-size:11px;color:var(--muted);margin:8px 0 12px">Cliquez-glissez sur la grille pour créer un créneau de disponibilité. Cliquez sur un créneau existant pour assigner une personne ou le supprimer.</p> <div id="cren-grid-container"></div> </div> </div><!-- /v-admin --> <!-- ═══════════════════════ FLOW ═══════════════════════ -->
+<div id="v-flow" class="hidden"> <!-- ── GUIDE FLOW ── --> <div class="guide-box"> <div class="guide-hdr" onclick="toggleGuide('flow-guide')"> <div class="guide-hdr-title"> <span>Comment ça marche — Bienvenue dans votre espace</span> </div> <span class="guide-hdr-toggle" id="flow-guide-toggle">▼</span> </div> <div class="guide-body hidden" id="flow-guide"> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">1</div> <div class="guide-step-title">Renseignez vos dispos</div> </div> <div class="guide-step-body"> Allez dans <strong>MES DISPONIBILITÉS</strong>.<br> Cliquez-glissez sur la grille pour cocher les créneaux où vous êtes disponible.<br> Cliquez <strong>ENREGISTRER</strong> — l'admin reçoit une notification. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">2</div> <div class="guide-step-title">Séances visibles sur la grille</div> </div> <div class="guide-step-body"> Les créneaux avec un fond coloré = une séance est déjà planifiée.<br> <span style="color:var(--bordeaux)">■ bordeaux</span> = séance guidée · <span style="color:#b8a888">■ beige</span> = freeflow<br> Le nom du guide est affiché directement sur le créneau. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">3</div> <div class="guide-step-title">Vous recevez une assignation</div> </div> <div class="guide-step-body"> Quand l'admin vous assigne une séance, vous recevez un email.<br> Une notification apparaît en haut de votre espace.<br> Rendez-vous dans <strong>MON PLANNING</strong> pour la voir. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">4</div> <div class="guide-step-title">Confirmez votre présence</div> </div> <div class="guide-step-body"> Dans <strong>MON PLANNING</strong>, les séances <span style="color:var(--blue)">■ bleues</span> = en attente de confirmation.<br> Cliquez sur une séance ou cochez la case → <strong>CONFIRMER</strong>.<br> Une fois confirmée, la séance passe au <span style="color:var(--green)">■ vert</span>. </div> </div> <div class="guide-step"> <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"> <div class="guide-num">5</div> <div class="guide-step-title">Vue liste &amp; export</div> </div> <div class="guide-step-body"> Basculez en <strong>LISTE</strong> pour voir vos séances semaine par semaine ou mois par mois. </div> </div> <div class="guide-tip"> <span><strong>Important :</strong> Renseignez vos disponibilités <em>avant</em> la date de planification — sans vos dispos, l'admin ne peut pas vous assigner de séances. Plus vous indiquez de créneaux, plus vous avez de chances d'être assigné(e).</span> </div> </div> </div> <div class="tabs"> <button class="tab on" onclick="ftab('dispos')"   id="ft-dispos">📋 MES DISPOS</button> <button class="tab"    onclick="ftab('planning')" id="ft-planning">📅 MON PLANNING</button> <button class="tab"    onclick="ftab('global')"   id="ft-global">👥 SANT-ROCH</button> <button onclick="omo('mo-faq')" style="background:none;border:1.5px solid var(--beige-d);border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:900;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px" title="Aide & FAQ">?</button> </div> <!-- Navigation bottom mobile (flow users) --> <div id="mob-flow-nav"> <button class="mnb on" id="mnb-dispos"   onclick="ftab('dispos')"><span class="mni">📋</span><span>DISPOS</span><span id="mnb-dispos-badge" class="mnb-badge hidden"></span></button> <button class="mnb"    id="mnb-planning" onclick="ftab('planning')"><span class="mni">📅</span><span>PLANNING</span></button> <button class="mnb"    id="mnb-global"   onclick="ftab('global')"><span class="mni">👥</span><span>ÉQUIPE</span></button> <button class="mnb" onclick="omo('mo-faq')"><span class="mni">❓</span><span>AIDE</span></button> </div> <!-- ── DISPOS FLOW V2 (page d'accueil par défaut) ── --> <div class="panel on" id="fp-dispos"> <!-- Bannière urgence dispos --> <div id="dispo-urgency-wrap"></div> <!-- Toggle vue semaine/mois + nav --> <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap"> <div style="display:flex;gap:4px;background:var(--beige);border-radius:6px;padding:3px"> <button id="fdv-week" class="btn btn-sm on" onclick="flowDispoView('week')" style="font-size:10px;padding:5px 12px;border-radius:4px">Semaine</button> <button id="fdv-month" class="btn btn-sm" onclick="flowDispoView('month')" style="font-size:10px;padding:5px 12px;border-radius:4px">Mois</button> </div> </div> <!-- Navigation --> <div class="dispo-week-nav" id="fdispo-week-nav"> <button class="btn btn-g btn-sm" onclick="navFlowDispo(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button> <span class="wlbl" id="fdispo-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navFlowDispo(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button> <button class="btn-today" onclick="navFlowDispoToday()" style="margin-left:4px">Aujourd'hui</button> </div> <!-- Navigation mois --> <div class="dispo-week-nav hidden" id="fdispo-month-nav"> <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(-1)" style="min-width:44px;min-height:44px;font-size:18px">◀</button> <span class="wlbl" id="fdispo-month-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navFlowDispoMonth(1)"  style="min-width:44px;min-height:44px;font-size:18px">▶</button> </div> <!-- Aide contextuelle dispos --> <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;flex-wrap:wrap"> <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-size:11px"> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(100,95,95,.75)"></span><span style="color:var(--muted)">Pas répondu</span></span> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(92,122,58,.90)"></span><span style="color:var(--muted)">Dispo déclarée</span></span> <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(138,42,38,.86)"></span><span style="color:var(--muted)">Pas dispo</span></span> <button onclick="omo('mo-faq')" style="background:none;border:1px solid var(--beige-d);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700">? Comment ça marche ?</button> </div> </div> <!-- Vue shifts semaine --> <div id="fdm-shifts-wrap"> <!-- Mobile : liste par jour (cachée sur desktop) --> <div id="flow-shifts-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine (cachée sur mobile) --> <div id="fdm-shifts-inner" class="flow-desk-only" style="display:flex;gap:12px;align-items:flex-start"> <div style="flex:1;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch"> <div id="flow-shifts-list"></div> </div> <div id="flow-week-note-panel" style="display:none"></div> </div> </div> <!-- Vue shifts mois --> <div id="fdm-month-wrap" class="hidden"> <div id="flow-shifts-month"></div> </div> <!-- Éléments cachés conservés pour compat --> <div id="fdm-shifts" class="hidden"></div> <div id="fdm-cards" class="hidden"></div> <div id="fdm-list" class="hidden"></div> <div id="fdm-cards-wrap" class="hidden"> <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"> <div class="ag" id="flow-avail-grid"></div> </div> <div class="fill-month-block" id="fill-month-block"> <div class="fill-month-title"> Appliquer ce modèle à un mois entier</div> <div class="fill-month-desc">La semaine visible sera répétée sur tous les jours du mois choisi.</div> <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"> <select class="fc" id="fill-month-sel" style="flex:1;min-width:160px;font-size:14px;font-weight:700"></select> <button class="btn btn-p" onclick="applyWeekPatternToMonth()" style="white-space:nowrap;padding:12px 18px;font-size:13px">Remplir ce mois</button> </div> <div id="fill-month-preview" style="margin-top:8px;font-size:11px;color:var(--muted)"></div> </div> <div class="dispo-save-bar" id="dispo-save-bar" style="justify-content:center"> <span id="dispo-save-status" style="font-size:12px;font-weight:700;color:var(--muted)">✓ À jour</span> </div> </div> <div id="fdm-list-wrap" class="hidden"> <div class="flex gap8 mb12"> <button class="btn btn-d btn-sm" onclick="clearAllFlowDispos()">TOUT EFFACER</button> </div> <div id="flow-dispo-list"></div> </div> <div id="flow-dispo-cards" class="hidden"></div> <div id="fdt-month-wrap" class="hidden"><div id="flow-dispo-month"></div></div> </div> <!-- ── PLANNING FLOW ── --> <div class="panel" id="fp-planning"> <!-- Notifications shifts (confirmations en attente) --> <div id="flow-notifs"></div> <!-- Toolbar mode vue --> <div class="toolbar"> <div class="pbtn-group"> <button class="pbtn on" onclick="flowPlanView('cal')"   id="fpv-cal">SEMAINE</button> <button class="pbtn"    onclick="flowPlanView('month')" id="fpv-month">MOIS</button> <button class="pbtn"    onclick="flowPlanView('list')"  id="fpv-list">LISTE</button> </div> <button class="btn btn-g btn-sm" id="fcal-nav-prev" onclick="navFlowCal(-1)">◀</button> <span class="wlbl" id="fcal-lbl">—</span> <button class="btn btn-g btn-sm" id="fcal-nav-next" onclick="navFlowCal(1)">▶</button> <!-- filtre période pour la vue liste --> <div class="pbtn-group hidden" id="list-period-group"> <button class="pbtn on" onclick="setFlowListPeriod('all')"   id="flp-all">TOUT</button> <button class="pbtn"    onclick="setFlowListPeriod('week')"  id="flp-week">SEMAINE</button> <button class="pbtn"    onclick="setFlowListPeriod('month')" id="flp-month">MOIS</button> </div> </div> <!-- Confirmation groupée (visible dans tous les modes) --> <div id="confirm-batch-wrap" class="hidden"> <div class="confirm-batch"> <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px"> <h3 style="font-size:15px">⚠ Séances en attente de confirmation</h3> <div style="display:flex;gap:8px;flex-wrap:wrap"> <button class="btn btn-green" style="padding:10px 20px;font-size:14px;font-weight:800" onclick="confirmAllPending()">✓ TOUT CONFIRMER</button> <button class="btn btn-g btn-sm" onclick="toggleAllConfirmChecks()">Sélection manuelle</button> <button class="btn btn-green btn-sm" onclick="confirmChecked()">✓ Confirmer la sélection</button> </div> </div> <div id="confirm-list"></div> </div> </div> <!-- Légende états (masquée sur mobile) --> <div id="fp-planning-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px"> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(92,122,58,.90);border-left:4px solid #3d5024;display:inline-block"></span> <strong>Shift confirmé</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(184,120,46,.88);border-left:4px solid #8B6E3F;display:inline-block"></span> <strong>Shift à confirmer</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span> <strong>Guide</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(61,90,128,.88);border-left:4px solid #3d5a80;display:inline-block"></span> <strong>Flow</strong> <span style="color:var(--muted)">(vert = confirmé)</span> </span> </div> <!-- Vue calendrier semaine --> <div id="fpv-cal-wrap"> <!-- Mobile : liste par jour (cachée sur desktop) --> <div id="flow-cal-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine (cachée sur mobile) --> <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="flow-cal"></div></div> </div> <!-- Vue mois --> <div id="fpv-month-wrap" class="hidden"> <!-- Mobile : liste par jour --> <div id="flow-month-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille mois --> <div class="flow-desk-only" style="overflow-x:auto"><div class="month-grid" id="flow-month-cal"></div></div> </div> <!-- Vue liste --> <div id="fpv-list-wrap" class="hidden"> <div id="flow-sessions-list"></div> </div> </div> <!-- ── PLANNING SANT-ROCH (vue globale lecture seule) ── --> <div class="panel" id="fp-global"> <div class="toolbar"> <button class="btn btn-g btn-sm" onclick="navGlobalCal(-1)" style="min-width:44px;min-height:44px;font-size:20px">◀</button> <span class="wlbl" id="global-cal-lbl">—</span> <button class="btn btn-g btn-sm" onclick="navGlobalCal(1)"  style="min-width:44px;min-height:44px;font-size:20px">▶</button> </div> <!-- Légende (masquée sur mobile) --> <div id="fp-global-legend" class="flex gap8 mb12 fw" style="font-size:11px;padding:8px 12px;background:var(--white);border:1px solid var(--beige);flex-wrap:wrap;gap:10px"> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(108,20,18,.90);border-left:4px solid var(--bordeaux);display:inline-block"></span> <strong>Je suis GUIDE</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(61,90,128,.88);border-left:4px solid #3d5a80;display:inline-block"></span> <strong>Je suis FLOW</strong> </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(92,122,58,.28);border-left:3px solid var(--green);display:inline-block"></span> Autre séance confirmée </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(150,150,150,.45);border-left:3px solid #aaa;display:inline-block"></span> Autre séance </span> <span style="display:flex;align-items:center;gap:5px"> <span style="width:14px;height:14px;background:rgba(219,207,181,.85);border-left:3px solid #b8a888;display:inline-block"></span> Freeflow </span> </div> <!-- Mobile : liste par jour --> <div id="global-cal-mobile-list" class="flow-mob-only"></div> <!-- Desktop : grille semaine --> <div class="flow-desk-only" style="overflow-x:auto"><div class="calendar" id="global-cal"></div></div> </div>
 </div><!-- /v-flow --> </main> <!-- MODALS ─────────────────────────────────────────── --> <!-- Modal Séance -->
-<div class="mo hidden" id="mo-session"> <div class="modal"> <div class="mhd"><h3 id="mo-sess-title">NOUVELLE SÉANCE</h3><button class="mcl" onclick="cmo('mo-session')">×</button></div> <div class="mbd"> <input type="hidden" id="se-id"> <!-- TYPE SÉANCE --> <div class="fg"> <label>TYPE DE SÉANCE *</label> <div class="type-selector mt8" id="type-selector-btns"> <div class="type-opt t-guide on" onclick="selType('guidee')"   id="to-guidee">Guidée</div> <div class="type-opt t-freeflow" onclick="selType('freeflow')" id="to-freeflow">Freeflow</div> <div class="type-opt t-event"    onclick="selType('event')"    id="to-event">Événement</div> </div> <!-- Nom de l'événement — visible uniquement si type=event --> <div id="se-event-wrap" class="hidden" style="margin-top:10px;background:rgba(230,126,34,.08);border:1px solid rgba(230,126,34,.3);padding:10px 12px;border-radius:4px"> <label style="color:var(--orange)">NOM DE L'ÉVÉNEMENT *</label> <div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Rituel Social'">Rituel Social</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Privatisation'">Privatisation</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Formation'">Formation</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Team Building'">Team Building</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Soirée'">Soirée</button> </div> <input type="text" class="fc" id="se-event-name" placeholder="Ou tapez un nom libre…" style="margin-top:2px"> </div> <input type="hidden" id="se-type" value="guidee"> <input type="hidden" id="se-custom-label" value=""> </div> <div class="row2"> <div class="fg"><label>DATE *</label><input type="date" class="fc" id="se-date" onchange="checkSessOverlap()"></div> <div class="fg"> <label>HEURE DÉBUT *</label> <select class="fc" id="se-start" onchange="checkSessOverlap()"></select> </div> </div> <div class="row2"> <div class="fg"> <label>DURÉE *</label> <select class="fc" id="se-duration" onchange="checkSessOverlap()"> <option value="60" selected>1h (60 min)</option> <option value="70">1h10 (70 min)</option> <option value="75">1h15 (75 min)</option> <option value="90">1h30 (90 min)</option> <option value="120">2h</option> <option value="180">3h</option> </select> </div> </div> <div id="se-overlap-warn" role="alert">⚠ Chevauchement détecté avec une autre séance</div> <div class="fg" id="se-guide-wrap"> <label>GUIDE * <span id="se-guide-color-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:4px;vertical-align:middle"></span></label> <select class="fc" id="se-guide" onchange="updateGuideColorDot()"> <option value="">— Choisir un guide —</option> </select> </div> <div class="fg"><label>NOTES</label><textarea class="fc" id="se-notes" placeholder="Informations…"></textarea></div> <!-- Récurrence --> <div style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <label class="chk mb8"><input type="checkbox" id="se-repeat" onchange="toggleRepeat()"><span>Créer plusieurs séances identiques</span></label> <div id="se-repeat-wrap" class="hidden mt8" style="background:var(--creme);padding:12px;border:1px solid var(--beige)"> <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Cette séance sera dupliquée aux dates suivantes :</div> <div class="row2"> <div class="fg"> <label>Espacement</label> <select class="fc" id="se-repeat-freq" onchange="previewRepeat()"> <option value="7">Chaque semaine (+7j)</option> <option value="14">Toutes les 2 semaines (+14j)</option> </select> </div> <div class="fg"> <label>Nombre de copies</label> <select class="fc" id="se-repeat-count" onchange="previewRepeat()"> <option value="2">2 copies</option> <option value="3">3 copies</option> <option value="4" selected>4 copies</option> <option value="6">6 copies</option> <option value="8">8 copies</option> </select> </div> </div> <div id="repeat-preview" style="font-size:11px;color:var(--blue);margin-top:6px"></div> </div> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-session')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-sess" onclick="deleteSession()">SUPPRIMER</button> <button class="btn btn-s btn-sm hidden" id="btn-dup-sess" onclick="duplicateSession()">DUPLIQUER</button> <button class="btn btn-p" onclick="saveSession()">ENREGISTRER</button> </div> </div>
+<div class="mo hidden" id="mo-session"> <div class="modal"> <div class="mhd"><h3 id="mo-sess-title">NOUVELLE SÉANCE</h3><button class="mcl" onclick="cmo('mo-session')">×</button></div> <div class="mbd"> <input type="hidden" id="se-id"> <!-- TYPE SÉANCE --> <div class="fg"> <label>TYPE DE SÉANCE *</label> <div class="type-selector mt8" id="type-selector-btns"> <div class="type-opt t-guide on" onclick="selType('guidee')"   id="to-guidee">Guidée</div> <div class="type-opt t-freeflow" onclick="selType('freeflow')" id="to-freeflow">Freeflow</div> <div class="type-opt t-event"    onclick="selType('event')"    id="to-event">Événement</div> </div> <!-- Nom de l'événement — visible uniquement si type=event --> <div id="se-event-wrap" class="hidden" style="margin-top:10px;background:rgba(139,110,63,.08);border:1px solid rgba(139,110,63,.3);padding:10px 12px;border-radius:4px"> <label style="color:var(--orange)">NOM DE L'ÉVÉNEMENT *</label> <div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Rituel Social'">Rituel Social</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Privatisation'">Privatisation</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Formation'">Formation</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Team Building'">Team Building</button> <button type="button" class="btn btn-s btn-sm" style="font-size:11px" onclick="document.getElementById('se-event-name').value='Soirée'">Soirée</button> </div> <input type="text" class="fc" id="se-event-name" placeholder="Ou tapez un nom libre…" style="margin-top:2px"> </div> <input type="hidden" id="se-type" value="guidee"> <input type="hidden" id="se-custom-label" value=""> </div> <div class="row2"> <div class="fg"><label>DATE *</label><input type="date" class="fc" id="se-date" onchange="checkSessOverlap()"></div> <div class="fg"> <label>HEURE DÉBUT *</label> <select class="fc" id="se-start" onchange="checkSessOverlap()"></select> </div> </div> <div class="row2"> <div class="fg"> <label>DURÉE *</label> <select class="fc" id="se-duration" onchange="checkSessOverlap()"> <option value="60" selected>1h (60 min)</option> <option value="70">1h10 (70 min)</option> <option value="75">1h15 (75 min)</option> <option value="90">1h30 (90 min)</option> <option value="120">2h</option> <option value="180">3h</option> </select> </div> </div> <div id="se-overlap-warn" role="alert">⚠ Chevauchement détecté avec une autre séance</div> <div class="fg" id="se-guide-wrap"> <label>GUIDE * <span id="se-guide-color-dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-left:4px;vertical-align:middle"></span></label> <select class="fc" id="se-guide" onchange="updateGuideColorDot()"> <option value="">— Choisir un guide —</option> </select> </div> <div class="fg"><label>NOTES</label><textarea class="fc" id="se-notes" placeholder="Informations…"></textarea></div> <!-- Récurrence --> <div style="border-top:1px solid var(--beige);padding-top:14px;margin-top:6px"> <label class="chk mb8"><input type="checkbox" id="se-repeat" onchange="toggleRepeat()"><span>Créer plusieurs séances identiques</span></label> <div id="se-repeat-wrap" class="hidden mt8" style="background:var(--creme);padding:12px;border:1px solid var(--beige)"> <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Cette séance sera dupliquée aux dates suivantes :</div> <div class="row2"> <div class="fg"> <label>Espacement</label> <select class="fc" id="se-repeat-freq" onchange="previewRepeat()"> <option value="7">Chaque semaine (+7j)</option> <option value="14">Toutes les 2 semaines (+14j)</option> </select> </div> <div class="fg"> <label>Nombre de copies</label> <select class="fc" id="se-repeat-count" onchange="previewRepeat()"> <option value="2">2 copies</option> <option value="3">3 copies</option> <option value="4" selected>4 copies</option> <option value="6">6 copies</option> <option value="8">8 copies</option> </select> </div> </div> <div id="repeat-preview" style="font-size:11px;color:var(--blue);margin-top:6px"></div> </div> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-session')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-sess" onclick="deleteSession()">SUPPRIMER</button> <button class="btn btn-s btn-sm hidden" id="btn-dup-sess" onclick="duplicateSession()">DUPLIQUER</button> <button class="btn btn-p" onclick="saveSession()">ENREGISTRER</button> </div> </div>
 </div> <!-- Modal Personne -->
 <div class="mo hidden" id="mo-person"> <div class="modal"> <div class="mhd"><h3 id="mo-pers-title">NOUVEAU MEMBRE</h3><button class="mcl" onclick="cmo('mo-person')">×</button></div> <div class="mbd"> <input type="hidden" id="pe-id"> <div class="row2"> <div class="fg"><label>NOM *</label><input type="text" class="fc" id="pe-name" placeholder="Prénom Nom"></div> <div class="fg"><label>EMAIL</label><input type="email" class="fc" id="pe-email" placeholder="prenom@exemple.com"></div> </div> <div class="row2"> <div class="fg"><label>TÉLÉPHONE</label><input type="tel" class="fc" id="pe-phone" placeholder="+33 6 00 00 00 00"></div> <div class="fg"><label>PRIX PAR SÉANCE (€)</label><input type="number" class="fc" id="pe-price" placeholder="35" min="0" step="0.5"></div> </div> <div class="flex gap16 mt8 fw"> <label class="chk"><input type="checkbox" id="pe-guide" checked><span>Peut être GUIDE</span></label> <label class="chk"><input type="checkbox" id="pe-flow"  checked><span>Peut être FLOW</span></label> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-person')">ANNULER</button> <button class="btn btn-d btn-sm hidden" id="btn-del-pers" onclick="deletePerson()">SUPPRIMER</button> <button class="btn btn-p" onclick="savePerson()">ENREGISTRER</button> </div> </div>
 </div> <!-- Modal Shift -->
@@ -779,11 +801,11 @@ function loadGuideColors() {
 <!-- ══════════════════════════════════════════
      WELCOME ONBOARDING (flow users)
 ════════════════════════════════════════════ -->
-<div class="mo hidden" id="mo-welcome"> <div class="modal" style="max-width:400px;padding:0;overflow:hidden"> <!-- Progress dots --> <div id="wlc-dots" style="display:flex;justify-content:center;gap:8px;padding:16px 0 0;background:var(--creme)"></div> <!-- Slides container --> <div id="wlc-slides" style="overflow:hidden"> <!-- Slide 1 --> <div class="wlc-slide" style="padding:24px 28px 20px"> <div style="font-size:48px;text-align:center;margin-bottom:16px"></div> <h2 style="font-size:20px;font-weight:900;color:var(--bordeaux);text-align:center;margin-bottom:10px">Bienvenue sur<br>Sant Roch Planning</h2> <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6">Cette app te permet de gérer tes disponibilités et de suivre tes shifts. C'est simple — 3 choses à retenir.</p> </div> <!-- Slide 2 --> <div class="wlc-slide hidden" style="padding:24px 28px 20px"> <div style="font-size:40px;text-align:center;margin-bottom:12px">️</div> <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">C'est quoi un shift ?</h3> <div style="background:var(--creme);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--fg)"> <p style="margin-bottom:10px">Un <strong>shift</strong> = un créneau de présence à Sant Roch qui peut contenir <strong>une ou plusieurs séances</strong> :</p> <div style="display:flex;flex-direction:column;gap:6px"> <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">️</span><span><strong>Rituel libre</strong> — les membres explorent à leur rythme, tu es présent pour les accueillir et accompagner</span></div> <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px"></span><span><strong>Rituel guidé</strong> — session collective structurée, animée avec un guide</span></div> </div> <p style="margin-top:10px;font-size:12px;color:var(--muted)">Ex : un shift 10h–15h peut couvrir un rituel libre le matin + un rituel guidé l'après-midi.</p> </div> </div> <!-- Slide 3 --> <div class="wlc-slide hidden" style="padding:24px 28px 20px"> <div style="font-size:40px;text-align:center;margin-bottom:12px"></div> <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">Déclare tes dispos</h3> <div style="display:flex;flex-direction:column;gap:8px;font-size:13px"> <div style="display:flex;align-items:center;gap:12px;background:rgba(42,122,75,.1);border-radius:8px;padding:10px 12px"> <span style="font-size:20px;width:28px;text-align:center">✓</span> <div><strong style="color:var(--green)">Dispo</strong> — tu es disponible sur tout le créneau</div> </div> <div style="display:flex;align-items:center;gap:12px;background:rgba(180,40,40,.08);border-radius:8px;padding:10px 12px"> <span style="font-size:20px;width:28px;text-align:center">✗</span> <div><strong style="color:#b02020">Pas dispo</strong> — tu peux laisser une note si tu es dispo sur une partie du créneau</div> </div> <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.04);border-radius:8px;padding:10px 12px"> <span style="font-size:20px;width:28px;text-align:center">⬜</span> <div><strong style="color:var(--muted)">Pas répondu</strong> — pense à répondre !</div> </div> </div> </div> <!-- Slide 4 --> <div class="wlc-slide hidden" style="padding:24px 28px 20px"> <div style="font-size:40px;text-align:center;margin-bottom:12px">...</div> <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">Confirme tes shifts</h3> <div style="background:var(--creme);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--fg)"> <p style="margin-bottom:10px">Quand l'admin t'assigne un shift, il apparaît dans <strong>MON PLANNING</strong> en orange :</p> <div style="background:rgba(180,100,0,.15);border-left:4px solid #b06000;border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#7a4000;font-weight:700">... En attente de confirmation</div> <p>Clique sur <strong>"✓ CONFIRMER MON SHIFT"</strong> pour valider ta présence. L'admin voit en temps réel qui a confirmé.</p> </div> </div> </div><!-- /slides --> <!-- Footer nav --> <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px 20px;border-top:1px solid var(--beige-d)"> <button id="wlc-prev" onclick="wlcPrev()" class="btn btn-g btn-sm" style="visibility:hidden">◀ Précédent</button> <button id="wlc-help" onclick="cmo('mo-welcome');omo('mo-faq')" class="btn btn-g btn-sm" style="font-size:11px;display:none">? Voir le guide</button> <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"> <button id="wlc-next" onclick="wlcNext()" class="btn btn-p" style="min-width:120px">Suivant ▶</button> <button onclick="wlcDismiss()" style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0">Ne plus afficher</button> </div> </div> </div>
+<div class="mo hidden" id="mo-welcome"> <div class="modal" style="max-width:400px;padding:0;overflow:hidden"> <!-- Progress dots --> <div id="wlc-dots" style="display:flex;justify-content:center;gap:8px;padding:16px 0 0;background:var(--creme)"></div> <!-- Slides container --> <div id="wlc-slides" style="overflow:hidden"> <!-- Slide 1 --> <div class="wlc-slide" style="padding:24px 28px 20px"> <div style="font-size:48px;text-align:center;margin-bottom:16px"></div> <h2 style="font-size:20px;font-weight:900;color:var(--bordeaux);text-align:center;margin-bottom:10px">Bienvenue sur<br>Sant Roch Planning</h2> <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.6">Cette app te permet de gérer tes disponibilités et de suivre tes shifts. C'est simple — 3 choses à retenir.</p> </div> <!-- Slide 2 --> <div class="wlc-slide hidden" style="padding:24px 28px 20px"> <div style="font-size:40px;text-align:center;margin-bottom:12px">️</div> <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">C'est quoi un shift ?</h3> <div style="background:var(--creme);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--fg)"> <p style="margin-bottom:10px">Un <strong>shift</strong> = un créneau de présence à Sant Roch qui peut contenir <strong>une ou plusieurs séances</strong> :</p> <div style="display:flex;flex-direction:column;gap:6px"> <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">️</span><span><strong>Rituel libre</strong> — les membres explorent à leur rythme, tu es présent pour les accueillir et accompagner</span></div> <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px"></span><span><strong>Rituel guidé</strong> — session collective structurée, animée avec un guide</span></div> </div> <p style="margin-top:10px;font-size:12px;color:var(--muted)">Ex : un shift 10h–15h peut couvrir un rituel libre le matin + un rituel guidé l'après-midi.</p> </div> </div> <!-- Slide 3 --> <div class="wlc-slide hidden" style="padding:24px 28px 20px"> <div style="font-size:40px;text-align:center;margin-bottom:12px"></div> <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">Déclare tes dispos</h3> <div style="display:flex;flex-direction:column;gap:8px;font-size:13px"> <div style="display:flex;align-items:center;gap:12px;background:rgba(92,122,58,.1);border-radius:8px;padding:10px 12px"> <span style="font-size:20px;width:28px;text-align:center">✓</span> <div><strong style="color:var(--green)">Dispo</strong> — tu es disponible sur tout le créneau</div> </div> <div style="display:flex;align-items:center;gap:12px;background:rgba(138,42,38,.08);border-radius:8px;padding:10px 12px"> <span style="font-size:20px;width:28px;text-align:center">✗</span> <div><strong style="color:#8a2a26">Pas dispo</strong> — tu peux laisser une note si tu es dispo sur une partie du créneau</div> </div> <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.04);border-radius:8px;padding:10px 12px"> <span style="font-size:20px;width:28px;text-align:center">⬜</span> <div><strong style="color:var(--muted)">Pas répondu</strong> — pense à répondre !</div> </div> </div> </div> <!-- Slide 4 --> <div class="wlc-slide hidden" style="padding:24px 28px 20px"> <div style="font-size:40px;text-align:center;margin-bottom:12px">...</div> <h3 style="font-size:16px;font-weight:900;color:var(--bordeaux);margin-bottom:12px;text-align:center">Confirme tes shifts</h3> <div style="background:var(--creme);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;color:var(--fg)"> <p style="margin-bottom:10px">Quand l'admin t'assigne un shift, il apparaît dans <strong>MON PLANNING</strong> en orange :</p> <div style="background:rgba(184,120,46,.15);border-left:4px solid #8B6E3F;border-radius:0 6px 6px 0;padding:8px 12px;margin-bottom:10px;font-size:12px;color:#6a5430;font-weight:700">... En attente de confirmation</div> <p>Clique sur <strong>"✓ CONFIRMER MON SHIFT"</strong> pour valider ta présence. L'admin voit en temps réel qui a confirmé.</p> </div> </div> </div><!-- /slides --> <!-- Footer nav --> <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px 20px;border-top:1px solid var(--beige-d)"> <button id="wlc-prev" onclick="wlcPrev()" class="btn btn-g btn-sm" style="visibility:hidden">◀ Précédent</button> <button id="wlc-help" onclick="cmo('mo-welcome');omo('mo-faq')" class="btn btn-g btn-sm" style="font-size:11px;display:none">? Voir le guide</button> <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"> <button id="wlc-next" onclick="wlcNext()" class="btn btn-p" style="min-width:120px">Suivant ▶</button> <button onclick="wlcDismiss()" style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0">Ne plus afficher</button> </div> </div> </div>
 </div> <!-- ══════════════════════════════════════════
      FAQ / GUIDE
 ════════════════════════════════════════════ -->
-<div class="mo hidden" id="mo-faq"> <div class="modal" style="max-width:440px"> <div class="mhd"><h3>? GUIDE & FAQ</h3><button class="mcl" onclick="cmo('mo-faq')">×</button></div> <div class="mbd" style="font-size:13px;line-height:1.65"> <div style="background:rgba(108,20,18,.06);border-left:4px solid var(--bordeaux);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:18px"> <strong style="font-size:12px;color:var(--bordeaux);letter-spacing:.04em">C'EST QUOI UN SHIFT ?</strong> <p style="margin-top:6px;color:var(--fg)">Un shift est un <strong>créneau de présence</strong> à Sant Roch. Il peut contenir une ou plusieurs séances :</p> <ul style="margin:8px 0 0 16px;color:var(--fg)"> <li><strong>️ Rituel libre</strong> — les membres explorent chaleur et froid à leur rythme, tu es là pour les accueillir et accompagner</li> <li><strong>Rituel guidé</strong> — session collective structurée, animée avec un guide</li> </ul> <p style="margin-top:8px;font-size:12px;color:var(--muted)">Exemple : shift 10h–15h30 = rituel libre 10h–12h + rituel guidé 13h–15h30</p> </div> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Comment déclarer mes dispos ? <span>▾</span></summary> <div style="padding:12px 14px"> <p>Va dans l'onglet <strong>MES DISPOS</strong>. Pour chaque shift de la semaine, tape sur le créneau :</p> <ul style="margin:8px 0 0 16px"> <li><strong style="color:var(--green)">✓ Dispo</strong> → tu es disponible sur tout le créneau</li> <li><strong style="color:#b02020">✗ Pas dispo</strong> → tu n'es pas disponible. Tu peux ajouter une note pour préciser tes contraintes</li> </ul> <p style="margin-top:8px;font-size:12px;color:var(--muted)"> Si tu appuies à nouveau sur "✓ Dispo", ça réinitialise ta réponse.</p> </div> </details> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Je suis dispo seulement sur une partie du shift <span>▾</span></summary> <div style="padding:12px 14px"> <ol style="margin:0 0 0 16px"> <li>Appuie sur <strong style="color:#b02020">✗ Pas dispo</strong></li> <li>Appuie sur <strong>Laisser une note à l'admin</strong></li> <li>Ajuste les horaires (De / À) pour indiquer ta plage disponible</li> <li>Ajoute un commentaire si besoin, puis <strong>Enregistrer</strong></li> </ol> <p style="margin-top:8px;font-size:12px;color:var(--muted)">L'admin verra ta note directement dans le planning et pourra adapter le créneau.</p> </div> </details> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Comment confirmer un shift ? <span>▾</span></summary> <div style="padding:12px 14px"> <p>Quand l'admin te confirme sur un shift, tu reçois une notification dans <strong>MON PLANNING</strong>. Le shift apparaît en orange avec le bouton :</p> <div style="background:rgba(255,255,255,.95);border:1px solid #b06000;border-radius:5px;padding:7px 12px;font-size:11px;font-weight:900;color:#b06000;text-align:center;margin:8px 0">✓ CONFIRMER MON SHIFT</div> <p>Appuie dessus pour valider ta présence. Il passe ensuite en vert ✓.</p> </div> </details> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Où voir mon planning complet ? <span>▾</span></summary> <div style="padding:12px 14px"> <p>Dans l'onglet <strong>MON PLANNING</strong> — tu vois tous tes shifts assignés et rituels à venir. Tu peux basculer entre vue semaine et vue mois.</p> <p style="margin-top:8px;font-size:12px;color:var(--muted)">L'onglet <strong>SANT-ROCH</strong> montre le planning global de toute l'équipe.</p> </div> </details> <details style="border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Je n'ai pas reçu de notification <span>▾</span></summary> <div style="padding:12px 14px"> <p>Les notifications apparaissent en haut de l'onglet <strong>MON PLANNING</strong> à chaque ouverture de l'app. Pense à rafraîchir la page si tu ne les vois pas.</p> </div> </details> </div> <div class="mft"> <button class="btn btn-p" onclick="cmo('mo-faq')">C'est compris </button> </div> </div>
+<div class="mo hidden" id="mo-faq"> <div class="modal" style="max-width:440px"> <div class="mhd"><h3>? GUIDE & FAQ</h3><button class="mcl" onclick="cmo('mo-faq')">×</button></div> <div class="mbd" style="font-size:13px;line-height:1.65"> <div style="background:rgba(108,20,18,.06);border-left:4px solid var(--bordeaux);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:18px"> <strong style="font-size:12px;color:var(--bordeaux);letter-spacing:.04em">C'EST QUOI UN SHIFT ?</strong> <p style="margin-top:6px;color:var(--fg)">Un shift est un <strong>créneau de présence</strong> à Sant Roch. Il peut contenir une ou plusieurs séances :</p> <ul style="margin:8px 0 0 16px;color:var(--fg)"> <li><strong>️ Rituel libre</strong> — les membres explorent chaleur et froid à leur rythme, tu es là pour les accueillir et accompagner</li> <li><strong>Rituel guidé</strong> — session collective structurée, animée avec un guide</li> </ul> <p style="margin-top:8px;font-size:12px;color:var(--muted)">Exemple : shift 10h–15h30 = rituel libre 10h–12h + rituel guidé 13h–15h30</p> </div> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Comment déclarer mes dispos ? <span>▾</span></summary> <div style="padding:12px 14px"> <p>Va dans l'onglet <strong>MES DISPOS</strong>. Pour chaque shift de la semaine, tape sur le créneau :</p> <ul style="margin:8px 0 0 16px"> <li><strong style="color:var(--green)">✓ Dispo</strong> → tu es disponible sur tout le créneau</li> <li><strong style="color:#8a2a26">✗ Pas dispo</strong> → tu n'es pas disponible. Tu peux ajouter une note pour préciser tes contraintes</li> </ul> <p style="margin-top:8px;font-size:12px;color:var(--muted)"> Si tu appuies à nouveau sur "✓ Dispo", ça réinitialise ta réponse.</p> </div> </details> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Je suis dispo seulement sur une partie du shift <span>▾</span></summary> <div style="padding:12px 14px"> <ol style="margin:0 0 0 16px"> <li>Appuie sur <strong style="color:#8a2a26">✗ Pas dispo</strong></li> <li>Appuie sur <strong>Laisser une note à l'admin</strong></li> <li>Ajuste les horaires (De / À) pour indiquer ta plage disponible</li> <li>Ajoute un commentaire si besoin, puis <strong>Enregistrer</strong></li> </ol> <p style="margin-top:8px;font-size:12px;color:var(--muted)">L'admin verra ta note directement dans le planning et pourra adapter le créneau.</p> </div> </details> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Comment confirmer un shift ? <span>▾</span></summary> <div style="padding:12px 14px"> <p>Quand l'admin te confirme sur un shift, tu reçois une notification dans <strong>MON PLANNING</strong>. Le shift apparaît en orange avec le bouton :</p> <div style="background:rgba(255,255,255,.95);border:1px solid #8B6E3F;border-radius:5px;padding:7px 12px;font-size:11px;font-weight:900;color:#8B6E3F;text-align:center;margin:8px 0">✓ CONFIRMER MON SHIFT</div> <p>Appuie dessus pour valider ta présence. Il passe ensuite en vert ✓.</p> </div> </details> <details style="margin-bottom:12px;border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Où voir mon planning complet ? <span>▾</span></summary> <div style="padding:12px 14px"> <p>Dans l'onglet <strong>MON PLANNING</strong> — tu vois tous tes shifts assignés et rituels à venir. Tu peux basculer entre vue semaine et vue mois.</p> <p style="margin-top:8px;font-size:12px;color:var(--muted)">L'onglet <strong>SANT-ROCH</strong> montre le planning global de toute l'équipe.</p> </div> </details> <details style="border:1px solid var(--beige-d);border-radius:8px;overflow:hidden"> <summary style="padding:12px 14px;font-weight:800;cursor:pointer;background:var(--creme);list-style:none;display:flex;justify-content:space-between">Je n'ai pas reçu de notification <span>▾</span></summary> <div style="padding:12px 14px"> <p>Les notifications apparaissent en haut de l'onglet <strong>MON PLANNING</strong> à chaque ouverture de l'app. Pense à rafraîchir la page si tu ne les vois pas.</p> </div> </details> </div> <div class="mft"> <button class="btn btn-p" onclick="cmo('mo-faq')">C'est compris </button> </div> </div>
 </div> <div class="mo hidden" id="mo-event"> <div class="modal"> <div class="mhd" id="mo-ev-hdr"><h3 id="mo-ev-title">SÉANCE</h3><button class="mcl" onclick="cmo('mo-event')">×</button></div> <div class="mbd" id="mo-ev-body"></div> <div class="mft"><button class="btn btn-g" onclick="cmo('mo-event')">FERMER</button></div> </div>
 </div> <!-- Modal note sur un shift (flow user) -->
 <div class="mo hidden" id="mo-shift-note"> <div class="modal" style="max-width:360px"> <div class="mhd"><h3> NOTE SUR CE SHIFT</h3><button class="mcl" onclick="cmo('mo-shift-note')">×</button></div> <div class="mbd"> <input type="hidden" id="sn-shift-id"> <div id="sn-shift-label" style="font-size:13px;font-weight:800;color:var(--bordeaux);margin-bottom:12px"></div> <div class="fg" style="margin-bottom:14px"> <label>MA DISPONIBILITÉ SUR CE CRÉNEAU</label> <div class="row2"> <div class="fg"><label>DE</label><select class="fc" id="sn-from"></select></div> <div class="fg"><label>À</label><select class="fc" id="sn-to"></select></div> </div> </div> <div class="fg"> <label>NOTE COMPLÉMENTAIRE <span style="font-weight:400;color:var(--muted)">(optionnel)</span></label> <textarea id="sn-note-text" class="fc" rows="3" placeholder="Ex : Je peux rester après si besoin, retard possible…" style="resize:vertical"></textarea> </div> </div> <div class="mft"> <button class="btn btn-g" onclick="cmo('mo-shift-note')">ANNULER</button> <button class="btn btn-p" onclick="saveShiftNote()">ENREGISTRER</button> </div> </div>
@@ -867,7 +889,7 @@ function loadGuideColors() {
       </div>
 
       <!-- Aperçu commun aux 2 modes -->
-      <div id="imd-preview" class="hidden" style="background:rgba(42,122,75,.08);border:1px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:12px">
+      <div id="imd-preview" class="hidden" style="background:rgba(92,122,58,.08);border:1px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:12px">
         <div style="font-size:11px;font-weight:800;color:var(--green);letter-spacing:.04em;margin-bottom:6px">APERÇU AVANT IMPORT</div>
         <div id="imd-preview-list" style="font-size:12px"></div>
       </div>
@@ -1111,9 +1133,9 @@ function renderFlowShiftsMonth() {
         const isAssigned = sh.person_id === uid && sh.assignment_published !== false;
         let bg, col, label;
         const isConf3 = sh.status === 'confirmed';
-        if (isAssigned && isConf3) { bg='rgba(42,122,75,.9)'; col='#fff'; label='✓ Confirmé'; }
-        else if (isAssigned && !isConf3) { bg='rgba(180,100,0,.9)'; col='#fff'; label='À confirmer'; }
-        else if (isDispo) { bg='rgba(42,95,165,.85)'; col='#fff'; label='✓ Dispo'; }
+        if (isAssigned && isConf3) { bg='rgba(92,122,58,.9)'; col='#fff'; label='✓ Confirmé'; }
+        else if (isAssigned && !isConf3) { bg='rgba(184,120,46,.9)'; col='#fff'; label='À confirmer'; }
+        else if (isDispo) { bg='rgba(61,90,128,.85)'; col='#fff'; label='✓ Dispo'; }
         else if (isPast) { bg='rgba(0,0,0,.08)'; col='var(--muted)'; label=sh.time_from.slice(0,5); }
         else { bg='rgba(214,48,49,.75)'; col='#fff'; label='+ Je suis dispo'; }
 
@@ -1135,8 +1157,8 @@ function renderFlowShiftsMonth() {
 
   // Légende
   html += '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:10px;color:var(--muted)">'
-    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(42,122,75,.9);display:inline-block"></span>Mon shift</span>'
-    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(42,95,165,.85);display:inline-block"></span>Dispo déclarée</span>'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(92,122,58,.9);display:inline-block"></span>Mon shift</span>'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(61,90,128,.85);display:inline-block"></span>Dispo déclarée</span>'
     + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(214,48,49,.75);display:inline-block"></span>À déclarer</span>'
     + '</div>';
 
@@ -1550,7 +1572,7 @@ function renderWeekCal() {
 function _sessInfo(s) {
   const isFree = s.session_type === 'freeflow';
   const isEv   = isEventSess(s);
-  const gc     = isFree ? '#7a6840' : isEv ? '#c0651a' : (s.guide_id ? guideColor(s.guide_id) : '#555');
+  const gc     = isFree ? '#8B6E3F' : isEv ? '#6a5430' : (s.guide_id ? guideColor(s.guide_id) : '#555');
   const guideP = S.people.find(p => p.id === s.guide_id);
   const flowP  = S.people.find(p => p.id === s.flow_id);
   const typeL  = isFree ? 'Freeflow' : isEv ? (s.event_name || 'Événement') : 'Guidée';
@@ -1622,9 +1644,9 @@ function buildEv(s) {
   const isEv=isEventSess(s);
   // Couleur
   if (s.session_type==='freeflow') {
-    ev.style.background='rgba(210,198,172,.90)'; ev.style.borderLeftColor='#b5a88a'; ev.style.color='#5a4a30';
+    ev.style.background='rgba(219,207,181,.90)'; ev.style.borderLeftColor='#b8a888'; ev.style.color='#5a4530';
   } else if (isEv) {
-    ev.style.background='rgba(230,126,34,.88)'; ev.style.borderLeftColor='#c0651a'; ev.style.color='#fff';
+    ev.style.background='rgba(139,110,63,.88)'; ev.style.borderLeftColor='#6a5430'; ev.style.color='#fff';
   } else if (s.guide_id) {
     const gc=guideColor(s.guide_id);
     ev.style.background=gc+'d9'; ev.style.borderLeftColor=gc; ev.style.color='#fff';
@@ -1805,8 +1827,8 @@ function renderMonthCal() {
       const isEv=isEventSess(s);
       const guide=S.people.find(p=>p.id===s.guide_id);
       const gc=isFree||isEv?null:(guide?guideColor(s.guide_id):'#888');
-      const bg=isFree?'rgba(210,198,172,.9)':isEv?'rgba(230,126,34,.88)':(gc?gc+'dd':'rgba(150,150,150,.7)');
-      const col=isFree?'#5a4a30':'#fff';
+      const bg=isFree?'rgba(219,207,181,.9)':isEv?'rgba(139,110,63,.88)':(gc?gc+'dd':'rgba(150,150,150,.7)');
+      const col=isFree?'#5a4530':'#fff';
       ev.style.cssText=`margin-bottom:3px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;background:${bg};color:${col};padding:2px 5px`;
       ev.onclick=()=>openEditSession(s.id);
       if (isFree) {
@@ -1864,8 +1886,8 @@ function renderQuarterCal() {
           const isEv=isEventSess(s);
           const guide=S.people.find(p=>p.id===s.guide_id);
           const gc=isFree||isEv?null:(guide?guideColor(s.guide_id):'#888');
-          const bg=isFree?'rgba(210,198,172,.9)':isEv?'rgba(230,126,34,.88)':(gc?gc+'dd':'rgba(150,150,150,.7)');
-          const col=isFree?'#5a4a30':'#fff';
+          const bg=isFree?'rgba(219,207,181,.9)':isEv?'rgba(139,110,63,.88)':(gc?gc+'dd':'rgba(150,150,150,.7)');
+          const col=isFree?'#5a4530':'#fff';
           ev.style.cssText=`margin-top:2px;cursor:pointer;border-radius:2px;overflow:hidden;font-size:9px;line-height:1.4;background:${bg};color:${col};padding:2px 4px`;
           ev.onclick=()=>openEditSession(s.id);
           if (isFree) {
@@ -2413,8 +2435,8 @@ function renderDisposAdmin() {
     const d = new Date(); const now = iso(d);
     const futureZero = zeroShifts.filter(sh => sh.date >= now);
     if (futureZero.length) {
-      statsHtml += '<div style="background:rgba(192,57,43,.95);border-left:6px solid #a93226;border-radius:8px;'
-        + 'padding:14px 16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(192,57,43,.35)">'
+      statsHtml += '<div style="background:rgba(138,42,38,.95);border-left:6px solid #a93226;border-radius:8px;'
+        + 'padding:14px 16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(138,42,38,.35)">'
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
         + '<span style="font-size:28px;line-height:1">⚠️</span>'
         + '<div><div style="font-size:14px;font-weight:900;color:#fff;letter-spacing:.02em">'
@@ -2476,7 +2498,7 @@ function renderDisposAdmin() {
     + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--orange);display:inline-block"></span>1 dispo</span>'
     + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>2+ dispos</span>'
     + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--bordeaux);display:inline-block"></span>Assigné</span>'
-    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(230,126,34,.7);display:inline-block"></span>Brouillon</span>'
+    + '<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(139,110,63,.7);display:inline-block"></span>Brouillon</span>'
     + '</div>';
   statsHtml += '<button onclick="publishWeekAssignments()" '
     + 'style="flex-shrink:0;padding:6px 14px;background:'+(nDrafts?'var(--bordeaux)':'rgba(0,0,0,.08)')+';color:'+(nDrafts?'#fff':'var(--muted)')+';'
@@ -2598,9 +2620,9 @@ function renderDisposAdmin() {
       let bg, border;
       if (assignedP2 && !isDraft2) { bg='rgba(108,20,18,.88)'; border='#6c1412'; }
       else if (isDraft2)           { bg='rgba(200,100,0,.82)'; border='#c06000'; }
-      else if (nD2===0)            { bg='rgba(214,48,49,.82)'; border='#b02020'; }
-      else if (nD2===1)            { bg='rgba(230,126,34,.85)'; border='#c0651a'; }
-      else                         { bg='rgba(42,122,75,.85)'; border='#1a5c38'; }
+      else if (nD2===0)            { bg='rgba(214,48,49,.82)'; border='#8a2a26'; }
+      else if (nD2===1)            { bg='rgba(139,110,63,.85)'; border='#6a5430'; }
+      else                         { bg='rgba(92,122,58,.85)'; border='#3d5024'; }
 
       // Chip names inline
       const chipNames = dispNames.slice(0,3).map(n => '<span style="display:inline-block;background:rgba(255,255,255,.22);border-radius:2px;padding:1px 4px;font-size:7px;font-weight:700;white-space:nowrap">'+n+'</span>'
@@ -2677,7 +2699,7 @@ function adminToggleShiftDispo_picker(shiftId) {
   if (assignedP) {
     const statusLabel = isConf ? '✓ Confirmé' : isDraft ? 'Brouillon' : 'En attente';
     const statusColor = isConf ? 'var(--green)' : isDraft ? 'var(--orange)' : 'var(--muted)';
-    const blockBg     = isConf ? 'var(--green-l)' : isDraft ? 'rgba(230,126,34,.1)' : 'var(--beige)';
+    const blockBg     = isConf ? 'var(--green-l)' : isDraft ? 'rgba(139,110,63,.1)' : 'var(--beige)';
     popHtml += '<div style="background:'+blockBg+';border-radius:8px;padding:10px 12px;margin-bottom:12px">'
       + '<div style="font-size:9px;font-weight:800;color:'+statusColor+';letter-spacing:.05em;margin-bottom:4px">'+statusLabel+'</div>'
       + '<div style="font-size:14px;font-weight:900;color:var(--fg)">'+assignedP.name+'</div>'
@@ -2711,9 +2733,9 @@ function adminToggleShiftDispo_picker(shiftId) {
       disponibles.forEach(fp => {
         const avNote = allShAvails.find(a => a.person_id===fp.id)?.note;
         popHtml += '<div onclick="adminAssignShift(\''+shiftId+'\',\''+fp.id+'\');_dsPopup?.remove();_dsPopup=null" '
-          + 'style="background:var(--blue-l);border:1px solid rgba(42,95,165,.25);border-radius:7px;'
+          + 'style="background:var(--blue-l);border:1px solid rgba(61,90,128,.25);border-radius:7px;'
           + 'padding:8px 12px;margin-bottom:5px;cursor:pointer" '
-          + 'onmouseover="this.style.background=\'rgba(42,95,165,.18)\'" onmouseout="this.style.background=\'var(--blue-l)\'">'
+          + 'onmouseover="this.style.background=\'rgba(61,90,128,.18)\'" onmouseout="this.style.background=\'var(--blue-l)\'">'
           + '<div style="display:flex;align-items:center;justify-content:space-between">'
           + '<span style="font-size:12px;font-weight:800;color:var(--blue)">● '+fp.name+'</span>'
           + '<span style="font-size:10px;color:var(--blue);opacity:.7;font-weight:700">Assigner →</span>'
@@ -2736,13 +2758,13 @@ function adminToggleShiftDispo_picker(shiftId) {
     pasDispo.forEach(fp => {
       const rec = allShAvails.find(a => a.person_id===fp.id);
       popHtml += '<div onclick="forceAssignShift(\''+shiftId+'\',\''+fp.id+'\',\'pas dispo\');_dsPopup?.remove();_dsPopup=null"'
-        + ' style="background:rgba(180,80,40,.08);border:1px solid rgba(180,80,40,.30);border-radius:7px;padding:8px 12px;margin-bottom:5px;cursor:pointer"'
-        + ' onmouseover="this.style.background=\'rgba(180,80,40,.18)\'" onmouseout="this.style.background=\'rgba(180,80,40,.08)\'">'
+        + ' style="background:rgba(138,42,38,.08);border:1px solid rgba(138,42,38,.30);border-radius:7px;padding:8px 12px;margin-bottom:5px;cursor:pointer"'
+        + ' onmouseover="this.style.background=\'rgba(138,42,38,.18)\'" onmouseout="this.style.background=\'rgba(138,42,38,.08)\'">'
         + '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">'
-        + '<span style="font-size:11px;font-weight:800;color:#a55020">✗ '+fp.name+'</span>'
-        + '<span style="font-size:10px;color:#a55020;opacity:.8;font-weight:700">⚠ Forcer →</span>'
+        + '<span style="font-size:11px;font-weight:800;color:#6a5430">✗ '+fp.name+'</span>'
+        + '<span style="font-size:10px;color:#6a5430;opacity:.8;font-weight:700">⚠ Forcer →</span>'
         + '</div>'
-        + (rec?.note ? '<div style="font-size:10px;color:#7a4020;margin-top:3px;font-style:italic">"'+rec.note+'"</div>' : '')
+        + (rec?.note ? '<div style="font-size:10px;color:#6a5430;margin-top:3px;font-style:italic">"'+rec.note+'"</div>' : '')
         + '</div>';
     });
   }
@@ -3168,7 +3190,7 @@ function renderAdminDispoPerPerson() {
       +   '<div style="flex:2;min-width:200px">'
       +     '<div style="display:flex;gap:6px;font-size:11px;font-weight:700;margin-bottom:4px">'
       +       '<span style="color:var(--green)">✓ ' + nDispo + '</span>'
-      +       '<span style="color:#b02020">✗ ' + nNoDispo + '</span>'
+      +       '<span style="color:#8a2a26">✗ ' + nNoDispo + '</span>'
       +       '<span style="color:var(--muted)">○ ' + nNoAns + '</span>'
       +       '<span style="margin-left:auto;color:' + barColor + ';font-weight:900">' + pct + '%</span>'
       +     '</div>'
@@ -3265,8 +3287,8 @@ function toggleFilterNoDispo() {
   S._filterNoDispo = !S._filterNoDispo;
   const btn=document.getElementById('btn-filter-nodispo');
   if(btn) {
-    btn.style.background = S._filterNoDispo ? 'rgba(192,57,43,.85)' : 'rgba(255,255,255,.1)';
-    btn.style.borderColor = S._filterNoDispo ? '#c0392b' : 'rgba(255,255,255,.4)';
+    btn.style.background = S._filterNoDispo ? 'rgba(138,42,38,.85)' : 'rgba(255,255,255,.1)';
+    btn.style.borderColor = S._filterNoDispo ? '#8a2a26' : 'rgba(255,255,255,.4)';
     btn.textContent = S._filterNoDispo ? '⚠ 0 dispo ✕' : '⚠ 0 dispo';
   }
   renderAssignList();
@@ -3314,7 +3336,7 @@ function renderAssignList() {
     const isEv=isEventSess(s);
     const isConf=s.status==='confirmed';
     const isSel=S._assignSel===s.id;
-    const gc=isFree?'#c9a700':isEv?'#c0651a':(s.guide_id?guideColor(s.guide_id):'#aaa');
+    const gc=isFree?'#c9a700':isEv?'#6a5430':(s.guide_id?guideColor(s.guide_id):'#aaa');
     const availFlows=(!isFree&&!isEv)?getAvailableFlows(s):[];
     // "0 flow dispo" = pas encore de flow assigné ET personne de disponible (pas pour events ni freeflow)
     const hasZeroDispo=!isFree&&!isEv&&!s.flow_id&&availFlows.length===0;
@@ -3348,13 +3370,13 @@ function renderAssignList() {
     }
     else if(isEv) statusHtml=flow
       ?`<span class="asl-flow-status ok"> Flow : ${flow.name}</span>`
-      :`<span class="asl-flow-status" style="color:#c0651a"> ${eventName(s)}</span>`;
+      :`<span class="asl-flow-status" style="color:#6a5430"> ${eventName(s)}</span>`;
     else if(!flow) statusHtml=`<span class="asl-flow-status err">⚠ Sans flow</span>`;
     else if(isConf) statusHtml=`<span class="asl-flow-status ok">✓ ${flow.name} <span style="font-size:9px;opacity:.8">· confirmé</span></span>`;
     else statusHtml=`<span class="asl-flow-status warn">... ${flow.name} <span style="font-size:9px;opacity:.8">· attente confirmation</span></span>`;
 
-    const zeroBadge=hasZeroDispo?`<span style="font-size:9px;background:rgba(192,57,43,.18);color:#c0392b;padding:1px 5px;font-weight:700;border-radius:2px;margin-left:4px">0 FLOW DISPO</span>`:'';
-    const zeroStyle=hasZeroDispo&&!isSel?'background:rgba(192,57,43,.05);border-left:3px solid rgba(192,57,43,.6);':'';
+    const zeroBadge=hasZeroDispo?`<span style="font-size:9px;background:rgba(138,42,38,.18);color:#8a2a26;padding:1px 5px;font-weight:700;border-radius:2px;margin-left:4px">0 FLOW DISPO</span>`:'';
+    const zeroStyle=hasZeroDispo&&!isSel?'background:rgba(138,42,38,.05);border-left:3px solid rgba(138,42,38,.6);':'';
 
     html+=`<div class="asl-row ${isSel?(isFree?'selected sel-free':'selected'):''}" data-asl-id="${s.id}" style="${zeroStyle}" onclick="selectAssignSess('${s.id}')"> <div style="display:flex;justify-content:space-between;align-items:flex-start"> <span class="asl-time" style="border-left:3px solid ${gc};padding-left:6px">${ft(s.start_time)}–${ft(s.end_time)} <span style="font-weight:400;font-size:10px;color:var(--muted)">${dur(s)}</span>${zeroBadge}</span> <button onclick="event.stopPropagation();openEditSession('${s.id}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:11px;padding:0 4px" title="Éditer">Éditer</button> </div> ${guide?`<div class="asl-guide"> ${guide.name}</div>`:(isFree?'':`<div class="asl-guide" style="color:var(--orange)">⚠ Aucun guide</div>`)}
       ${statusHtml} </div>`;
@@ -3382,7 +3404,7 @@ function renderAssignList() {
             const shPerson=sh.person_id?(S.people||[]).find(p=>p.id===sh.person_id):null;
             const shAvails=(S.shiftAvails||[]).filter(a=>a.shift_id===sh.id&&a.available);
             const dispoNames=shAvails.map(a=>{const p=(S.people||[]).find(x=>x.id===a.person_id);return p?.name.split(' ')[0]||'';}).filter(Boolean);
-            html+=`<div style="background:${shPerson?'rgba(42,122,75,.08)':'rgba(108,20,18,.06)'};border:1px solid ${shPerson?'var(--green)':'var(--beige-d)'};border-radius:8px;padding:8px 10px;margin-bottom:6px">`;
+            html+=`<div style="background:${shPerson?'rgba(92,122,58,.08)':'rgba(108,20,18,.06)'};border:1px solid ${shPerson?'var(--green)':'var(--beige-d)'};border-radius:8px;padding:8px 10px;margin-bottom:6px">`;
             html+=`<div style="font-size:11px;font-weight:700;color:var(--fg)">${sh.time_from.slice(0,5)} – ${sh.time_to.slice(0,5)}</div>`;
             if(shPerson) html+=`<div style="font-size:10px;color:var(--green);font-weight:700;margin-top:2px">✓ Assigné : ${shPerson.name}</div>`;
             else html+=`<div style="font-size:10px;color:var(--muted);margin-top:2px">Non assigné</div>`;
@@ -3893,7 +3915,7 @@ function buildFlowDispoCards() {
         const isFree=s.session_type==='freeflow';
         const isEv=isEventSess(s);
         const label=isFree?'Freeflow':isEv?eventName(s):(guide?guide.name:'Guidée');
-        const accent=isFree?'#b5a88a':isEv?'var(--orange)':'var(--bordeaux)';
+        const accent=isFree?'#b8a888':isEv?'var(--orange)':'var(--bordeaux)';
         const sM=t2m(s.start_time.slice(0,5)), eM=t2m(s.end_time.slice(0,5));
         const on=ranges.some(r=>t2m(r.from)<=sM&&t2m(r.to)>=eM);
         return `<div class="dsc-row${on?' dsc-on':''}"> <div class="dsc-left"> <div class="dsc-time" style="border-left:3px solid ${accent}">${ft(s.start_time)}<span class="dsc-sep">–</span>${ft(s.end_time)}</div> <div class="dsc-label">${label}</div> </div> <button class="dsc-btn${on?' on':''}" onclick="toggleSessRange('${dStr}','${s.id}')">${on?'✓ DISPO':'DISPO ?'} </button> </div>`;
@@ -4128,7 +4150,7 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
     html += '<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.12)">';
     // En-tête jour
     html += '<div style="padding:10px 16px;font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;'
-      + 'background:' + (isToday ? 'var(--bordeaux)' : '#3a3530') + ';'
+      + 'background:' + (isToday ? 'var(--bordeaux)' : '#3d2e26') + ';'
       + 'color:#fff">'
       + dayLabel + (isToday ? ' <span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 8px;border-radius:10px;font-weight:700">Aujourd\'hui</span>' : '')
       + '</div>';
@@ -4144,10 +4166,10 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
       const isConfirmed  = sh.status === 'confirmed';
 
       let shiftBg, shiftBorder;
-      if      (assignedToMe && isConfirmed) { shiftBg = 'rgba(42,122,75,.92)';  shiftBorder = '#1a5c38'; }
-      else if (assignedToMe)               { shiftBg = 'rgba(180,100,0,.90)';  shiftBorder = '#b06000'; }
-      else if (myStatus === 'dispo')       { shiftBg = 'rgba(0,135,115,.90)';  shiftBorder = '#007a68'; }
-      else if (myStatus === 'nodispo')     { shiftBg = 'rgba(180,40,40,.86)';  shiftBorder = '#b02020'; }
+      if      (assignedToMe && isConfirmed) { shiftBg = 'rgba(92,122,58,.92)';  shiftBorder = '#3d5024'; }
+      else if (assignedToMe)               { shiftBg = 'rgba(184,120,46,.90)';  shiftBorder = '#8B6E3F'; }
+      else if (myStatus === 'dispo')       { shiftBg = 'rgba(92,122,58,.90)';  shiftBorder = '#3d5024'; }
+      else if (myStatus === 'nodispo')     { shiftBg = 'rgba(138,42,38,.86)';  shiftBorder = '#8a2a26'; }
       else                                 { shiftBg = 'rgba(100,95,95,.75)';  shiftBorder = '#7a7070'; }
 
       const timeStr = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
@@ -4164,7 +4186,7 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
         html += '<div style="display:flex;gap:8px;margin-top:12px">';
         if (!isConfirmed) {
           html += '<button onclick="confirmShift(\'' + sh.id + '\');renderFlowShifts()" '
-            + 'style="' + btnBase + 'background:rgba(255,255,255,.95);color:#b06000">✓ CONFIRMER</button>';
+            + 'style="' + btnBase + 'background:rgba(255,255,255,.95);color:#8B6E3F">✓ CONFIRMER</button>';
         } else {
           html += '<button onclick="unconfirmShift(\'' + sh.id + '\');renderFlowShifts()" '
             + 'style="' + btnBase + 'background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)">← Annuler</button>';
@@ -4180,9 +4202,9 @@ function renderFlowShiftsMobile(container, ws, we, weekShifts, weekSess, uid) {
         const ndActive = myStatus==='nodispo', dActive = myStatus==='dispo';
         html += '<div style="display:flex;gap:8px;margin-top:12px">';
         html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (ndActive?'reset':'nodispo') + '\')" '
-          + 'style="' + btnBase + 'background:' + (ndActive?'rgba(200,60,60,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✗ Pas dispo</button>';
+          + 'style="' + btnBase + 'background:' + (ndActive?'rgba(138,42,38,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✗ Pas dispo</button>';
         html += '<button onclick="setShiftStatus(\'' + sh.id + '\',\'' + (dActive?'reset':'dispo') + '\')" '
-          + 'style="' + btnBase + 'background:' + (dActive?'rgba(0,155,130,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✓ Dispo</button>';
+          + 'style="' + btnBase + 'background:' + (dActive?'rgba(92,122,58,.95)':'rgba(255,255,255,.18)') + ';color:#fff">✓ Dispo</button>';
         html += '</div>';
         if (myStatus==='nodispo') {
           html += '<button onclick="openShiftNote(\'' + sh.id + '\')" '
@@ -4325,10 +4347,10 @@ function renderFlowShifts() {
 
       // ── Couleurs selon statut ──
       let shiftBg, shiftBorder;
-      if      (assignedToMe && isConfirmed)  { shiftBg='rgba(42,122,75,.92)';  shiftBorder='#1a5c38'; } // vert foncé = confirmé
-      else if (assignedToMe)                 { shiftBg='rgba(180,100,0,.90)';  shiftBorder='#b06000'; }
-      else if (myStatus==='dispo')           { shiftBg='rgba(0,135,115,.90)';  shiftBorder='#007a68'; } // teal = dispo déclarée (non confirmé)
-      else if (myStatus==='nodispo')         { shiftBg='rgba(180,40,40,.86)';  shiftBorder='#b02020'; }
+      if      (assignedToMe && isConfirmed)  { shiftBg='rgba(92,122,58,.92)';  shiftBorder='#3d5024'; } // vert foncé = confirmé
+      else if (assignedToMe)                 { shiftBg='rgba(184,120,46,.90)';  shiftBorder='#8B6E3F'; }
+      else if (myStatus==='dispo')           { shiftBg='rgba(92,122,58,.90)';  shiftBorder='#3d5024'; } // teal = dispo déclarée (non confirmé)
+      else if (myStatus==='nodispo')         { shiftBg='rgba(138,42,38,.86)';  shiftBorder='#8a2a26'; }
       else                                   { shiftBg='rgba(100,95,95,.75)';  shiftBorder='#7a7070'; }
 
       // Séances chevauchant ce shift
@@ -4357,7 +4379,7 @@ function renderFlowShifts() {
           if (!isConfirmed) {
             inner += '<div data-sh="'+sh.id+'" data-act="confirm" '
               +'style="text-align:center;background:rgba(255,255,255,.95);border-radius:5px;'
-              +'padding:5px;font-size:10px;font-weight:900;color:#b06000;cursor:pointer;margin-top:4px">✓ CONFIRMER</div>';
+              +'padding:5px;font-size:10px;font-weight:900;color:#8B6E3F;cursor:pointer;margin-top:4px">✓ CONFIRMER</div>';
           } else {
             inner += '<div data-sh="'+sh.id+'" data-act="unconfirm" '
               +'style="text-align:center;background:rgba(255,255,255,.15);border-radius:5px;'
@@ -4390,15 +4412,15 @@ function renderFlowShifts() {
           const ndActive = myStatus==='nodispo';
           inner += '<div data-act="nodispo" data-sh="'+sh.id+'" '
             +'style="flex:1;text-align:center;padding:4px 2px;border-radius:4px;font-size:9px;font-weight:800;cursor:pointer;'
-            +'background:'+(ndActive?'rgba(180,40,40,.95)':'rgba(255,255,255,.15)')+';'
-            +'color:'+(ndActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(ndActive?'rgba(180,40,40,.6)':'rgba(255,255,255,.2)')+'">'
+            +'background:'+(ndActive?'rgba(138,42,38,.95)':'rgba(255,255,255,.15)')+';'
+            +'color:'+(ndActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(ndActive?'rgba(138,42,38,.6)':'rgba(255,255,255,.2)')+'">'
             +(ndActive?'✗ Pas dispo':'✗ Pas dispo')+'</div>';
           // Bouton Dispo
           const dActive = myStatus==='dispo';
           inner += '<div data-act="dispo" data-sh="'+sh.id+'" '
             +'style="flex:1;text-align:center;padding:4px 2px;border-radius:4px;font-size:9px;font-weight:800;cursor:pointer;'
-            +'background:'+(dActive?'rgba(0,135,115,.95)':'rgba(255,255,255,.15)')+';'
-            +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(0,135,115,.5)':'rgba(255,255,255,.2)')+'">'
+            +'background:'+(dActive?'rgba(92,122,58,.95)':'rgba(255,255,255,.15)')+';'
+            +'color:'+(dActive?'#fff':'rgba(255,255,255,.7)')+';border:1px solid '+(dActive?'rgba(92,122,58,.5)':'rgba(255,255,255,.2)')+'">'
             +(dActive?'✓ Dispo':'✓ Dispo')+'</div>';
           inner += '</div>';
           // Bouton note si pas dispo
@@ -4466,11 +4488,11 @@ function renderFlowShifts() {
   const leg = document.createElement('div');
   leg.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11px;padding:0 2px';
   leg.innerHTML = ''
-    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(42,122,75,.9)"></span>Mon shift assigné</span>'
-    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(0,135,115,.90)"></span>✓ Dispo déclarée</span>'
-    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(180,40,40,.86)"></span>✗ Pas dispo</span>'
+    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(92,122,58,.9)"></span>Mon shift assigné</span>'
+    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(92,122,58,.90)"></span>✓ Dispo déclarée</span>'
+    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(138,42,38,.86)"></span>✗ Pas dispo</span>'
     + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(100,95,95,.75)"></span>Pas répondu</span>'
-    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:5px;height:12px;border-radius:1px;background:#b5a88a"></span>Séances (fond)</span>';
+    + '<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:5px;height:12px;border-radius:1px;background:#b8a888"></span>Séances (fond)</span>';
   container.appendChild(leg);
 }
 
@@ -4820,9 +4842,9 @@ function buildAvailGridWithSessions(containerId, weekStart, selection) {
           ov.innerHTML=`<span class="ag-dispo-badge full" style="font-size:7px">✓ DISPO</span>`;
         }
         blk.appendChild(ov);
-        blk.style.outline='3px solid #2a7a4b';
+        blk.style.outline='3px solid #5c7a3a';
         blk.style.outlineOffset='1px';
-        blk.style.boxShadow='0 0 0 1px #2a7a4b,0 2px 8px rgba(42,122,75,.35)';
+        blk.style.boxShadow='0 0 0 1px #5c7a3a,0 2px 8px rgba(92,122,58,.35)';
       };
 
       // Rendu initial (si dispos déjà saisies)
@@ -5512,7 +5534,7 @@ function renderCreneauxGrid() {
       const assigned=sh.person_id?(S.people||[]).find(p=>p.id===sh.person_id):null;
       const shAvails=(S.shiftAvails||[]).filter(a=>a.shift_id===sh.id);
       const dispoNames=shAvails.filter(a=>a.available).map(a=>{const p=(S.people||[]).find(x=>x.id===a.person_id);return p?.name.split(' ')[0]||'';}).filter(Boolean);
-      const color=assigned?'rgba(42,122,75,.32)':dispoNames.length?'rgba(42,95,165,.28)':'rgba(108,20,18,.24)';
+      const color=assigned?'rgba(92,122,58,.32)':dispoNames.length?'rgba(61,90,128,.28)':'rgba(108,20,18,.24)';
 
       const bandEl=document.createElement('div');
       bandEl.className='cren-band';
@@ -5899,8 +5921,8 @@ function renderFlowCal() {
     const sMin=t2m(sh.time_from.slice(0,5))-CAL_S*60, eMin=t2m(sh.time_to.slice(0,5))-CAL_S*60;
     const topPx=(sMin/60)*SH, hPx=Math.max(((eMin-sMin)/60)*SH,28);
     const isConf=sh.status==='confirmed';
-    const bg   = isConf ? 'rgba(42,122,75,.90)'  : 'rgba(170,90,0,.88)';
-    const bord = isConf ? '#1a5c38'               : '#a06000';
+    const bg   = isConf ? 'rgba(92,122,58,.90)'  : 'rgba(184,120,46,.88)';
+    const bord = isConf ? '#3d5024'               : '#8B6E3F';
     const shEl=document.createElement('div');
     shEl.style.cssText=`position:absolute;left:1px;right:1px;top:${topPx}px;height:${hPx}px;`
       +`background:${bg};border-left:4px solid ${bord};border-radius:0 4px 4px 0;`
@@ -5908,7 +5930,7 @@ function renderFlowCal() {
     const timeStr=sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5);
     let inner=`<div style="font-size:9px;font-weight:900;color:#fff;white-space:nowrap">${timeStr}</div>`;
     if(hPx>=36) inner+=`<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.9)">${isConf?'✓ Shift confirmé':'À confirmer'}</div>`;
-    if(!isConf&&hPx>=52) inner+=`<div style="margin-top:3px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border-radius:3px;padding:2px 7px;font-size:9px;font-weight:900;color:#a06000;cursor:pointer">✓ Confirmer</span></div>`;
+    if(!isConf&&hPx>=52) inner+=`<div style="margin-top:3px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border-radius:3px;padding:2px 7px;font-size:9px;font-weight:900;color:#8B6E3F;cursor:pointer">✓ Confirmer</span></div>`;
     shEl.innerHTML=inner;
     shEl.addEventListener('click',()=>{
       if(!isConf) confirmShift(sh.id);
@@ -5935,13 +5957,13 @@ function renderFlowCal() {
 
     let bg, color, border;
     if (isFree && isMyFlow) {
-      if (isConf) { bg='rgba(42,122,75,.82)';  color='#fff'; border='#2a7a4b'; }
-      else        { bg='rgba(147,103,55,.88)';  color='#fff'; border='#b5a88a'; }
-    } else if (isFree)  { bg='rgba(210,198,172,.55)'; color='#5a4a30'; border='#b5a88a'; }
-    else if (isEv2)     { bg='rgba(230,126,34,.88)';  color='#fff';   border='#c0651a'; }
+      if (isConf) { bg='rgba(92,122,58,.82)';  color='#fff'; border='#5c7a3a'; }
+      else        { bg='rgba(139,110,63,.88)';  color='#fff'; border='#b8a888'; }
+    } else if (isFree)  { bg='rgba(219,207,181,.55)'; color='#5a4530'; border='#b8a888'; }
+    else if (isEv2)     { bg='rgba(139,110,63,.88)';  color='#fff';   border='#6a5430'; }
     else if (isMyGuide) { bg='rgba(108,20,18,.90)';   color='#fff';   border='#6C1412'; }
-    else if (isConf)    { bg='rgba(42,122,75,.88)';   color='#fff';   border='#2a7a4b'; }
-    else                { bg='rgba(42,95,165,.88)';   color='#fff';   border='#2a5fa5'; }
+    else if (isConf)    { bg='rgba(92,122,58,.88)';   color='#fff';   border='#5c7a3a'; }
+    else                { bg='rgba(61,90,128,.88)';   color='#fff';   border='#3d5a80'; }
 
     const ev=document.createElement('div');
     ev.className='ev';
@@ -6047,22 +6069,22 @@ function renderGlobalCal() {
     let evBg, evColor, evBorder;
     if (isFree && isMyFlow) {
       // Freeflow dont JE suis le flow assigné
-      if (isConf) { evBg='rgba(42,122,75,.82)';  evColor='#fff';    evBorder='#2a7a4b'; }
-      else        { evBg='rgba(147,103,55,.88)';  evColor='#fff';    evBorder='#b5a88a'; }
+      if (isConf) { evBg='rgba(92,122,58,.82)';  evColor='#fff';    evBorder='#5c7a3a'; }
+      else        { evBg='rgba(139,110,63,.88)';  evColor='#fff';    evBorder='#b8a888'; }
     } else if (isFree) {
-      evBg='rgba(210,198,172,.55)'; evColor='#5a4a30'; evBorder='#b5a88a';
+      evBg='rgba(219,207,181,.55)'; evColor='#5a4530'; evBorder='#b8a888';
     } else if (isEv) {
-      evBg='rgba(230,126,34,.88)'; evColor='#fff'; evBorder='#c0651a';
+      evBg='rgba(139,110,63,.88)'; evColor='#fff'; evBorder='#6a5430';
     } else if (isMyGuide) {
       evBg='rgba(108,20,18,.90)'; evColor='#fff'; evBorder='var(--bordeaux)';
     } else if (isMyFlow) {
-      evBg=isConf?'rgba(42,122,75,.88)':'rgba(42,95,165,.88)'; evColor='#fff'; evBorder=isConf?'#2a7a4b':'#2a5fa5';
+      evBg=isConf?'rgba(92,122,58,.88)':'rgba(61,90,128,.88)'; evColor='#fff'; evBorder=isConf?'#5c7a3a':'#3d5a80';
     } else if (!isMe && isConf && hasFlow) {
-      evBg='rgba(42,122,75,.22)'; evColor='#2a5e3a'; evBorder='var(--green)';
+      evBg='rgba(92,122,58,.22)'; evColor='#3d5024'; evBorder='var(--green)';
     } else if (!isMe && hasFlow) {
       evBg='rgba(150,150,150,.38)'; evColor='#444'; evBorder='#aaa';
     } else {
-      evBg='rgba(192,57,43,.38)'; evColor='#c0392b'; evBorder='rgba(192,57,43,.85)';
+      evBg='rgba(138,42,38,.38)'; evColor='#8a2a26'; evBorder='rgba(138,42,38,.85)';
     }
 
     const ev=document.createElement('div');
@@ -6137,7 +6159,7 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
     const dayLabel=DAYS7[d]+' '+day.getDate()+' '+MOISN[day.getMonth()];
     html+='<div style="border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.13)">';
     html+='<div style="padding:11px 16px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px;'
-      +'background:'+(isToday?'var(--bordeaux)':'#2e2a26')+';color:#fff">'
+      +'background:'+(isToday?'var(--bordeaux)':'#1a1a1a')+';color:#fff">'
       +dayLabel+(isToday?' <span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 9px;border-radius:10px;font-weight:700;flex-shrink:0">Aujourd\'hui</span>':'')
       +'</div>';
     html+='<div style="padding:10px 12px;background:var(--creme);display:flex;flex-direction:column;gap:9px">';
@@ -6148,10 +6170,10 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
       const guide=S.people.find(p=>p.id===s.guide_id), flow=S.people.find(p=>p.id===s.flow_id);
       let gc;
       if (isMyGuide)          gc='rgba(108,20,18,.94)';
-      else if (isConf)        gc='rgba(42,122,75,.92)';
-      else if (isFree&&isMyFlow) gc='rgba(122,88,40,.92)';
-      else if (isEv)          gc='rgba(192,100,26,.92)';
-      else                    gc='rgba(42,95,165,.92)';
+      else if (isConf)        gc='rgba(92,122,58,.92)';
+      else if (isFree&&isMyFlow) gc='rgba(106,84,48,.92)';
+      else if (isEv)          gc='rgba(139,110,63,.92)';
+      else                    gc='rgba(61,90,128,.92)';
       const typeL=isFree?'Freeflow':isEv?(s.event_name||'Événement'):'Guidée';
       const roleBadge=isMyGuide?'GUIDE':'FLOW'+(isConf?' ✓':'');
       const tf=s.start_time.slice(0,5), tt=s.end_time.slice(0,5);
@@ -6173,8 +6195,8 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
     // ── Shifts ──
     dayShifts.forEach(sh=>{
       const isConf=sh.status==='confirmed';
-      const bg=isConf?'rgba(42,122,75,.94)':'rgba(170,90,0,.92)';
-      const border=isConf?'#1a5c38':'#b06000';
+      const bg=isConf?'rgba(92,122,58,.94)':'rgba(184,120,46,.92)';
+      const border=isConf?'#3d5024':'#8B6E3F';
       const tf=sh.time_from.slice(0,5), tt=sh.time_to.slice(0,5);
       html+='<div style="background:'+bg+';border-left:5px solid '+border+';border-radius:10px;color:#fff;padding:13px 16px">';
       html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px">';
@@ -6185,7 +6207,7 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
       if (!isConf) {
         html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowCal()" '
           +'style="width:100%;margin-top:10px;padding:13px;border-radius:9px;border:none;cursor:pointer;'
-          +'font-size:15px;font-weight:900;background:rgba(255,255,255,.95);color:#b06000;min-height:50px;letter-spacing:.02em">✓ CONFIRMER</button>';
+          +'font-size:15px;font-weight:900;background:rgba(255,255,255,.95);color:#8B6E3F;min-height:50px;letter-spacing:.02em">✓ CONFIRMER</button>';
       } else {
         html+='<button onclick="unconfirmShift(\''+sh.id+'\')" '
           +'style="width:100%;margin-top:8px;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.3);cursor:pointer;'
@@ -6218,7 +6240,7 @@ function renderGlobalCalMobile(container, ws, we, uid, allSessions) {
     const dayLabel=DAYS7[d]+' '+day.getDate()+' '+MOISN[day.getMonth()];
     html+='<div style="border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.13)">';
     html+='<div style="padding:11px 16px;font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px;'
-      +'background:'+(isToday?'var(--bordeaux)':'#2e2a26')+';color:#fff">'
+      +'background:'+(isToday?'var(--bordeaux)':'#1a1a1a')+';color:#fff">'
       +dayLabel+(isToday?' <span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 9px;border-radius:10px;font-weight:700;flex-shrink:0">Aujourd\'hui</span>':'')
       +'</div>';
     html+='<div style="padding:10px 12px;background:var(--creme);display:flex;flex-direction:column;gap:9px">';
@@ -6228,11 +6250,11 @@ function renderGlobalCalMobile(container, ws, we, uid, allSessions) {
       const guide=S.people.find(p=>p.id===s.guide_id), flow=S.people.find(p=>p.id===s.flow_id);
       let gc, alpha='1';
       if      (isMyGuide)               { gc='rgba(108,20,18,.94)'; }
-      else if (isMyFlow&&isConf)         { gc='rgba(42,122,75,.92)'; }
-      else if (isMyFlow)                 { gc='rgba(42,95,165,.92)'; }
+      else if (isMyFlow&&isConf)         { gc='rgba(92,122,58,.92)'; }
+      else if (isMyFlow)                 { gc='rgba(61,90,128,.92)'; }
       else if (isFree)                   { gc='rgba(180,160,120,.80)'; alpha='.85'; }
-      else if (isEv)                     { gc='rgba(192,100,26,.80)'; alpha='.85'; }
-      else if (isConf)                   { gc='rgba(42,122,75,.55)'; alpha='.80'; }
+      else if (isEv)                     { gc='rgba(139,110,63,.80)'; alpha='.85'; }
+      else if (isConf)                   { gc='rgba(92,122,58,.55)'; alpha='.80'; }
       else                               { gc='rgba(130,120,115,.55)'; alpha='.75'; }
       const typeL=isFree?'Freeflow':isEv?(s.event_name||'Événement'):'Guidée';
       const tf=s.start_time.slice(0,5), tt=s.end_time.slice(0,5);
@@ -6271,20 +6293,20 @@ function openFlowEventModal(s) {
   if (isMyGuide) {
     // Vue GUIDE — bordeaux, info sur le flow assigné
     hdrEl.style.background='var(--bordeaux)';
-    document.getElementById('mo-ev-body').innerHTML=` <div style="margin:-20px -20px 16px;padding:12px 20px;background:rgba(108,20,18,.07);border-bottom:2px solid var(--bordeaux);display:flex;align-items:center;gap:10px"> <span style="font-size:22px"></span> <div> <div style="font-weight:800;font-size:14px;color:var(--bordeaux)">Tu es GUIDE sur cette séance</div> <div style="font-size:11px;color:var(--muted)">${fmtDateFr(s.date)} · ${ft(s.start_time)}–${ft(s.end_time)}</div> </div> </div> <div class="flex gap16 fw mb12" style="flex-wrap:wrap"> <div><div class="label text-muted mb8">Date</div><strong>${fmtDateFr(s.date)}</strong></div> <div><div class="label text-muted mb8">Horaire</div><strong>${ft(s.start_time)} – ${ft(s.end_time)}</strong></div> <div><div class="label text-muted mb8">Durée</div>${dur(s)}</div> <div><div class="label text-muted mb8">Type</div><span class="badge ${isFree?'b-free':isEventSess(s)?'b-event':'b-guide'}">${sessTypeLabel(s)}</span></div> </div> <div style="padding:12px;background:${flow?'rgba(42,95,165,.07)':'rgba(192,57,43,.07)'};border-left:3px solid ${flow?'var(--blue)':'var(--red)'};margin-bottom:12px"> <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Flow assigné</div> <div style="font-size:14px;font-weight:700;color:${flow?'var(--blue)':'var(--red)'}">${flow?flow.name:'⚠ Aucun flow assigné'}</div> ${flow?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${isConf?'✓ A confirmé sa présence':'En attente de confirmation'}</div>`:''} </div> ${s.notes?`<div style="background:var(--creme);border-left:3px solid var(--beige-d);padding:10px 14px;font-size:13px">${s.notes}</div>`:''}`;
+    document.getElementById('mo-ev-body').innerHTML=` <div style="margin:-20px -20px 16px;padding:12px 20px;background:rgba(108,20,18,.07);border-bottom:2px solid var(--bordeaux);display:flex;align-items:center;gap:10px"> <span style="font-size:22px"></span> <div> <div style="font-weight:800;font-size:14px;color:var(--bordeaux)">Tu es GUIDE sur cette séance</div> <div style="font-size:11px;color:var(--muted)">${fmtDateFr(s.date)} · ${ft(s.start_time)}–${ft(s.end_time)}</div> </div> </div> <div class="flex gap16 fw mb12" style="flex-wrap:wrap"> <div><div class="label text-muted mb8">Date</div><strong>${fmtDateFr(s.date)}</strong></div> <div><div class="label text-muted mb8">Horaire</div><strong>${ft(s.start_time)} – ${ft(s.end_time)}</strong></div> <div><div class="label text-muted mb8">Durée</div>${dur(s)}</div> <div><div class="label text-muted mb8">Type</div><span class="badge ${isFree?'b-free':isEventSess(s)?'b-event':'b-guide'}">${sessTypeLabel(s)}</span></div> </div> <div style="padding:12px;background:${flow?'rgba(61,90,128,.07)':'rgba(138,42,38,.07)'};border-left:3px solid ${flow?'var(--blue)':'var(--red)'};margin-bottom:12px"> <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Flow assigné</div> <div style="font-size:14px;font-weight:700;color:${flow?'var(--blue)':'var(--red)'}">${flow?flow.name:'⚠ Aucun flow assigné'}</div> ${flow?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${isConf?'✓ A confirmé sa présence':'En attente de confirmation'}</div>`:''} </div> ${s.notes?`<div style="background:var(--creme);border-left:3px solid var(--beige-d);padding:10px 14px;font-size:13px">${s.notes}</div>`:''}`;
   } else {
     // Vue FLOW — bleu/vert (guidée) ou marron/vert (freeflow), actions de confirmation
-    const hdrColor = isFree ? (isConf?'#2a7a4b':'#7a5c2e') : (isConf?'var(--green)':'var(--blue)');
+    const hdrColor = isFree ? (isConf?'#5c7a3a':'#6a5430') : (isConf?'var(--green)':'var(--blue)');
     hdrEl.style.background = hdrColor;
     const typeIcon = isFree ? '' : '';
     const typeWord = isFree ? 'Freeflow' : 'Séance guidée';
     document.getElementById('mo-ev-body').innerHTML=` <div style="margin:-20px -20px 16px;padding:12px 20px;
-        background:${isConf?'rgba(42,122,75,.1)':isFree?'rgba(122,92,46,.08)':'rgba(42,95,165,.1)'};
-        border-bottom:2px solid ${isConf?'var(--green)':isFree?'#b5a88a':'var(--blue)'};
-        display:flex;align-items:center;gap:10px"> <span style="font-size:22px">${isConf?'✓':'—'}</span> <div> <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-bottom:2px">${typeIcon} ${typeWord}</div> <div style="font-weight:800;font-size:14px;color:${isConf?'var(--green)':isFree?'#7a5c2e':'var(--blue)'}"> ${isConf?'Présence confirmée ✓':'En attente de ta confirmation'} </div> <div style="font-size:11px;color:var(--muted)"> ${isConf?'Tu es bien inscrit(e) à cette séance.'
+        background:${isConf?'rgba(92,122,58,.1)':isFree?'rgba(122,92,46,.08)':'rgba(61,90,128,.1)'};
+        border-bottom:2px solid ${isConf?'var(--green)':isFree?'#b8a888':'var(--blue)'};
+        display:flex;align-items:center;gap:10px"> <span style="font-size:22px">${isConf?'✓':'—'}</span> <div> <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;opacity:.7;margin-bottom:2px">${typeIcon} ${typeWord}</div> <div style="font-weight:800;font-size:14px;color:${isConf?'var(--green)':isFree?'#6a5430':'var(--blue)'}"> ${isConf?'Présence confirmée ✓':'En attente de ta confirmation'} </div> <div style="font-size:11px;color:var(--muted)"> ${isConf?'Tu es bien inscrit(e) à cette séance.'
                     :'Tu as été assigné(e) comme flow. Confirme ta présence.'} </div> </div> </div> <div class="flex gap16 fw mb12" style="flex-wrap:wrap"> <div><div class="label text-muted mb8">Date</div><strong>${fmtDateFr(s.date)}</strong></div> <div><div class="label text-muted mb8">Horaire</div><strong>${ft(s.start_time)} – ${ft(s.end_time)}</strong></div> <div><div class="label text-muted mb8">Durée</div>${dur(s)}</div> <div><div class="label text-muted mb8">Type</div><span class="badge ${isFree?'b-free':isEventSess(s)?'b-event':'b-guide'}">${typeIcon} ${typeWord}</span></div> ${guide?`<div><div class="label text-muted mb8">Guide</div><strong>${guide.name}</strong></div>`:''} </div> ${s.notes?`<div style="background:var(--creme);border-left:3px solid var(--beige-d);padding:10px 14px;margin-bottom:12px;font-size:13px">${s.notes}</div>`:''} <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px"> ${!isConf
           ?`<button class="btn btn-green w100" style="padding:14px;font-size:14px;font-weight:800" onclick="confirmSess('${s.id}');cmo('mo-event')">✓ CONFIRMER MA PRÉSENCE </button>`
-          :`<div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(42,122,75,.08);border:2px solid rgba(42,122,75,.3)"> <span style="font-size:24px">✓</span> <div> <div style="font-weight:800;font-size:14px;color:var(--green)">Présence confirmée</div> <div style="font-size:11px;color:var(--muted)">Tu es bien inscrit(e) à cette séance</div> </div> </div>`}
+          :`<div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(92,122,58,.08);border:2px solid rgba(92,122,58,.3)"> <span style="font-size:24px">✓</span> <div> <div style="font-weight:800;font-size:14px;color:var(--green)">Présence confirmée</div> <div style="font-size:11px;color:var(--muted)">Tu es bien inscrit(e) à cette séance</div> </div> </div>`}
         ${isConf
           ?`<button class="btn btn-g btn-sm w100" style="margin-top:4px" onclick="unconfirmSess('${s.id}');cmo('mo-event')">Me désinscrire de cette séance </button>`:''} </div>`;
   }
@@ -6477,10 +6499,10 @@ function renderFlowNotifs() {
       const d=new Date(sh.date+'T00:00:00');
       const JOURS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
       const MOIS=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
-      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15)"> <div> <span style="font-weight:800;font-size:14px">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span> <span style="margin-left:8px;opacity:.9;font-size:14px">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> </div> <button onclick="confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:10px 16px;font-size:13px;font-weight:900;color:#b06000;cursor:pointer;letter-spacing:.03em;flex-shrink:0;min-height:44px;-webkit-tap-highlight-color:transparent">✓ CONFIRMER</button> </div>`;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15)"> <div> <span style="font-weight:800;font-size:14px">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span> <span style="margin-left:8px;opacity:.9;font-size:14px">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> </div> <button onclick="confirmShift('${sh.id}')" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:10px 16px;font-size:13px;font-weight:900;color:#8B6E3F;cursor:pointer;letter-spacing:.03em;flex-shrink:0;min-height:44px;-webkit-tap-highlight-color:transparent">✓ CONFIRMER</button> </div>`;
     }).join('');
     const more=pendingShifts.length>5?`<div style="font-size:11px;opacity:.75;margin-top:6px">… et ${pendingShifts.length-5} autre(s)</div>`:'';
-    div.innerHTML+=`<div class="notif-card urgent mb8" style="background:rgba(170,90,0,.88);border-left:4px solid #b06000;color:#fff"> <h4 style="margin-bottom:10px;color:#fff">... ${pendingShifts.length} shift(s) en attente de votre confirmation</h4> ${items}${more} </div>`;
+    div.innerHTML+=`<div class="notif-card urgent mb8" style="background:rgba(184,120,46,.88);border-left:4px solid #8B6E3F;color:#fff"> <h4 style="margin-bottom:10px;color:#fff">... ${pendingShifts.length} shift(s) en attente de votre confirmation</h4> ${items}${more} </div>`;
   }
 
   // Notif : séances flow à confirmer (planning séances)
@@ -6700,12 +6722,12 @@ function renderFlowSessionsList() {
         // ── Rendu SHIFT ──
         const sh=item.data;
         const isConf=sh.status==='confirmed';
-        const borderColor=isConf?'var(--green)':'#a06000';
-        const bgColor=isConf?'rgba(42,122,75,.06)':'rgba(170,90,0,.06)';
+        const borderColor=isConf?'var(--green)':'#8B6E3F';
+        const bgColor=isConf?'rgba(92,122,58,.06)':'rgba(184,120,46,.06)';
         const confirmBtn=!isConf
-          ?`<button class="btn btn-sm" style="background:#a06000;color:#fff;padding:12px;font-size:13px;font-weight:800;width:100%;min-height:48px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();confirmShift('${sh.id}')">✓ CONFIRMER CE SHIFT</button>`
+          ?`<button class="btn btn-sm" style="background:#8B6E3F;color:#fff;padding:12px;font-size:13px;font-weight:800;width:100%;min-height:48px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();confirmShift('${sh.id}')">✓ CONFIRMER CE SHIFT</button>`
           :'';
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(42,122,75,.15)':'rgba(170,90,0,.15)'};color:${isConf?'var(--green)':'#a06000'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#a06000;background:rgba(170,90,0,.12)'}">${isConf?'✓ CONFIRMÉ':'À CONFIRMER'}</span> </div> ${confirmBtn} </div>`;
+        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(92,122,58,.15)':'rgba(184,120,46,.15)'};color:${isConf?'var(--green)':'#8B6E3F'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#8B6E3F;background:rgba(184,120,46,.12)'}">${isConf?'✓ CONFIRMÉ':'À CONFIRMER'}</span> </div> ${confirmBtn} </div>`;
       } else {
         // ── Rendu SÉANCE ──
         const s=item.data;
@@ -6720,7 +6742,7 @@ function renderFlowSessionsList() {
           ?`<span class="role-badge-guide"> GUIDE</span>`
           :`<span class="role-badge-flow"> FLOW</span>`;
         const partnerLine=isMyGuide
-          ?(flow?`<span style="font-size:13px;color:var(--muted)"> Flow : ${flow.name}</span>`:`<span style="font-size:13px;color:#c0392b">⚠ Pas de flow</span>`)
+          ?(flow?`<span style="font-size:13px;color:var(--muted)"> Flow : ${flow.name}</span>`:`<span style="font-size:13px;color:#8a2a26">⚠ Pas de flow</span>`)
           :(guide?`<span style="font-size:13px;color:var(--muted)"> Guide : ${guide.name}</span>`:'');
         const statusBadge=isMyGuide
           ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ SÉANCE OK':'EN ATTENTE'}</span>`
@@ -6765,14 +6787,14 @@ function renderFlowMonthCal() {
         const dayLabel=DAYS7[(d.getDay()+6)%7]+' '+d.getDate()+' '+MOISN[d.getMonth()];
         const isToday=dStr===todayStr;
         html+='<div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.10)">';
-        html+='<div style="padding:9px 14px;font-size:14px;font-weight:800;background:'+(isToday?'var(--bordeaux)':'#3a3530')+';color:#fff">'+dayLabel+'</div>';
+        html+='<div style="padding:9px 14px;font-size:14px;font-weight:800;background:'+(isToday?'var(--bordeaux)':'#3d2e26')+';color:#fff">'+dayLabel+'</div>';
         html+='<div style="padding:8px 10px;background:var(--creme);display:flex;flex-direction:column;gap:7px">';
         myShiftsMo.filter(sh=>sh.date===dStr).forEach(sh=>{
           const isConf=sh.status==='confirmed';
-          const bg=isConf?'rgba(42,122,75,.90)':'rgba(170,90,0,.88)';
+          const bg=isConf?'rgba(92,122,58,.90)':'rgba(184,120,46,.88)';
           html+='<div style="background:'+bg+';color:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
           html+='<div><div style="font-size:16px;font-weight:900">'+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div><div style="font-size:11px;font-weight:700;opacity:.85">SHIFT '+(isConf?'✓ Confirmé':'À confirmer')+'</div></div>';
-          if (!isConf) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#b06000;cursor:pointer;min-height:44px">✓</button>';
+          if (!isConf) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#8B6E3F;cursor:pointer;min-height:44px">✓</button>';
           html+='</div>';
         });
         mySess.filter(s=>s.date===dStr).forEach(s=>{
@@ -6780,10 +6802,10 @@ function renderFlowMonthCal() {
           const isFree=s.session_type==='freeflow', isEv=isEventSess(s);
           let gc;
           if (isMyGuide) gc='rgba(108,20,18,.92)';
-          else if (isConf) gc='rgba(42,122,75,.90)';
-          else if (isFree) gc='rgba(122,88,40,.90)';
-          else if (isEv)  gc='rgba(192,100,26,.90)';
-          else gc='rgba(42,95,165,.90)';
+          else if (isConf) gc='rgba(92,122,58,.90)';
+          else if (isFree) gc='rgba(106,84,48,.90)';
+          else if (isEv)  gc='rgba(139,110,63,.90)';
+          else gc='rgba(61,90,128,.90)';
           const role=isMyGuide?' GUIDE':(' FLOW'+(isConf?' ✓':''));
           html+='<div style="background:'+gc+';color:#fff;border-radius:8px;padding:10px 12px;cursor:pointer" onclick="openFlowEventModal_list(\''+s.id+'\')">';
           html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">';
@@ -6818,8 +6840,8 @@ function renderFlowMonthCal() {
       const isConf=sh.status==='confirmed';
       const shEl=document.createElement('div');
       shEl.style.cssText=`margin-bottom:2px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;`
-        +`background:${isConf?'rgba(42,122,75,.9)':'rgba(170,90,0,.88)'};color:#fff;padding:2px 5px;`
-        +`border-left:3px solid ${isConf?'#1a5c38':'#a06000'}`;
+        +`background:${isConf?'rgba(92,122,58,.9)':'rgba(184,120,46,.88)'};color:#fff;padding:2px 5px;`
+        +`border-left:3px solid ${isConf?'#3d5024':'#8B6E3F'}`;
       shEl.innerHTML=`<div style="font-weight:700">${sh.time_from.slice(0,5)} SHIFT ${isConf?'✓':'—'}</div>`;
       shEl.onclick=()=>{ if(!isConf) confirmShift(sh.id); };
       cell.appendChild(shEl);
@@ -6833,10 +6855,10 @@ function renderFlowMonthCal() {
       const isMyGuide=s.guide_id===uid;
       const isConf=s.status==='confirmed';
       let bg,col;
-      if (isFree)       { bg='rgba(210,198,172,.9)'; col='#5a4a30'; }
-      else if (isEv)    { bg='rgba(230,126,34,.88)'; col='#fff'; }
+      if (isFree)       { bg='rgba(219,207,181,.9)'; col='#5a4530'; }
+      else if (isEv)    { bg='rgba(139,110,63,.88)'; col='#fff'; }
       else if (isMyGuide){ bg='rgba(108,20,18,.88)'; col='#fff'; }
-      else              { bg=isConf?'rgba(42,122,75,.88)':'rgba(42,95,165,.88)'; col='#fff'; }
+      else              { bg=isConf?'rgba(92,122,58,.88)':'rgba(61,90,128,.88)'; col='#fff'; }
       ev.style.cssText=`margin-bottom:2px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;background:${bg};color:${col};padding:2px 5px`;
       const role=isFree?'FREEFLOW':isEv?eventName(s):isMyGuide?'GUIDE':('FLOW'+(isConf?' ✓':''));
       ev.innerHTML=`<div style="font-weight:700">${ft(s.start_time)} ${role}</div>`;
@@ -6882,7 +6904,7 @@ function renderFlowDispoMonth() {
         let mins=0;
         avails.forEach(a=>{ mins+=t2m(a.time_to.slice(0,5))-t2m(a.time_from.slice(0,5)); });
         const hrs=Math.round(mins/60*10)/10;
-        cell.style.background='rgba(42,122,75,.07)';
+        cell.style.background='rgba(92,122,58,.07)';
         const badge=document.createElement('div');
         badge.style.cssText='font-size:9px;color:var(--green);font-weight:700;margin-bottom:2px';
         badge.textContent=`✓ ${hrs}h dispo`;
@@ -6900,10 +6922,10 @@ function renderFlowDispoMonth() {
         const isConf=s.status==='confirmed';
         const isEv=isEventSess(s);
         let bg,col;
-        if (s.session_type==='freeflow'){ bg='rgba(210,198,172,.9)'; col='#5a4a30'; }
-        else if (isEv)  { bg='rgba(230,126,34,.88)'; col='#fff'; }
+        if (s.session_type==='freeflow'){ bg='rgba(219,207,181,.9)'; col='#5a4530'; }
+        else if (isEv)  { bg='rgba(139,110,63,.88)'; col='#fff'; }
         else if (isMyGuide){ bg='rgba(108,20,18,.88)'; col='#fff'; }
-        else { bg=isConf?'rgba(42,122,75,.88)':'rgba(42,95,165,.88)'; col='#fff'; }
+        else { bg=isConf?'rgba(92,122,58,.88)':'rgba(61,90,128,.88)'; col='#fff'; }
         ev.style.cssText=`margin-top:2px;cursor:pointer;border-radius:2px;font-size:9px;background:${bg};color:${col};padding:1px 4px`;
         ev.textContent=ft(s.start_time)+' '+(isEv?eventName(s):isMyGuide?'Guide':'Flow');
         ev.onclick=e=>{ e.stopPropagation(); openFlowEventModal(s); };
@@ -7249,8 +7271,8 @@ function renderConfirmStatusBar() {
   Object.values(byFlow).sort((a,b)=>a.name.localeCompare(b.name)).forEach(f=>{
     const total=f.conf+f.pend;
     const allOk=f.pend===0;
-    const bg=allOk?'rgba(42,122,75,.1)':'rgba(192,57,43,.07)';
-    const border=allOk?'rgba(42,122,75,.4)':'rgba(192,57,43,.3)';
+    const bg=allOk?'rgba(92,122,58,.1)':'rgba(138,42,38,.07)';
+    const border=allOk?'rgba(92,122,58,.4)':'rgba(138,42,38,.3)';
     const ico=allOk?'✓':'—';
     html+=`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${bg};border:1px solid ${border};border-radius:20px;font-size:11px;font-weight:600"> ${ico} ${f.name.split(' ')[0]} <span style="color:var(--muted)">${f.conf}/${total}</span> </span>`;
   });
