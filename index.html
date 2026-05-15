@@ -1662,11 +1662,11 @@ function _sessInfo(s) {
 function _sessBlockHtml(s, topPx, hPx) {
   const { gc, guideP, flowP, typeL, tf, tt, durStr, isFree, isEv } = _sessInfo(s);
   // Layout compact pro — priorité : heure > guide > flow > type/durée
-  const pad = 3;
+  const pad = 2;
   const inner = hPx - pad * 2;
-  // Police adaptative compacte
-  const fs = hPx >= 70 ? 11 : hPx >= 52 ? 10 : hPx >= 36 ? 9 : hPx >= 22 ? 8 : 7;
-  const fsTime = fs + 1;
+  // Police adaptative compacte (réduite pour tenir dans blocs étroits ~64-75px de large)
+  const fs = hPx >= 70 ? 9 : hPx >= 52 ? 9 : hPx >= 36 ? 8 : hPx >= 22 ? 7 : 6;
+  const fsTime = fs;  // même taille que les autres lignes (pour gagner en largeur)
   const lh = 1.15;
   const lineH = Math.ceil(fs * lh);
   const lineTime = Math.ceil(fsTime * lh) + 1;
@@ -1674,27 +1674,28 @@ function _sessBlockHtml(s, topPx, hPx) {
   const fit = (h) => { if (used + h <= inner) { used += h; return true; } return false; };
   const ellips = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
   let lines = '';
-  // 1. Heure (toujours)
+  // 1. Heure (toujours, en gras)
   if (fit(lineTime)) {
-    lines += `<div style="font-size:${fsTime}px;font-weight:900;color:#fff;line-height:${lh};letter-spacing:.01em;${ellips};margin-bottom:1px">${tf}–${tt}</div>`;
+    lines += `<div style="font-size:${fsTime}px;font-weight:900;color:#fff;line-height:${lh};letter-spacing:0;${ellips};margin-bottom:1px">${tf}–${tt}</div>`;
   }
-  // 2. Guide
+  // 2. Guide (préfixe G compact, fond translucide pour repère visuel)
   if (guideP && fit(lineH)) {
-    lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh};${ellips}"><span style="opacity:.55;font-weight:500;font-size:${fs-1}px">G&nbsp;</span>${guideP.name}</div>`;
+    lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">G </span>${guideP.name.split(' ')[0]}</div>`;
   }
-  // 3. Flow (ou "Sans flow" si séance guidée sans flow attribué)
+  // 3. Flow
   if (flowP && fit(lineH)) {
-    lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.96);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.55;font-weight:500;font-size:${fs-1}px">F&nbsp;</span>${flowP.name}</div>`;
+    lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.96);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">F </span>${flowP.name.split(' ')[0]}</div>`;
   } else if (!flowP && !isFree && !isEv && fit(lineH)) {
-    lines += `<div style="font-size:${fs}px;color:rgba(255,200,200,.95);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.55;font-weight:500;font-size:${fs-1}px">F&nbsp;</span>—</div>`;
+    lines += `<div style="font-size:${fs}px;color:rgba(255,200,200,.95);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">F </span>—</div>`;
   }
   // 4. Type · durée (priorité la plus basse)
   if (fit(lineH)) {
-    lines += `<div style="font-size:${Math.max(7,fs-1)}px;color:rgba(255,255,255,.72);line-height:${lh};letter-spacing:.02em;${ellips}">${typeL} · ${durStr}</div>`;
+    lines += `<div style="font-size:${Math.max(6,fs-1)}px;color:rgba(255,255,255,.72);line-height:${lh};letter-spacing:.02em;${ellips}">${typeL} · ${durStr}</div>`;
   }
-  return `<div class="sess-split-sess" style="position:absolute;left:0;right:54%;top:${topPx}px;height:${hPx}px;`
+  // Sessions occupent 50% du col (au lieu de 46%) → +4% de place pour les noms
+  return `<div class="sess-split-sess" style="position:absolute;left:0;right:50%;top:${topPx}px;height:${hPx}px;`
     +`background:${gc};border-right:2px solid rgba(255,255,255,.2);`
-    +`pointer-events:none;z-index:5;overflow:hidden;padding:${pad}px 6px;box-sizing:border-box;`
+    +`pointer-events:none;z-index:5;overflow:hidden;padding:${pad}px 4px;box-sizing:border-box;`
     +`font-family:system-ui,-apple-system,sans-serif">${lines}</div>`;
 }
 
@@ -2809,7 +2810,7 @@ function renderDisposAdmin() {
       calHtml += '<div id="ds-sh-'+sh.id+'" '
         + 'onclick="adminToggleShiftDispo_picker(\''+sh.id+'\')" '
         + 'title="'+(dispNames.length ? dispNames.join(', ') : 'Aucune dispo')+'" '
-        + 'class="sess-split-shift" style="position:absolute;left:46%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
+        + 'class="sess-split-shift" style="position:absolute;left:50%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
         + 'background:'+bg+';border-left:3px solid '+border+';border-radius:0 4px 4px 0;'
         + 'z-index:4;cursor:pointer;overflow:hidden;padding:3px 6px;box-shadow:0 1px 4px rgba(0,0,0,.2)">'
         + countBadge
@@ -5007,7 +5008,7 @@ function renderFlowShifts() {
 
       const band = document.createElement('div');
       band.className = 'sess-split-shift';
-      band.style.cssText = 'position:absolute;left:46%;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
+      band.style.cssText = 'position:absolute;left:50%;right:2px;top:'+topPx+'px;height:'+hPx+'px;'
         +'background:'+shiftBg+';border-left:4px solid '+shiftBorder+';border-radius:0 6px 6px 0;'
         +'z-index:8;overflow:hidden;padding:5px 7px 5px 6px;box-shadow:0 2px 8px rgba(0,0,0,.25);'
         +'display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box';
@@ -6217,7 +6218,7 @@ function renderCreneauxGrid() {
       bandEl.className='cren-band';
       bandEl.style.cssText=`top:${topPx}px;height:${hPx}px;background:${color}`;
       bandEl.classList.add('sess-split-shift');
-      bandEl.style.left='46%'; bandEl.style.right='0'; bandEl.style.borderRadius='0 5px 5px 0';
+      bandEl.style.left='50%'; bandEl.style.right='0'; bandEl.style.borderRadius='0 5px 5px 0';
 
       // Contenu interne
       const inner=document.createElement('div');
