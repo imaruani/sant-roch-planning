@@ -2673,32 +2673,41 @@ function renderDisposAdmin() {
       else if (nD2===1)            { bg='rgba(139,110,63,.85)'; border='#6a5430'; }
       else                         { bg='rgba(92,122,58,.85)'; border='#3d5024'; }
 
-      // Chip names inline
-      const chipNames = dispNames.slice(0,3).map(n => '<span style="display:inline-block;background:rgba(255,255,255,.22);border-radius:2px;padding:1px 4px;font-size:7px;font-weight:700;white-space:nowrap">'+n+'</span>'
-      ).join(' ');
+      // Liste verticale des noms dispo (lisible — un par ligne) avec adaptation à la hauteur
+      // Calcule combien de noms tiennent : hPx - 32 (heure+padding) / 12 (ligne)
+      const linesAvail = Math.max(0, Math.floor((hPx - 32) / 12));
+      const shownNames = dispNames.slice(0, linesAvail);
+      const overflow = dispNames.length - shownNames.length;
+      const namesList = shownNames.map(n =>
+        '<div style="font-size:9px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2">'+n+'</div>'
+      ).join('');
+      const overflowChip = overflow > 0
+        ? '<div style="font-size:8px;font-weight:700;color:rgba(255,255,255,.85);margin-top:1px">+'+overflow+' autre(s)</div>'
+        : '';
 
-      const countBadge = '<span style="position:absolute;top:3px;right:4px;background:rgba(0,0,0,.25);color:#fff;'
-        + 'font-size:9px;font-weight:800;padding:1px 5px;border-radius:8px">'+nD2+'/'+totalFlows+'</span>';
+      const countBadge = '<span style="position:absolute;top:3px;right:4px;background:rgba(0,0,0,.30);color:#fff;'
+        + 'font-size:9px;font-weight:800;padding:1px 6px;border-radius:8px">'+nD2+'</span>';
 
       calHtml += '<div id="ds-sh-'+sh.id+'" '
         + 'onclick="adminToggleShiftDispo_picker(\''+sh.id+'\')" '
+        + 'title="'+(dispNames.length ? dispNames.join(', ') : 'Aucune dispo')+'" '
         + 'class="sess-split-shift" style="position:absolute;left:46%;right:0;top:'+topPx+'px;height:'+hPx+'px;'
         + 'background:'+bg+';border-left:3px solid '+border+';border-radius:0 4px 4px 0;'
-        + 'z-index:4;cursor:pointer;overflow:hidden;padding:3px 5px;box-shadow:0 1px 4px rgba(0,0,0,.2)">'
+        + 'z-index:4;cursor:pointer;overflow:hidden;padding:3px 6px;box-shadow:0 1px 4px rgba(0,0,0,.2)">'
         + countBadge
-        + '<div style="font-size:9px;font-weight:800;color:#fff;white-space:nowrap">'
+        + '<div style="font-size:9px;font-weight:800;color:#fff;white-space:nowrap;margin-bottom:2px">'
         + sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div>';
       if (assignedP2 && hPx >= 28) {
         const isConf2 = sh.status === 'confirmed';
         const nameLabel = isDraft2
-          ? ' ' + assignedP2.name.split(' ')[0] + ' <span style="font-size:8px;opacity:.85">(brouillon)</span>'
+          ? assignedP2.name.split(' ')[0] + ' <span style="font-size:8px;opacity:.85">(brouillon)</span>'
           : (isConf2 ? '✓ ' : '') + assignedP2.name.split(' ')[0] + (isConf2 ? '' : ' <span style="font-size:8px;opacity:.75">(en attente)</span>');
-        calHtml += '<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.95);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
+        calHtml += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.96);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
           + nameLabel + '</div>';
-      } else if (hPx >= 28 && chipNames) {
-        calHtml += '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">'+chipNames+'</div>';
+      } else if (hPx >= 28 && namesList) {
+        calHtml += namesList + overflowChip;
       } else if (hPx >= 28) {
-        calHtml += '<div style="font-size:8px;color:rgba(255,255,255,.7)">Aucune dispo</div>';
+        calHtml += '<div style="font-size:9px;color:rgba(255,255,255,.75);font-style:italic">Aucune dispo</div>';
       }
       calHtml += '</div>';
     });
