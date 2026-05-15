@@ -2531,9 +2531,20 @@ function renderDisposAdmin() {
     }
     const assignedP  = sh.person_id ? S.people.find(p => p.id===sh.person_id) : null;
     const shAvails   = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available);
-    const nDispo     = shAvails.length;
+    // Inclut aussi les dispos générales (broad_availabilities) qui couvrent ce shift
+    const _shS = t2m(sh.time_from.slice(0,5));
+    const _shE = t2m(sh.time_to.slice(0,5));
+    const explicitIds = new Set(shAvails.map(a => a.person_id));
+    const broadDispoPersons = (S.people||[]).filter(p => p.can_be_flow && !explicitIds.has(p.id) && (S.broadAvails||[]).some(b =>
+      b.person_id === p.id &&
+      b.date_from <= sh.date && sh.date <= b.date_to &&
+      t2m(b.time_from.slice(0,5)) < _shE && t2m(b.time_to.slice(0,5)) > _shS
+    ));
+    const nDispo     = shAvails.length + broadDispoPersons.length;
     const dBg        = nDispo===0?'var(--danger)':nDispo===1?'var(--orange)':'var(--green)';
-    const dispoPrev  = shAvails.slice(0,2).map(a=>{ const p=S.people.find(x=>x.id===a.person_id); return p?p.name.split(' ')[0]:''; }).filter(Boolean);
+    const dispoExplicit = shAvails.slice(0,2).map(a=>{ const p=S.people.find(x=>x.id===a.person_id); return p?p.name.split(' ')[0]:''; }).filter(Boolean);
+    const dispoBroad    = broadDispoPersons.slice(0, Math.max(0, 2 - dispoExplicit.length)).map(p => p.name.split(' ')[0]);
+    const dispoPrev  = [...dispoExplicit, ...dispoBroad];
 
     listHtml += '<div style="padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer" '
       + 'onclick="document.getElementById(\'ds-sh-'+sh.id+'\')?.scrollIntoView({block:\'center\',behavior:\'smooth\'})" '
@@ -2727,25 +2738,53 @@ function adminToggleShiftDispo_picker(shiftId) {
 
   // ── Tous les avails du créneau ──
   const allShAvails = (S.shiftAvails||[]).filter(a => a.shift_id===shiftId);
-  const disponibles = flowPeople.filter(fp => allShAvails.some(a => a.person_id===fp.id && a.available===true) && sh.person_id!==fp.id);
-  const pasDispo    = flowPeople.filter(fp => allShAvails.some(a => a.person_id===fp.id && a.available===false) && sh.person_id!==fp.id);
-  const pasRepondu  = flowPeople.filter(fp => !allShAvails.some(a => a.person_id===fp.id) && sh.person_id!==fp.id);
+  // Helper : check si une dispo générale (broad_availabilities) couvre ce shift
+  const _shStart = t2m(sh.time_from.slice(0,5));
+  const _shEnd   = t2m(sh.time_to.slice(0,5));
+  const _broadDispoFor = (pid) => (S.broadAvails||[]).find(a =>
+    a.person_id === pid &&
+    a.date_from <= sh.date && sh.date <= a.date_to &&
+    t2m(a.time_from.slice(0,5)) < _shEnd &&    // overlap requis
+    t2m(a.time_to.slice(0,5))   > _shStart
+  );
+  // Statut par personne : shiftAvail prime, sinon fallback sur broadAvail
+  const _statusFor = (pid) => {
+    const sa = allShAvails.find(a => a.person_id === pid);
+    if (sa) {
+      if (sa.available === true)  return 'dispo';
+      if (sa.available === false) return 'nodispo';
+    }
+    return _broadDispoFor(pid) ? 'dispo' : 'noans';
+  };
+  const disponibles = flowPeople.filter(fp => sh.person_id !== fp.id && _statusFor(fp.id) === 'dispo');
+  const pasDispo    = flowPeople.filter(fp => sh.person_id !== fp.id && _statusFor(fp.id) === 'nodispo');
+  const pasRepondu  = flowPeople.filter(fp => sh.person_id !== fp.id && _statusFor(fp.id) === 'noans');
 
   // ── Liste unifiée : tout le monde, clic = assign direct (pas de confirm) ──
   // Triée : dispos d'abord, puis pas répondu, puis pas dispo
   if (!assignedP || !isConf) {
     const orderedPersons = [
-      ...disponibles.map(fp => ({fp, status:'dispo', av: allShAvails.find(a => a.person_id===fp.id)})),
-      ...pasRepondu.map(fp => ({fp, status:'noans', av: null})),
-      ...pasDispo.map(fp => ({fp, status:'nodispo', av: allShAvails.find(a => a.person_id===fp.id)})),
+      ...disponibles.map(fp => {
+        const sa = allShAvails.find(a => a.person_id===fp.id);
+        const bd = sa ? null : _broadDispoFor(fp.id);
+        return {fp, status:'dispo', av: sa, broad: bd};
+      }),
+      ...pasRepondu.map(fp => ({fp, status:'noans', av: null, broad: null})),
+      ...pasDispo.map(fp => ({fp, status:'nodispo', av: allShAvails.find(a => a.person_id===fp.id), broad: null})),
     ];
     if (orderedPersons.length) {
       popHtml += '<div style="font-size:9px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin-bottom:8px">'
         + (assignedP ? 'RÉASSIGNER À' : 'CLIQUE LA PERSONNE À ASSIGNER') + '</div>';
-      orderedPersons.forEach(({fp, status, av}) => {
+      orderedPersons.forEach(({fp, status, av, broad}) => {
         let icon, iconColor, bg, hoverBg, txtColor, statusLabel;
         if (status === 'dispo')  {
-          icon='✓'; iconColor='#5c7a3a'; bg='rgba(92,122,58,.10)'; hoverBg='rgba(92,122,58,.22)'; txtColor='var(--text)'; statusLabel='Dispo';
+          icon='✓'; iconColor='#5c7a3a'; bg='rgba(92,122,58,.10)'; hoverBg='rgba(92,122,58,.22)'; txtColor='var(--text)';
+          if (broad) {
+            const bf = broad.time_from.slice(0,5), bt = broad.time_to.slice(0,5);
+            statusLabel = 'Dispo générale ' + bf + '–' + bt;
+          } else {
+            statusLabel = 'Dispo (déclarée sur ce shift)';
+          }
         } else if (status === 'noans') {
           icon='○'; iconColor='#8a7a64'; bg='#fff'; hoverBg='var(--creme)'; txtColor='var(--text)'; statusLabel='Pas de réponse';
         } else {
@@ -3093,13 +3132,23 @@ function renderAdminDispoPerPerson() {
   let html = '<div style="display:flex;flex-direction:column;gap:10px">';
   flows.forEach(p => {
     // Compter dispos / pas dispo / pas répondu sur les shifts de la semaine
+    // (inclut les dispos générales — broad_availabilities — qui couvrent le shift)
     let nDispo = 0, nNoDispo = 0, nNoAns = 0, nAssigned = 0;
     weekShifts.forEach(sh => {
       if (sh.person_id === p.id) nAssigned++;
       const av = (S.shiftAvails||[]).find(a => a.shift_id === sh.id && a.person_id === p.id);
-      if (!av || av.available === null) nNoAns++;
-      else if (av.available === true) nDispo++;
-      else nNoDispo++;
+      if (av && av.available === true) { nDispo++; return; }
+      if (av && av.available === false) { nNoDispo++; return; }
+      // Fallback : check si une dispo générale couvre ce shift
+      const shS = t2m(sh.time_from.slice(0,5));
+      const shE = t2m(sh.time_to.slice(0,5));
+      const hasBroad = (S.broadAvails||[]).some(b =>
+        b.person_id === p.id &&
+        b.date_from <= sh.date && sh.date <= b.date_to &&
+        t2m(b.time_from.slice(0,5)) < shE &&
+        t2m(b.time_to.slice(0,5))   > shS
+      );
+      if (hasBroad) nDispo++; else nNoAns++;
     });
     const pct = totalShifts ? Math.round((totalShifts - nNoAns) / totalShifts * 100) : 0;
     const barColor = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
