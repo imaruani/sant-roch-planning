@@ -904,6 +904,15 @@ function loadGuideColors() {
   </div>
 </div>
 
+<!-- Modal Gérer les dispos d'une personne -->
+<div class="mo hidden" id="mo-person-dispos">
+  <div class="modal" style="max-width:560px;max-height:90vh;display:flex;flex-direction:column">
+    <div class="mhd"><h3 id="pdm-title">Dispos</h3><button class="mcl" onclick="cmo('mo-person-dispos')">×</button></div>
+    <div class="mbd" id="pdm-body" style="overflow-y:auto;flex:1"></div>
+    <div class="mft"><button class="btn btn-g" onclick="cmo('mo-person-dispos')">FERMER</button></div>
+  </div>
+</div>
+
 <div id="toasts"></div> <!-- ═══════════════════════ SCRIPT ═══════════════════════ -->
 <script>
 'use strict';
@@ -3190,11 +3199,151 @@ function renderAdminDispoPerPerson() {
       +     '</div>'
       +     '<div style="background:var(--beige);border-radius:4px;height:6px;overflow:hidden"><div style="background:' + barColor + ';height:100%;width:' + pct + '%;transition:width .3s"></div></div>'
       +   '</div>'
-      +   '<button class="btn btn-s btn-sm" onclick="openExportMsgFor(\'' + p.id + '\')" title="Envoyer son planning par message">📤</button>'
+      +   '<div style="display:flex;gap:4px;flex-shrink:0">'
+      +     '<button class="btn btn-s btn-sm" onclick="openPersonDispoManager(\'' + p.id + '\')" title="Voir et gérer toutes les dispos de cette personne">VOIR DISPOS</button>'
+      +     '<button class="btn btn-s btn-sm" onclick="openExportMsgFor(\'' + p.id + '\')" title="Envoyer son planning par message">📤</button>'
+      +   '</div>'
       + '</div>';
   });
   html += '</div>';
   wrap.innerHTML = html;
+}
+
+// ──────────────────────────────────────────────
+// GÉRER LES DISPOS D'UNE PERSONNE — viewer + delete
+// ──────────────────────────────────────────────
+function openPersonDispoManager(pid) {
+  const p = (S.people||[]).find(x => x.id === pid);
+  if (!p) return;
+  S._currentDispoMgrPid = pid;
+  document.getElementById('pdm-title').textContent = 'Dispos de ' + p.name;
+  renderPersonDispoManager();
+  omo('mo-person-dispos');
+}
+
+function renderPersonDispoManager() {
+  const pid = S._currentDispoMgrPid;
+  if (!pid) return;
+  const body = document.getElementById('pdm-body');
+  if (!body) return;
+  const today = iso(new Date());
+  // Dispos générales (broad) — futures uniquement, sauf si toggle
+  const showPast = !!S._pdmShowPast;
+  const allBroad = (S.broadAvails||[]).filter(b => b.person_id === pid && (showPast || b.date_to >= today));
+  allBroad.sort((a,b) => a.date_from.localeCompare(b.date_from) || a.time_from.localeCompare(b.time_from));
+  // Dispos par shift — futures (déclarées explicitement)
+  const allShAv = (S.shiftAvails||[]).filter(a => a.person_id === pid && a.available !== null);
+  const futureShAv = allShAv.filter(a => {
+    const sh = (S.shifts||[]).find(s => s.id === a.shift_id);
+    return sh && (showPast || sh.date >= today);
+  });
+  futureShAv.sort((a,b) => {
+    const sa = (S.shifts||[]).find(x => x.id === a.shift_id);
+    const sb = (S.shifts||[]).find(x => x.id === b.shift_id);
+    return (sa?.date || '').localeCompare(sb?.date || '');
+  });
+
+  const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const MOIS = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  const fmt = (d) => {
+    const dt = new Date(d + 'T00:00:00');
+    return DAYS[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS[dt.getMonth()];
+  };
+
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">'
+    + '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" ' + (showPast?'checked':'') + ' onchange="S._pdmShowPast=this.checked;renderPersonDispoManager()"> Voir aussi le passé</label>'
+    + (allBroad.length || futureShAv.length ? '<button class="btn btn-d btn-sm" onclick="deleteAllPersonDispos()">TOUT SUPPRIMER</button>' : '')
+    + '</div>';
+
+  if (!allBroad.length && !futureShAv.length) {
+    html += '<div style="text-align:center;padding:32px;color:var(--muted);font-style:italic">Aucune disponibilité enregistrée pour cette personne.</div>';
+  }
+
+  // Section dispos générales
+  if (allBroad.length) {
+    html += '<div style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin:14px 0 8px;text-transform:uppercase">Dispos générales (' + allBroad.length + ')</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    allBroad.forEach(b => {
+      const dateLbl = b.date_from === b.date_to ? fmt(b.date_from) : (fmt(b.date_from) + ' → ' + fmt(b.date_to));
+      const isPast = b.date_to < today;
+      html += '<div style="background:' + (isPast?'rgba(0,0,0,.04)':'rgba(92,122,58,.08)') + ';border:1px solid ' + (isPast?'rgba(0,0,0,.08)':'rgba(92,122,58,.25)') + ';border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:10px;' + (isPast?'opacity:.6':'') + '">'
+        + '<div style="flex:1;min-width:0">'
+        +   '<div style="font-size:13px;font-weight:700;color:var(--text)">' + dateLbl + '</div>'
+        +   '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + b.time_from.slice(0,5) + '–' + b.time_to.slice(0,5) + '</div>'
+        + '</div>'
+        + '<button class="btn btn-d btn-sm" style="padding:4px 10px;font-size:10px;min-height:28px" onclick="deletePersonBroad(\'' + b.id + '\')">SUPPR.</button>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Section dispos par shift
+  if (futureShAv.length) {
+    html += '<div style="font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.05em;margin:14px 0 8px;text-transform:uppercase">Réponses sur shifts (' + futureShAv.length + ')</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    futureShAv.forEach(a => {
+      const sh = (S.shifts||[]).find(x => x.id === a.shift_id);
+      if (!sh) return;
+      const isDispo = a.available === true;
+      const isPast = sh.date < today;
+      html += '<div style="background:' + (isPast?'rgba(0,0,0,.04)':(isDispo?'rgba(92,122,58,.08)':'rgba(138,42,38,.06)')) + ';border:1px solid ' + (isDispo?'rgba(92,122,58,.25)':'rgba(138,42,38,.25)') + ';border-radius:7px;padding:8px 12px;display:flex;align-items:center;gap:10px;' + (isPast?'opacity:.6':'') + '">'
+        + '<span style="font-size:14px;font-weight:900;color:' + (isDispo?'#5c7a3a':'#8a2a26') + '">' + (isDispo?'✓':'✗') + '</span>'
+        + '<div style="flex:1;min-width:0">'
+        +   '<div style="font-size:13px;font-weight:700;color:var(--text)">' + fmt(sh.date) + '</div>'
+        +   '<div style="font-size:11px;color:var(--muted);margin-top:1px">' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5) + (a.note ? ' · "' + a.note + '"' : '') + '</div>'
+        + '</div>'
+        + '<button class="btn btn-d btn-sm" style="padding:4px 10px;font-size:10px;min-height:28px" onclick="deletePersonShAv(\'' + a.id + '\')">SUPPR.</button>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+}
+
+async function deletePersonBroad(id) {
+  if (!confirm('Supprimer cette disponibilité générale ?')) return;
+  try {
+    await API.del('broad_availabilities', id);
+    S.broadAvails = (S.broadAvails||[]).filter(x => x.id !== id);
+    renderPersonDispoManager();
+    renderAdminDispoPerPerson();
+    if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
+    toast('Dispo supprimée','ok');
+  } catch(e) { toast('Erreur : ' + e.message,'err'); }
+}
+
+async function deletePersonShAv(id) {
+  if (!confirm('Supprimer cette réponse sur shift ?')) return;
+  try {
+    await API.del('shift_availabilities', id);
+    S.shiftAvails = (S.shiftAvails||[]).filter(x => x.id !== id);
+    renderPersonDispoManager();
+    renderAdminDispoPerPerson();
+    if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
+    toast('Réponse supprimée','ok');
+  } catch(e) { toast('Erreur : ' + e.message,'err'); }
+}
+
+async function deleteAllPersonDispos() {
+  const pid = S._currentDispoMgrPid;
+  if (!pid) return;
+  const p = (S.people||[]).find(x => x.id === pid);
+  if (!confirm('Supprimer TOUTES les dispos de ' + (p?.name||'cette personne') + ' (générales + réponses sur shifts) ?\n\nCette action est irréversible.')) return;
+  const broadToDel = (S.broadAvails||[]).filter(b => b.person_id === pid);
+  const shToDel    = (S.shiftAvails||[]).filter(a => a.person_id === pid);
+  try {
+    await Promise.all([
+      ...broadToDel.map(b => API.del('broad_availabilities', b.id).catch(()=>{})),
+      ...shToDel.map(a => API.del('shift_availabilities', a.id).catch(()=>{})),
+    ]);
+    S.broadAvails = (S.broadAvails||[]).filter(b => b.person_id !== pid);
+    S.shiftAvails = (S.shiftAvails||[]).filter(a => a.person_id !== pid);
+    renderPersonDispoManager();
+    renderAdminDispoPerPerson();
+    if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
+    toast('Toutes les dispos de ' + (p?.name||'cette personne') + ' supprimées','ok');
+  } catch(e) { toast('Erreur : ' + e.message,'err'); }
 }
 
 function openExportMsgFor(pid) {
