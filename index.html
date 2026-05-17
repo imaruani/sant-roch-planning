@@ -830,12 +830,12 @@ function loadGuideColors() {
 <!-- Modal Export planning par personne (admin) -->
 <div class="mo hidden" id="mo-export-msg">
   <div class="modal" style="max-width:540px">
-    <div class="mhd"><h3>📤 Exporter le planning par personne</h3><button class="mcl" onclick="cmo('mo-export-msg')">×</button></div>
+    <div class="mhd"><h3>📤 Exporter le planning</h3><button class="mcl" onclick="cmo('mo-export-msg')">×</button></div>
     <div class="mbd">
-      <p class="text-muted text-sm mb12">Génère un message prêt à copier-coller pour envoyer sur WhatsApp / Slack à un membre qui ne consulte pas l'app.</p>
+      <p class="text-muted text-sm mb12">Génère un message prêt à copier-coller (WhatsApp / Slack). Choisis une personne, ou « Tout le planning » pour le planning complet de l'équipe.</p>
       <div class="row2">
         <div class="fg">
-          <label>Personne *</label>
+          <label>Personne / Équipe *</label>
           <select class="fc" id="exm-person" onchange="renderExportMsg()"></select>
         </div>
         <div class="fg">
@@ -3179,6 +3179,9 @@ function openExportMsg() {
   const sel = document.getElementById('exm-person');
   if (sel) {
     sel.innerHTML = '';
+    const oAll = document.createElement('option');
+    oAll.value = '__ALL__'; oAll.textContent = '📋 Tout le planning (équipe)';
+    sel.appendChild(oAll);
     (S.people||[]).filter(p => p.can_be_flow).forEach(p => {
       const o = document.createElement('option');
       o.value = p.id; o.textContent = p.name;
@@ -3205,6 +3208,8 @@ function renderExportMsg() {
   const txtEl = document.getElementById('exm-text');
   if (!txtEl) return;
   if (!pid) { txtEl.value = ''; return; }
+  // ── Cas : tout le planning de l'équipe ──
+  if (pid === '__ALL__') { txtEl.value = _buildTeamPlanningMsg(period); return; }
   const p = (S.people||[]).find(x => x.id === pid);
   if (!p) { txtEl.value = ''; return; }
   const { from, to } = _exportRange(period);
@@ -3266,6 +3271,50 @@ function renderExportMsg() {
   });
   msg += 'Tu peux confirmer ta présence sur l\'app : https://sant-roch.app\nMerci 🙏';
   txtEl.value = msg;
+}
+
+// Construit le message du planning COMPLET de l'équipe sur la période
+function _buildTeamPlanningMsg(period) {
+  const { from, to } = _exportRange(period);
+  const DAYS_FULL = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const MOIS = ['janv','févr','mars','avril','mai','juin','juil','août','sept','oct','nov','déc'];
+  const nameOf = id => ((S.people||[]).find(x => x.id === id)?.name) || '—';
+
+  const shifts = (S.shifts||[]).filter(sh => sh.date >= from && sh.date <= to)
+    .sort((a,b) => a.date.localeCompare(b.date) || a.time_from.localeCompare(b.time_from));
+  const sess = (S.sessions||[]).filter(s => s.date >= from && s.date <= to)
+    .sort((a,b) => a.date.localeCompare(b.date) || a.start_time.localeCompare(b.start_time));
+
+  const byDate = {};
+  shifts.forEach(sh => { (byDate[sh.date] = byDate[sh.date] || {shifts:[],sess:[]}).shifts.push(sh); });
+  sess.forEach(s => { (byDate[s.date] = byDate[s.date] || {shifts:[],sess:[]}).sess.push(s); });
+  const dates = Object.keys(byDate).sort();
+
+  let msg = 'PLANNING SANT ROCH\n\n';
+  if (!dates.length) return msg + 'Aucun shift ni séance sur la période sélectionnée.';
+
+  dates.forEach(d => {
+    const dt = new Date(d + 'T00:00:00');
+    msg += '📅 ' + DAYS_FULL[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS[dt.getMonth()] + '\n';
+    byDate[d].shifts.forEach(sh => {
+      const who = sh.person_id ? nameOf(sh.person_id) : '⚠ non assigné';
+      const status = sh.status === 'confirmed' ? ' ✓' : '';
+      msg += '   • Shift ' + sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5) + ' — ' + who + status + '\n';
+    });
+    byDate[d].sess.forEach(s => {
+      const isFree = s.session_type === 'freeflow';
+      const isEv = isEventSess(s);
+      const type = isFree ? 'rituel libre' : isEv ? (s.event_name || 'événement') : 'rituel guidé';
+      const parts = [];
+      if (s.guide_id) parts.push('Guide ' + nameOf(s.guide_id).split(' ')[0]);
+      if (s.flow_id)  parts.push('Flow ' + nameOf(s.flow_id).split(' ')[0]);
+      const who = parts.length ? ' — ' + parts.join(' · ') : ' — ⚠ personne';
+      msg += '   • ' + s.start_time.slice(0,5) + '–' + s.end_time.slice(0,5) + ' · ' + type + who + '\n';
+    });
+    msg += '\n';
+  });
+  msg += 'Planning complet sur l\'app : https://sant-roch.app';
+  return msg;
 }
 
 async function copyExportMsg() {
