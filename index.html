@@ -8152,10 +8152,6 @@ function renderFlowDispoMonth() {
   }
   wrap.appendChild(grid);
 }
-function navFlowDispoMonth(d) {
-  S.flowDispoMonth=addM(S.flowDispoMonth,d);
-  renderFlowDispoMonth();
-}
 
 function openFlowEventModal_list(id) {
   const s=S.sessions.find(x=>x.id===id); if(!s) return;
