@@ -7172,8 +7172,7 @@ function renderGlobalMonth() {
           else if (isMyF) bg = 'rgba(61,90,128,.92)';
           else if (isFree) bg = 'rgba(180,160,120,.70)';
           else if (isEv) bg = 'rgba(139,110,63,.70)';
-          else if (isConf) bg = 'rgba(92,122,58,.45)';
-          else bg = 'rgba(130,120,115,.45)';
+          else bg = 'rgba(120,112,104,.62)';
           const typeL = isFree?'Freeflow':isEv?(s.event_name||'Événement'):'Guidée';
           const meBadge = isMyG?'<span style="background:rgba(255,255,255,.28);padding:1px 7px;border-radius:6px;font-size:10px;font-weight:800">MOI · GUIDE</span>':isMyF?'<span style="background:rgba(255,255,255,.28);padding:1px 7px;border-radius:6px;font-size:10px;font-weight:800">MOI · FLOW</span>':'';
           html += '<div style="background:'+bg+';color:#fff;border-radius:8px;padding:9px 12px">';
@@ -7224,8 +7223,8 @@ function renderGlobalMonth() {
         else if (isMyF)          { bg = 'rgba(61,90,128,.88)'; col = '#fff'; }
         else if (isFree)         { bg = 'rgba(219,207,181,.85)'; col = '#5a4530'; }
         else if (isEv)           { bg = 'rgba(139,110,63,.85)'; col = '#fff'; }
-        else if (isConf)         { bg = 'rgba(92,122,58,.40)'; col = '#3d5024'; }
-        else                     { bg = 'rgba(130,120,115,.45)'; col = '#444'; }
+        else if (s.flow_id)      { bg = 'rgba(120,112,104,.45)'; col = '#4a4038'; }  // séance d'un collègue
+        else                     { bg = 'rgba(138,42,38,.32)'; col = '#8a2a26'; }   // sans flow
         const ev = document.createElement('div');
         ev.style.cssText = 'margin-bottom:2px;border-radius:3px;overflow:hidden;font-size:9px;line-height:1.2;background:'+bg+';color:'+col+';padding:1px 4px';
         const meLbl = isMyG ? ' [MOI·G]' : isMyF ? ' [MOI·F]' : '';
