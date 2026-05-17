@@ -2101,13 +2101,17 @@ function renderMonthCal() {
       const col=isFree?'#5a4530':'#fff';
       ev.style.cssText=`margin-bottom:3px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;background:${bg};color:${col};padding:2px 5px`;
       ev.onclick=()=>openEditSession(s.id);
+      const flowP=S.people.find(p=>p.id===s.flow_id);
+      const flowLine=flowP
+        ? `<div style="font-size:9px;font-weight:700;opacity:.9">Flow ${flowP.name.split(' ')[0]}</div>`
+        : `<div style="font-size:9px;opacity:.6;font-style:italic">Sans flow</div>`;
       if (isFree) {
-        ev.innerHTML=`<div style="font-weight:800;letter-spacing:.03em">${ft(s.start_time)} FREEFLOW</div>`;
+        ev.innerHTML=`<div style="font-weight:800;letter-spacing:.03em">${ft(s.start_time)} FREEFLOW</div>`+flowLine;
       } else if (isEv) {
-        ev.innerHTML=`<div style="font-weight:800"> ${ft(s.start_time)} ${eventName(s)}</div>`;
+        ev.innerHTML=`<div style="font-weight:800"> ${ft(s.start_time)} ${eventName(s)}</div>`+flowLine;
       } else {
         const guideName=(guide?guide.name.split(' ')[0]:'Sans guide').toUpperCase();
-        ev.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${ft(s.start_time)} ${guideName}</div>`;
+        ev.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${ft(s.start_time)} ${guideName}</div>`+flowLine;
       }
       cell.appendChild(ev);
     });
