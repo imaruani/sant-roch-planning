@@ -6878,8 +6878,9 @@ function renderFlowCal() {
 
     let bg, color, border;
     if (isFree && isMyFlow) {
-      if (isConf) { bg='rgba(92,122,58,.82)';  color='#fff'; border='#5c7a3a'; }
-      else        { bg='rgba(139,110,63,.88)';  color='#fff'; border='#b8a888'; }
+      // Je suis le FLOW de ce freeflow → toujours en vert
+      if (isConf) { bg='rgba(92,122,58,.90)';  color='#fff'; border='#5c7a3a'; }
+      else        { bg='rgba(92,122,58,.62)';  color='#fff'; border='#5c7a3a'; }
     } else if (isFree)  { bg='rgba(219,207,181,.55)'; color='#5a4530'; border='#b8a888'; }
     else if (isEv2)     { bg='rgba(139,110,63,.88)';  color='#fff';   border='#6a5430'; }
     else if (isMyGuide) { bg='rgba(108,20,18,.90)';   color='#fff';   border='#6C1412'; }
@@ -6906,7 +6907,7 @@ function renderFlowCal() {
     const ellips='white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
     let html=`<div style="font-size:9px;opacity:.85;line-height:1.15;${ellips}">${timeStr}</div>`;
     if (isFree && isMyFlow) {
-      html+=`<div style="font-size:9px;opacity:.8;font-weight:700;letter-spacing:.03em;line-height:1.15">FREEFLOW</div>`;
+      html+=`<div style="font-size:9px;opacity:.9;font-weight:900;letter-spacing:.05em;line-height:1.15">FLOW · FREEFLOW</div>`;
       html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName}${isConf?' ✓':' ⏳'}</div>`;
     } else if (isFree) {
       html+=`<div style="font-size:10px;font-weight:600;opacity:.7;line-height:1.15">Freeflow</div>`;
@@ -7121,9 +7122,9 @@ function renderGlobalCal() {
     // ── Couleur du bloc ──
     let evBg, evColor, evBorder;
     if (isFree && isMyFlow) {
-      // Freeflow dont JE suis le flow assigné
-      if (isConf) { evBg='rgba(92,122,58,.82)';  evColor='#fff';    evBorder='#5c7a3a'; }
-      else        { evBg='rgba(139,110,63,.88)';  evColor='#fff';    evBorder='#b8a888'; }
+      // Freeflow dont JE suis le flow assigné → toujours en vert
+      if (isConf) { evBg='rgba(92,122,58,.90)';  evColor='#fff';    evBorder='#5c7a3a'; }
+      else        { evBg='rgba(92,122,58,.62)';  evColor='#fff';    evBorder='#5c7a3a'; }
     } else if (isFree) {
       evBg='rgba(219,207,181,.55)'; evColor='#5a4530'; evBorder='#b8a888';
     } else if (isEv) {
@@ -7210,7 +7211,7 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
       let gc;
       if (isMyGuide)          gc='rgba(108,20,18,.94)';
       else if (isConf)        gc='rgba(92,122,58,.92)';
-      else if (isFree&&isMyFlow) gc='rgba(106,84,48,.92)';
+      else if (isFree&&isMyFlow) gc='rgba(92,122,58,.66)';
       else if (isEv)          gc='rgba(139,110,63,.92)';
       else                    gc='rgba(61,90,128,.92)';
       const typeL=isFree?'Freeflow':isEv?(s.event_name||'Événement'):'Guidée';
@@ -7242,7 +7243,7 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
       html+='<div style="font-size:19px;font-weight:900;letter-spacing:.02em;line-height:1">'+tf+'–'+tt+'</div>';
       html+='<div style="font-size:10px;font-weight:800;background:rgba(255,255,255,.22);padding:3px 9px;border-radius:8px">SHIFT</div>';
       html+='</div>';
-      html+='<div style="font-size:13px;font-weight:700;opacity:.9">'+(isConf?'✓ Shift confirmé':'En attente de confirmation')+'</div>';
+      html+='<div style="font-size:13px;font-weight:700;opacity:.9">'+(isConf?'✓ Shift confirmé':'À confirmer')+'</div>';
       if (!isConf) {
         html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowCal()" '
           +'style="width:100%;margin-top:10px;padding:13px;border-radius:9px;border:none;cursor:pointer;'
@@ -7290,6 +7291,7 @@ function renderGlobalCalMobile(container, ws, we, uid, allSessions) {
       let gc, alpha='1';
       if      (isMyGuide)               { gc='rgba(108,20,18,.94)'; }
       else if (isMyFlow&&isConf)         { gc='rgba(92,122,58,.92)'; }
+      else if (isMyFlow&&isFree)         { gc='rgba(92,122,58,.66)'; }
       else if (isMyFlow)                 { gc='rgba(61,90,128,.92)'; }
       else if (isFree)                   { gc='rgba(180,160,120,.80)'; alpha='.85'; }
       else if (isEv)                     { gc='rgba(139,110,63,.80)'; alpha='.85'; }
@@ -7777,7 +7779,7 @@ function renderFlowSessionsList() {
         const confirmBtn=!isConf
           ?`<button class="btn btn-sm" style="background:#8B6E3F;color:#fff;padding:12px;font-size:13px;font-weight:800;width:100%;min-height:48px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();confirmShift('${sh.id}')">✓ CONFIRMER CE SHIFT</button>`
           :'';
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(92,122,58,.15)':'rgba(184,120,46,.15)'};color:${isConf?'var(--green)':'#8B6E3F'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#8B6E3F;background:rgba(184,120,46,.12)'}">${isConf?'✓ CONFIRMÉ':'À CONFIRMER'}</span> </div> ${confirmBtn} </div>`;
+        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(92,122,58,.15)':'rgba(184,120,46,.15)'};color:${isConf?'var(--green)':'#8B6E3F'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#8B6E3F;background:rgba(184,120,46,.12)'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span> </div> ${confirmBtn} </div>`;
       } else {
         // ── Rendu SÉANCE ──
         const s=item.data;
@@ -7795,7 +7797,7 @@ function renderFlowSessionsList() {
           ?(flow?`<span style="font-size:13px;color:var(--muted)"> Flow : ${flow.name}</span>`:`<span style="font-size:13px;color:#8a2a26">⚠ Pas de flow</span>`)
           :(guide?`<span style="font-size:13px;color:var(--muted)"> Guide : ${guide.name}</span>`:'');
         const statusBadge=isMyGuide
-          ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ CONFIRMÉE':'EN ATTENTE'}</span>`
+          ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`
           :`<span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`;
         const confirmBtn=(!isConf&&!isMyGuide)
           ?`<button class="btn btn-green" style="width:100%;padding:13px;font-size:14px;font-weight:900;min-height:50px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();confirmSessAndMark('${s.id}')">✓ CONFIRMER MA PRÉSENCE</button>`
@@ -8163,7 +8165,7 @@ function renderReadStatus() {
   div.innerHTML=`<div class="tw"><table> <thead><tr><th>DATE</th><th>HORAIRE</th><th>TYPE</th><th>GUIDE</th><th>STATUT</th></tr></thead> <tbody>${upcoming.map(s=>{
       const flow=S.people.find(p=>p.id===s.flow_id);
       const isConf=s.status==='confirmed';
-      return `<tr> <td>${fmtDateFr(s.date)}</td> <td>${ft(s.start_time)} – ${ft(s.end_time)}</td> <td><span class="badge ${s.session_type==='freeflow'?'b-free':'b-guide'}">${sessTypeLabel(s)}</span></td> <td>${flow?flow.name:'—'}</td> <td><span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'EN ATTENTE'}</span></td> </tr>`;
+      return `<tr> <td>${fmtDateFr(s.date)}</td> <td>${ft(s.start_time)} – ${ft(s.end_time)}</td> <td><span class="badge ${s.session_type==='freeflow'?'b-free':'b-guide'}">${sessTypeLabel(s)}</span></td> <td>${flow?flow.name:'—'}</td> <td><span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span></td> </tr>`;
     }).join('')}</tbody> </table></div>`;
 }
 
