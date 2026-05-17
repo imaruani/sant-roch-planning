@@ -6827,6 +6827,8 @@ function renderFlowCal() {
   const myWeekShifts=(S.shifts||[]).filter(sh=>sh.date>=iso(ws)&&sh.date<=iso(we)&&sh.person_id===uid&&sh.assignment_published!==false);
   // Vue mobile (liste par jour) — toujours rendue, affichée/cachée par CSS media query
   { const _fcMob=document.getElementById('flow-cal-mobile-list'); if (_fcMob) renderFlowCalMobile(_fcMob, ws, we, uid, mine, myWeekShifts); }
+  // Détection chevauchement : split 50/50 seulement quand un shift ET une séance se croisent réellement
+  const _ovl=(aS,aE,bS,bE)=>aS<bE&&aE>bS;
   myWeekShifts.forEach(sh=>{
     const colInfo=cols.find(c=>c.date===sh.date); if(!colInfo) return;
     const sMin=t2m(sh.time_from.slice(0,5))-CAL_S*60, eMin=t2m(sh.time_to.slice(0,5))-CAL_S*60;
@@ -6834,9 +6836,13 @@ function renderFlowCal() {
     const isConf=sh.status==='confirmed';
     const bg   = isConf ? 'rgba(92,122,58,.90)'  : 'rgba(184,120,46,.88)';
     const bord = isConf ? '#3d5024'               : '#8B6E3F';
+    // Croise-t-il une de mes séances ce jour ?
+    const shFrom=t2m(sh.time_from.slice(0,5)), shTo=t2m(sh.time_to.slice(0,5));
+    const hasOverlap=mine.some(s=>s.date===sh.date&&_ovl(shFrom,shTo,t2m(s.start_time),t2m(s.end_time)));
     const shEl=document.createElement('div');
-    // Split layout : shifts à droite (50%), séances à gauche (50%) — pas de chevauchement visuel
-    shEl.style.cssText=`position:absolute;left:50%;right:1px;top:${topPx}px;height:${hPx}px;`
+    // Split layout : moitié droite si chevauchement, sinon pleine largeur
+    const shLeft=hasOverlap?'50%':'2px';
+    shEl.style.cssText=`position:absolute;left:${shLeft};right:1px;top:${topPx}px;height:${hPx}px;`
       +`background:${bg};border-left:4px solid ${bord};border-radius:0 4px 4px 0;`
       +`z-index:8;overflow:hidden;padding:3px 5px 3px 5px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18);`
       +`font-family:system-ui,-apple-system,sans-serif`;
@@ -6882,9 +6888,11 @@ function renderFlowCal() {
 
     const ev=document.createElement('div');
     ev.className='ev';
-    // Split layout : séances à gauche (0-50%), shifts à droite (50-100%)
+    // Split layout : moitié gauche seulement si un shift croise cette séance
+    const sFrom=t2m(s.start_time), sTo=t2m(s.end_time);
+    const sessOverlap=myWeekShifts.some(sh=>sh.date===s.date&&_ovl(sFrom,sTo,t2m(sh.time_from.slice(0,5)),t2m(sh.time_to.slice(0,5))));
     ev.style.left='2px';
-    ev.style.right='50%';
+    ev.style.right=sessOverlap?'50%':'2px';
     ev.style.top=`${top}px`;
     ev.style.height=`${hPx}px`;
     ev.style.background=bg;
