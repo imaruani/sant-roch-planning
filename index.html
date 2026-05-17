@@ -2096,9 +2096,10 @@ function renderMonthCal() {
       const isFree=s.session_type==='freeflow';
       const isEv=isEventSess(s);
       const guide=S.people.find(p=>p.id===s.guide_id);
-      const gc=isFree||isEv?null:(guide?guideColor(s.guide_id):'#888');
-      const bg=isFree?'rgba(219,207,181,.9)':isEv?'rgba(139,110,63,.88)':(gc?gc+'dd':'rgba(150,150,150,.7)');
-      const col=isFree?'#5a4530':'#fff';
+      const noGuide=!isFree&&!isEv&&!guide;
+      const gc=isFree||isEv?null:(guide?guideColor(s.guide_id):null);
+      const bg=isFree?'rgba(219,207,181,.9)':isEv?'rgba(139,110,63,.88)':(noGuide?'rgba(240,196,48,.92)':(gc?gc+'dd':'rgba(150,150,150,.7)'));
+      const col=(isFree||noGuide)?'#5a4530':'#fff';
       ev.style.cssText=`margin-bottom:3px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;background:${bg};color:${col};padding:2px 5px`;
       ev.onclick=()=>openEditSession(s.id);
       const flowP=S.people.find(p=>p.id===s.flow_id);
