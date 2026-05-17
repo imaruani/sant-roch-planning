@@ -5581,6 +5581,37 @@ async function unconfirmShift(shiftId) {
   } catch(e) { toast('Erreur : ' + e.message, 'err'); }
 }
 
+// ── L'user se déclare NON DISPO sur un shift → se retire + note à l'admin ──
+async function flowDeclineShift(shiftId) {
+  const sh = (S.shifts||[]).find(s => s.id === shiftId);
+  if (!sh || sh.person_id !== S.user?.id) { toast('Action non autorisée','err'); return; }
+  const input = prompt('Tu te retires de ce shift.\nIndique une raison pour l\'admin :');
+  if (input === null) return;
+  const reason = input.trim();
+  if (!reason) { toast('Une note est requise pour te retirer', 'err'); return; }
+  try {
+    const uid = S.user.id;
+    // 1. Enregistrer l'indisponibilité + note
+    const existing = (S.shiftAvails||[]).find(a => a.shift_id===shiftId && a.person_id===uid);
+    if (existing) {
+      await API.patch('shift_availabilities', existing.id, {available:false, note:reason});
+      existing.available = false; existing.note = reason;
+    } else {
+      const r = await API.post('shift_availabilities', {shift_id:shiftId, person_id:uid, available:false, note:reason});
+      const row = Array.isArray(r) ? r[0] : r;
+      if (row) S.shiftAvails.push(row);
+    }
+    // 2. Se retirer du shift
+    await API.patch('shifts', shiftId, {person_id:null, assignment_published:null, status:null});
+    sh.person_id = null; sh.assignment_published = null; sh.status = null;
+    toast('Tu as été retiré(e) du shift — l\'admin est informé', 'ok');
+    if (typeof renderFlowShifts === 'function') renderFlowShifts();
+    if (typeof renderFlowCal === 'function') renderFlowCal();
+    if (typeof renderFlowSessionsList === 'function') renderFlowSessionsList();
+    renderFlowNotifs();
+  } catch(e) { toast('Erreur : ' + e.message, 'err'); }
+}
+
 
 // ── Note hebdomadaire flow ──
 async function renderWeekNotePanel() {
@@ -7032,8 +7063,13 @@ function renderFlowCal() {
     let inner=`<div style="font-size:11px;font-weight:900;color:#fff;line-height:1.15;${ellips2}">${timeStr}</div>`;
     if(hPx>=30) inner+=`<div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.95);line-height:1.15;letter-spacing:.04em;${ellips2}">SHIFT</div>`;
     if(hPx>=44) inner+=`<div style="font-size:10px;color:rgba(255,255,255,.92);line-height:1.2;${ellips2}">${isConf?'✓ Confirmé':'⏳ À confirmer'}</div>`;
-    if(!isConf&&hPx>=68) inner+=`<div style="margin-top:4px"><span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.95);border-radius:4px;padding:5px 8px;font-size:10px;font-weight:900;color:#8B6E3F;cursor:pointer;display:inline-block">✓ CONFIRMER</span></div>`;
-    if(isConf&&hPx>=68) inner+=`<div style="margin-top:4px"><span onclick="event.stopPropagation();if(confirm('Annuler ta confirmation de ce shift ?'))unconfirmShift('${sh.id}')" style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);border-radius:4px;padding:5px 8px;font-size:10px;font-weight:800;color:#fff;cursor:pointer;display:inline-block">← Annuler</span></div>`;
+    if(hPx>=68){
+      let actes='';
+      if(!isConf) actes+=`<span onclick="event.stopPropagation();confirmShift('${sh.id}')" style="background:rgba(255,255,255,.95);border-radius:4px;padding:5px 8px;font-size:10px;font-weight:900;color:#8B6E3F;cursor:pointer;display:inline-block">✓ CONFIRMER</span>`;
+      else        actes+=`<span onclick="event.stopPropagation();if(confirm('Annuler ta confirmation de ce shift ?'))unconfirmShift('${sh.id}')" style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);border-radius:4px;padding:5px 8px;font-size:10px;font-weight:800;color:#fff;cursor:pointer;display:inline-block">← Annuler</span>`;
+      actes+=`<span onclick="event.stopPropagation();flowDeclineShift('${sh.id}')" style="background:rgba(138,42,38,.9);border-radius:4px;padding:5px 8px;font-size:10px;font-weight:800;color:#fff;cursor:pointer;display:inline-block">✗ NON DISPO</span>`;
+      inner+=`<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">${actes}</div>`;
+    }
     shEl.innerHTML=inner;
     shEl.addEventListener('click',()=>{
       if(!isConf) confirmShift(sh.id);
@@ -7436,6 +7472,9 @@ function renderFlowCalMobile(container, ws, we, uid, mySessions, myShifts) {
           +'style="width:100%;margin-top:8px;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.3);cursor:pointer;'
           +'font-size:13px;font-weight:700;background:transparent;color:rgba(255,255,255,.75);min-height:44px">← Annuler la confirmation</button>';
       }
+      html+='<button onclick="flowDeclineShift(\''+sh.id+'\')" '
+        +'style="width:100%;margin-top:8px;padding:11px;border-radius:9px;border:none;cursor:pointer;'
+        +'font-size:13px;font-weight:800;background:rgba(138,42,38,.9);color:#fff;min-height:44px">✗ NON DISPO — me retirer</button>';
       html+='</div>';
     });
     html+='</div></div>';
@@ -7936,7 +7975,8 @@ function renderFlowSessionsList() {
         const confirmBtn=!isConf
           ?`<button class="btn btn-sm" style="background:#8B6E3F;color:#fff;padding:12px;font-size:13px;font-weight:800;width:100%;min-height:48px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();confirmShift('${sh.id}')">✓ CONFIRMER CE SHIFT</button>`
           :`<button class="btn btn-sm" style="background:transparent;border:1px solid var(--beige-d);color:var(--muted);padding:9px;font-size:12px;font-weight:700;width:100%;min-height:40px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();unconfirmShift('${sh.id}')">← Annuler ma confirmation</button>`;
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(92,122,58,.15)':'rgba(184,120,46,.15)'};color:${isConf?'var(--green)':'#8B6E3F'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#8B6E3F;background:rgba(184,120,46,.12)'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span> </div> ${confirmBtn} </div>`;
+        const declineBtn=`<button class="btn btn-sm" style="background:rgba(138,42,38,.9);color:#fff;padding:10px;font-size:12px;font-weight:800;width:100%;min-height:42px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();flowDeclineShift('${sh.id}')">✗ NON DISPO — me retirer</button>`;
+        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(92,122,58,.15)':'rgba(184,120,46,.15)'};color:${isConf?'var(--green)':'#8B6E3F'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#8B6E3F;background:rgba(184,120,46,.12)'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span> </div> ${confirmBtn} ${declineBtn} </div>`;
       } else {
         // ── Rendu SÉANCE ──
         const s=item.data;
