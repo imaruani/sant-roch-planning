@@ -113,7 +113,7 @@ tr:hover td{background:rgba(221,215,201,.2)}
 /* CALENDRIER */
 .cal-ctrl{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .wlbl{font-weight:600;font-size:14px;min-width:220px;text-align:center}
-.calendar{display:grid;grid-template-columns:50px repeat(7,1fr);border:1px solid var(--beige-d);min-width:700px;user-select:none;position:relative}
+.calendar{display:grid;grid-template-columns:50px repeat(7,1fr);border:1px solid var(--beige-d);min-width:700px;width:100%;user-select:none;position:relative}
 .cal-corner{background:var(--bordeaux)}
 .cal-dhdr{padding:8px 4px;text-align:center;background:var(--bordeaux);color:var(--creme);font-size:11px;text-transform:uppercase;letter-spacing:.06em;border-left:1px solid rgba(255,255,255,.1)}
 .cal-tcol{position:relative;border-right:1px solid var(--beige-d)}
@@ -151,7 +151,7 @@ tr:hover td{background:rgba(221,215,201,.2)}
 .ev-resize:hover{background:rgba(255,255,255,.4)}
 
 /* MONTHLY CAL */
-.month-grid{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--beige-d);min-width:500px}
+.month-grid{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--beige-d);min-width:500px;width:100%}
 .mhdr{background:var(--bordeaux);color:var(--creme);padding:7px 4px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;border-left:1px solid rgba(255,255,255,.1)}
 .mday{border:1px solid var(--beige);min-height:80px;padding:4px;vertical-align:top;font-size:11px}
 .mday.other-month{background:rgba(221,215,201,.3);color:var(--muted)}
@@ -734,7 +734,8 @@ body.cut-mode .cren-col-hint{cursor:default}
 
 /* Affichage conditionnel mobile/desktop pour la vue shifts */
 .flow-mob-only{display:none}
-.flow-desk-only{display:flex}
+.flow-desk-only{display:block}
+/* fdm-shifts-inner garde son display:flex via style inline */
 @media(max-width:900px){
   .flow-mob-only{display:block!important}
   .flow-desk-only{display:none!important}
@@ -4012,19 +4013,49 @@ function openExportMsgFor(pid) {
 async function propagateShiftFlowToSessions(sh) {
   if (!sh || !sh.person_id) return 0;
   if (sh.date < '2026-06-01') return 0;
+  if (!sh.time_from || !sh.time_to) return 0;
   const shS = t2m(sh.time_from.slice(0,5));
   const shE = t2m(sh.time_to.slice(0,5));
   const covered = (S.sessions||[]).filter(s =>
     s.date === sh.date &&
+    s.start_time && s.end_time &&
     t2m(s.start_time.slice(0,5)) >= shS &&
     t2m(s.end_time.slice(0,5))   <= shE &&
-    s.flow_id !== sh.person_id
+    s.flow_id !== sh.person_id &&
+    s.guide_id !== sh.person_id &&   // jamais guide ET flow de la même séance
+    !isEventSess(s)                  // pas les événements
   );
   let n = 0;
   for (const s of covered) {
     try {
       await API.patch('sessions', s.id, { flow_id: sh.person_id });
       s.flow_id = sh.person_id;
+      n++;
+    } catch(e) { /* skip */ }
+  }
+  return n;
+}
+
+// Retire le flow des séances couvertes par un shift (quand on désassigne le shift)
+async function unpropagateShiftFlowFromSessions(sh, prevPerson) {
+  if (!sh || !prevPerson) return 0;
+  if (sh.date < '2026-06-01') return 0;
+  if (!sh.time_from || !sh.time_to) return 0;
+  const shS = t2m(sh.time_from.slice(0,5));
+  const shE = t2m(sh.time_to.slice(0,5));
+  const covered = (S.sessions||[]).filter(s =>
+    s.date === sh.date &&
+    s.start_time && s.end_time &&
+    t2m(s.start_time.slice(0,5)) >= shS &&
+    t2m(s.end_time.slice(0,5))   <= shE &&
+    s.flow_id === prevPerson &&
+    !isEventSess(s)
+  );
+  let n = 0;
+  for (const s of covered) {
+    try {
+      await API.patch('sessions', s.id, { flow_id: null });
+      s.flow_id = null;
       n++;
     } catch(e) { /* skip */ }
   }
@@ -4047,25 +4078,33 @@ async function syncAllShiftsToSessions() {
 async function adminAssignShift(shiftId, personId) {
   try {
     const val = personId || null;
+    const sh = (S.shifts || []).find(s => s.id === shiftId);
+    const prevPerson = sh?.person_id || null;
     // Assigner → brouillon (invisible pour le flow jusqu'à publication)
     // Retirer → reset person, status et published
     const patchBody = personId
       ? {person_id: val, assignment_published: false}
       : {person_id: null, assignment_published: null};
     await API.patch('shifts', shiftId, patchBody);
-    const sh = (S.shifts || []).find(s => s.id === shiftId);
     if (sh) {
       sh.person_id = val;
       if (personId) { sh.assignment_published = false; }
       else { sh.status = null; sh.assignment_published = null; }
     }
-    // ── PROPAGATION : assigner le même flow aux séances couvertes ──
-    const propagated = personId && sh ? await propagateShiftFlowToSessions(sh) : 0;
-    if (propagated > 0 && typeof renderCal === 'function') renderCal();
+    // ── PROPAGATION séances couvertes ──
+    let propagated = 0, unpropagated = 0;
+    if (personId && sh) {
+      propagated = await propagateShiftFlowToSessions(sh);
+    } else if (!personId && sh && prevPerson) {
+      // Désassignation → on retire aussi le flow des séances auto-assignées
+      unpropagated = await unpropagateShiftFlowFromSessions(sh, prevPerson);
+    }
+    if ((propagated > 0 || unpropagated > 0) && typeof renderCal === 'function') renderCal();
     renderDisposAdmin();
     renderCreneauxGrid();
     let msg = personId ? 'Flow assigné (brouillon — cliquez Publier pour notifier)' : 'Flow retiré';
-    if (propagated > 0) msg += ' · ' + propagated + ' séance(s) auto-assignée(s)';
+    if (propagated > 0)   msg += ' · ' + propagated + ' séance(s) auto-assignée(s)';
+    if (unpropagated > 0) msg += ' · ' + unpropagated + ' séance(s) libérée(s)';
     toast(msg, personId ? 'info' : 'ok');
   } catch(e) { toast('Erreur assignation', 'err'); }
 }
@@ -6046,6 +6085,7 @@ async function saveShift() {
     if (shiftId) {
       const sh = S.shifts.find(s => s.id === shiftId);
       const prevDate = sh?.date, prevFrom = sh?.time_from, prevTo = sh?.time_to, prevPerson = sh?.person_id;
+      const prevPublished = sh?.assignment_published, prevStatus = sh?.status;
       // En édition : on persiste aussi person_id (si changé via le <select>)
       const editBody = { ...body };
       if (personId !== prevPerson) {
@@ -6084,8 +6124,8 @@ async function saveShift() {
       if (propagatedTotal > 0) okMsg += ` · ${propagatedTotal} séance(s) auto-assignée(s)`;
       toast(okMsg, 'ok');
       pushUndo(`modif ${body.time_from.slice(0,5)}–${body.time_to.slice(0,5)}`, async () => {
-        await API.patch('shifts', shiftId, { date: prevDate, time_from: prevFrom, time_to: prevTo, person_id: prevPerson });
-        if (sh) { sh.date = prevDate; sh.time_from = prevFrom; sh.time_to = prevTo; sh.person_id = prevPerson; }
+        await API.patch('shifts', shiftId, { date: prevDate, time_from: prevFrom, time_to: prevTo, person_id: prevPerson, assignment_published: prevPublished ?? null, status: prevStatus ?? null });
+        if (sh) { sh.date = prevDate; sh.time_from = prevFrom; sh.time_to = prevTo; sh.person_id = prevPerson; sh.assignment_published = prevPublished; sh.status = prevStatus; }
         if (createdRec.length) {
           await Promise.all(createdRec.map(s => API.del('shifts', s.id)));
           const ids = new Set(createdRec.map(s => s.id));
