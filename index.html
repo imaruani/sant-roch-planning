@@ -7512,33 +7512,9 @@ function renderDispoUrgency() {
     );
   });
   const remaining = futureShifts.length - answered.length;
-  const pct = futureShifts.length ? Math.round(answered.length / futureShifts.length * 100) : 0;
   _updateDispoBadge(remaining);
-  if (remaining === 0) {
-    // Tout est déclaré → célébrer
-    wrap.innerHTML = ''
-      + '<div class="dispo-urgency ok">'
-      +   '<div class="dispo-urgency-icon">✅</div>'
-      +   '<div class="dispo-urgency-body">'
-      +     '<div class="dispo-urgency-title">Bravo, toutes tes dispos sont à jour !</div>'
-      +     '<div class="dispo-urgency-sub">Tu as répondu sur les ' + futureShifts.length + ' shifts à venir. L\'admin peut t\'assigner sereinement.</div>'
-      +   '</div>'
-      + '</div>';
-    return;
-  }
-  // Sinon → CTA urgent
-  const word = remaining > 1 ? 'shifts' : 'shift';
-  wrap.innerHTML = ''
-    + '<div class="dispo-urgency">'
-    +   '<div class="dispo-urgency-icon">⚠️</div>'
-    +   '<div class="dispo-urgency-body">'
-    +     '<div class="dispo-urgency-title">' + remaining + ' ' + word + ' à déclarer</div>'
-    +     '<div class="dispo-urgency-sub">Plus tu déclares de dispos, plus tu seras assigné(e). L\'admin en a besoin pour planifier.</div>'
-    +     '<div class="dispo-progress" style="margin-top:10px"><div class="dispo-progress-fill" style="width:' + pct + '%;background-position:' + pct + '% 0"></div></div>'
-    +     '<div class="dispo-progress-label">' + answered.length + ' / ' + futureShifts.length + ' shifts répondus (' + pct + '%)</div>'
-    +   '</div>'
-    +   '<button class="dispo-urgency-cta" onclick="_scrollToFirstUnanswered()">DÉCLARER →</button>'
-    + '</div>';
+  // Bannière d'urgence retirée (les users ne la comprenaient pas)
+  wrap.innerHTML = '';
 }
 
 function _updateDispoBadge(count) {
