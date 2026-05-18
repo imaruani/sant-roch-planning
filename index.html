@@ -6630,10 +6630,12 @@ function renderCreneauxGrid() {
       inner.className='cren-band-inner';
       inner.style.background=color;
       const isShiftConf = sh.status === 'confirmed';
+      const noDispo = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false);
       let innerHtml=`<span style="font-size:9px;opacity:.85;display:block">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>`;
       if (assigned) innerHtml+=`<span style="font-size:10px;font-weight:800;display:block">${isShiftConf?'✓':'—'} ${assigned.name.split(' ')[0]}</span>`;
       else if (dispoNames.length) innerHtml+=`<span style="font-size:8px;opacity:.9;display:block">✓ ${dispoNames.join(', ')}</span>`;
       else innerHtml+=`<span style="font-size:8px;opacity:.6;display:block">Sans assignation</span>`;
+      if (noDispo.length) innerHtml+=`<span style="font-size:8px;font-weight:800;color:#8a2a26;background:rgba(138,42,38,.14);border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px">⚠ ${noDispo.length} pas dispo</span>`;
       inner.innerHTML=innerHtml;
       bandEl.appendChild(inner);
 
@@ -6751,11 +6753,13 @@ function renderCreneauxMonth() {
       const bg = assigned ? (conf ? 'rgba(92,122,58,.85)' : 'rgba(184,120,46,.85)') : 'rgba(108,20,18,.5)';
       const who = assigned ? (conf ? '✓ ' : '') + assigned.name.split(' ')[0] : '⚠';
       const hrs = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
+      const nNo = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false).length;
+      const noTag = nNo ? `<span style="background:rgba(255,255,255,.25);border-radius:3px;padding:0 3px;font-size:8px;font-weight:800">⚠${nNo}</span>` : '';
       html += `<div onclick="adminToggleShiftDispo_picker('${sh.id}')" `
         + `style="background:${bg};color:#fff;font-size:9px;padding:3px 5px;`
         + `border-radius:3px;margin-bottom:2px;cursor:pointer;line-height:1.3" `
-        + `title="${hrs} · ${who}">`
-        + `<div style="font-weight:800;letter-spacing:.02em">${hrs}</div>`
+        + `title="${hrs} · ${who}${nNo?' · '+nNo+' pas dispo':''}">`
+        + `<div style="font-weight:800;letter-spacing:.02em">${hrs} ${noTag}</div>`
         + `<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${who}</div></div>`;
     });
     if (!dayShifts.length && inMonth) {
