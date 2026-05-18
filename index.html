@@ -6630,13 +6630,24 @@ function renderCreneauxGrid() {
       inner.className='cren-band-inner';
       inner.style.background=color;
       const isShiftConf = sh.status === 'confirmed';
-      const noDispo = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false);
+      // Refus = quelqu'un a déclaré "pas dispo" AVEC une note (raison) sur ce shift
+      const refus = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false && a.note);
       let innerHtml=`<span style="font-size:9px;opacity:.85;display:block">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>`;
       if (assigned) innerHtml+=`<span style="font-size:10px;font-weight:800;display:block">${isShiftConf?'✓':'—'} ${assigned.name.split(' ')[0]}</span>`;
       else if (dispoNames.length) innerHtml+=`<span style="font-size:8px;opacity:.9;display:block">✓ ${dispoNames.join(', ')}</span>`;
       else innerHtml+=`<span style="font-size:8px;opacity:.6;display:block">Sans assignation</span>`;
-      // Badge "pas dispo" : seulement sur les shifts NON assignés (sinon = bruit inutile)
-      if (noDispo.length && !assigned) innerHtml+=`<span style="font-size:8px;font-weight:800;color:#8a2a26;background:rgba(138,42,38,.14);border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px">⚠ ${noDispo.length} a refusé</span>`;
+      // Note de refus : seulement sur les shifts NON assignés (un membre a dit non + pourquoi)
+      if (refus.length && !assigned) {
+        const r0 = refus[0];
+        const rp = (S.people||[]).find(x => x.id === r0.person_id);
+        const rName = rp ? rp.name.split(' ')[0] : '?';
+        const extra = refus.length > 1 ? ' +' + (refus.length-1) : '';
+        innerHtml += `<span style="font-size:8px;font-weight:800;color:#8a2a26;background:rgba(138,42,38,.16);border-radius:3px;padding:1px 4px;display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚠ ${rName}${extra} : ${r0.note}</span>`;
+        bandEl.title = refus.map(a => {
+          const p = (S.people||[]).find(x => x.id === a.person_id);
+          return (p ? p.name.split(' ')[0] : '?') + ' : ' + a.note;
+        }).join('  |  ');
+      }
       inner.innerHTML=innerHtml;
       bandEl.appendChild(inner);
 
@@ -6754,12 +6765,17 @@ function renderCreneauxMonth() {
       const bg = assigned ? (conf ? 'rgba(92,122,58,.85)' : 'rgba(184,120,46,.85)') : 'rgba(108,20,18,.5)';
       const who = assigned ? (conf ? '✓ ' : '') + assigned.name.split(' ')[0] : '⚠';
       const hrs = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
-      const nNo = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false).length;
-      const noTag = (nNo && !assigned) ? `<span style="background:rgba(255,255,255,.25);border-radius:3px;padding:0 3px;font-size:8px;font-weight:800">⚠${nNo}</span>` : '';
+      const refusM = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false && a.note);
+      const showRefus = refusM.length && !assigned;
+      const noTag = showRefus ? `<span style="background:rgba(255,255,255,.28);border-radius:3px;padding:0 3px;font-size:8px;font-weight:800">⚠ refus</span>` : '';
+      const refusTitle = showRefus ? ' · ' + refusM.map(a => {
+        const p = (S.people||[]).find(x => x.id === a.person_id);
+        return (p ? p.name.split(' ')[0] : '?') + ' : ' + a.note;
+      }).join(' | ') : '';
       html += `<div onclick="adminToggleShiftDispo_picker('${sh.id}')" `
         + `style="background:${bg};color:#fff;font-size:9px;padding:3px 5px;`
         + `border-radius:3px;margin-bottom:2px;cursor:pointer;line-height:1.3" `
-        + `title="${hrs} · ${who}${(nNo&&!assigned)?' · '+nNo+' a refusé':''}">`
+        + `title="${hrs} · ${who}${refusTitle}">`
         + `<div style="font-weight:800;letter-spacing:.02em">${hrs} ${noTag}</div>`
         + `<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${who}</div></div>`;
     });
