@@ -6614,7 +6614,10 @@ function renderCreneauxGrid() {
       // Fusionne shift_avails + broad_avails pour avoir tous les flows dispo
       const dispoPersons2 = getDispoFlowsForShift(sh);
       const dispoNames = dispoPersons2.map(p => p.name.split(' ')[0]);
-      const color=assigned?'rgba(92,122,58,.32)':dispoNames.length?'rgba(61,90,128,.28)':'rgba(108,20,18,.24)';
+      // Couleurs : confirmé = vert vif · assigné non confirmé = bronze · dispo libre = bleu · rien = bordeaux
+      const color = assigned
+        ? (sh.status==='confirmed' ? 'rgba(92,122,58,.62)' : 'rgba(184,120,46,.45)')
+        : dispoNames.length ? 'rgba(61,90,128,.28)' : 'rgba(108,20,18,.24)';
 
       const bandEl=document.createElement('div');
       bandEl.className='cren-band';
