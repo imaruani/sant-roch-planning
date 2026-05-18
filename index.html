@@ -6635,7 +6635,8 @@ function renderCreneauxGrid() {
       if (assigned) innerHtml+=`<span style="font-size:10px;font-weight:800;display:block">${isShiftConf?'✓':'—'} ${assigned.name.split(' ')[0]}</span>`;
       else if (dispoNames.length) innerHtml+=`<span style="font-size:8px;opacity:.9;display:block">✓ ${dispoNames.join(', ')}</span>`;
       else innerHtml+=`<span style="font-size:8px;opacity:.6;display:block">Sans assignation</span>`;
-      if (noDispo.length) innerHtml+=`<span style="font-size:8px;font-weight:800;color:#8a2a26;background:rgba(138,42,38,.14);border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px">⚠ ${noDispo.length} pas dispo</span>`;
+      // Badge "pas dispo" : seulement sur les shifts NON assignés (sinon = bruit inutile)
+      if (noDispo.length && !assigned) innerHtml+=`<span style="font-size:8px;font-weight:800;color:#8a2a26;background:rgba(138,42,38,.14);border-radius:3px;padding:0 4px;display:inline-block;margin-top:2px">⚠ ${noDispo.length} a refusé</span>`;
       inner.innerHTML=innerHtml;
       bandEl.appendChild(inner);
 
@@ -6754,11 +6755,11 @@ function renderCreneauxMonth() {
       const who = assigned ? (conf ? '✓ ' : '') + assigned.name.split(' ')[0] : '⚠';
       const hrs = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
       const nNo = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false).length;
-      const noTag = nNo ? `<span style="background:rgba(255,255,255,.25);border-radius:3px;padding:0 3px;font-size:8px;font-weight:800">⚠${nNo}</span>` : '';
+      const noTag = (nNo && !assigned) ? `<span style="background:rgba(255,255,255,.25);border-radius:3px;padding:0 3px;font-size:8px;font-weight:800">⚠${nNo}</span>` : '';
       html += `<div onclick="adminToggleShiftDispo_picker('${sh.id}')" `
         + `style="background:${bg};color:#fff;font-size:9px;padding:3px 5px;`
         + `border-radius:3px;margin-bottom:2px;cursor:pointer;line-height:1.3" `
-        + `title="${hrs} · ${who}${nNo?' · '+nNo+' pas dispo':''}">`
+        + `title="${hrs} · ${who}${(nNo&&!assigned)?' · '+nNo+' a refusé':''}">`
         + `<div style="font-weight:800;letter-spacing:.02em">${hrs} ${noTag}</div>`
         + `<div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${who}</div></div>`;
     });
