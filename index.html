@@ -779,6 +779,17 @@ const GUIDE_PALETTE = [
 ];
 // Cache couleur guide : { personId: '#hexcolor' }
 const _guideColors = {};
+// Prénom court — ajoute l'initiale du nom si un autre membre a le même prénom
+function sn(p) {
+  if (!p || !p.name) return '';
+  const parts = p.name.trim().split(/\s+/);
+  const first = parts[0];
+  const dup = (S.people||[]).some(o => o && o.id !== p.id && o.name &&
+    o.name.trim().split(/\s+/)[0].toLowerCase() === first.toLowerCase());
+  if (dup && parts.length > 1) return first + ' ' + parts[parts.length-1][0].toUpperCase() + '.';
+  return first;
+}
+
 function guideColor(id) {
   if (!id) return '#888888';
   // Priorité : couleur personnalisée enregistrée par l'admin
@@ -1828,11 +1839,11 @@ function _sessBlockHtml(s, topPx, hPx) {
   }
   // 2. Guide (préfixe G compact, fond translucide pour repère visuel)
   if (guideP && fit(lineH)) {
-    lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">G </span>${guideP.name.split(' ')[0]}</div>`;
+    lines += `<div style="font-size:${fs}px;color:#fff;font-weight:700;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">G </span>${sn(guideP)}</div>`;
   }
   // 3. Flow
   if (flowP && fit(lineH)) {
-    lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.96);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">F </span>${flowP.name.split(' ')[0]}</div>`;
+    lines += `<div style="font-size:${fs}px;color:rgba(255,255,255,.96);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">F </span>${sn(flowP)}</div>`;
   } else if (!flowP && !isFree && !isEv && fit(lineH)) {
     lines += `<div style="font-size:${fs}px;color:rgba(255,200,200,.95);font-weight:600;line-height:${lh};${ellips}"><span style="opacity:.6;font-weight:600">F </span>—</div>`;
   }
@@ -2107,14 +2118,14 @@ function renderMonthCal() {
       const flowP=S.people.find(p=>p.id===s.flow_id);
       const hours=`${ft(s.start_time)}–${ft(s.end_time)}`;
       const flowLine=flowP
-        ? `<div style="font-size:9px;font-weight:700;opacity:.9">Flow ${flowP.name.split(' ')[0]}</div>`
+        ? `<div style="font-size:9px;font-weight:700;opacity:.9">Flow ${sn(flowP)}</div>`
         : `<div style="font-size:9px;opacity:.6;font-style:italic">Sans flow</div>`;
       if (isFree) {
         ev.innerHTML=`<div style="font-weight:800;letter-spacing:.03em">${hours} FREEFLOW</div>`+flowLine;
       } else if (isEv) {
         ev.innerHTML=`<div style="font-weight:800"> ${hours} ${eventName(s)}</div>`+flowLine;
       } else {
-        const guideName=(guide?guide.name.split(' ')[0]:'Sans guide').toUpperCase();
+        const guideName=(guide?sn(guide):'Sans guide').toUpperCase();
         ev.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${hours} ${guideName}</div>`+flowLine;
       }
       cell.appendChild(ev);
@@ -2173,7 +2184,7 @@ function renderQuarterCal() {
           } else if (isEv) {
             ev.innerHTML=`<div style="font-weight:800"> ${ft(s.start_time)} ${eventName(s)}</div>`;
           } else {
-            const guideName=(guide?guide.name.split(' ')[0]:'Sans guide').toUpperCase();
+            const guideName=(guide?sn(guide):'Sans guide').toUpperCase();
             ev.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${ft(s.start_time)} ${guideName}</div>`;
           }
           td.appendChild(ev);
@@ -2435,7 +2446,7 @@ function renderEqBars() {
   const max=Math.max(...Object.values(cnt),1);
   const barW = (n) => Math.round((n/max)*56);
   document.getElementById('eq-bars').innerHTML=
-    S.people.filter(p=>p.can_be_flow).map(p=>` <span class="eq-pill" title="${p.name} — ${cnt[p.id]} séance(s)"> <span style="width:8px;height:8px;border-radius:50%;background:${guideColor(p.id)};display:inline-block;flex-shrink:0"></span> <span style="font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name.split(' ')[0]}</span> <span class="eq-pill-bar" style="width:${Math.max(barW(cnt[p.id]),4)}px"></span> <span style="color:var(--muted);font-size:10px">${cnt[p.id]}</span> </span>`).join('');
+    S.people.filter(p=>p.can_be_flow).map(p=>` <span class="eq-pill" title="${p.name} — ${cnt[p.id]} séance(s)"> <span style="width:8px;height:8px;border-radius:50%;background:${guideColor(p.id)};display:inline-block;flex-shrink:0"></span> <span style="font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sn(p)}</span> <span class="eq-pill-bar" style="width:${Math.max(barW(cnt[p.id]),4)}px"></span> <span style="color:var(--muted);font-size:10px">${cnt[p.id]}</span> </span>`).join('');
 }
 
 // ──────────────────────────────────────────────
@@ -2794,7 +2805,7 @@ function renderDisposAdmin() {
     const col = ok ? 'var(--green)' : dispo > 0 ? 'var(--blue)' : 'var(--muted)';
     const ico = ok ? '✓ ' : dispo > 0 ? '● ' : '○ ';
     statsHtml += '<span style="display:inline-flex;align-items:center;gap:3px;background:'+bg+';color:'+col+';border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700">'
-      + ico + fp.name.split(' ')[0]
+      + ico + sn(fp)
       + (assigned ? ' <span style="font-size:9px;opacity:.8">'+assigned+' shift'+(assigned>1?'s':'')+'</span>' : dispo ? ' <span style="font-size:9px;opacity:.8">'+dispo+' dispo</span>' : '')
       + '</span>';
   });
@@ -2850,8 +2861,8 @@ function renderDisposAdmin() {
     ));
     const nDispo     = shAvails.length + broadDispoPersons.length;
     const dBg        = nDispo===0?'var(--danger)':nDispo===1?'var(--orange)':'var(--green)';
-    const dispoExplicit = shAvails.slice(0,2).map(a=>{ const p=S.people.find(x=>x.id===a.person_id); return p?p.name.split(' ')[0]:''; }).filter(Boolean);
-    const dispoBroad    = broadDispoPersons.slice(0, Math.max(0, 2 - dispoExplicit.length)).map(p => p.name.split(' ')[0]);
+    const dispoExplicit = shAvails.slice(0,2).map(a=>{ const p=S.people.find(x=>x.id===a.person_id); return p?sn(p):''; }).filter(Boolean);
+    const dispoBroad    = broadDispoPersons.slice(0, Math.max(0, 2 - dispoExplicit.length)).map(p => sn(p));
     const dispoPrev  = [...dispoExplicit, ...dispoBroad];
 
     listHtml += '<div style="padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer" '
@@ -2938,7 +2949,7 @@ function renderDisposAdmin() {
       const isDraft2   = assignedP2 && sh.assignment_published === false;
       const dispoPersons = getDispoFlowsForShift(sh);
       const nD2        = dispoPersons.length;
-      const dispNames  = dispoPersons.map(p => p.name.split(' ')[0]);
+      const dispNames  = dispoPersons.map(p => sn(p));
       let bg, border;
       if (assignedP2 && !isDraft2) { bg='rgba(108,20,18,.88)'; border='#6c1412'; }
       else if (isDraft2)           { bg='rgba(200,100,0,.82)'; border='#c06000'; }
@@ -2973,8 +2984,8 @@ function renderDisposAdmin() {
       if (assignedP2 && hPx >= 28) {
         const isConf2 = sh.status === 'confirmed';
         const nameLabel = isDraft2
-          ? assignedP2.name.split(' ')[0] + ' <span style="font-size:8px;opacity:.85">(brouillon)</span>'
-          : (isConf2 ? '✓ ' : '') + assignedP2.name.split(' ')[0] + (isConf2 ? '' : ' <span style="font-size:8px;opacity:.75">(en attente)</span>');
+          ? sn(assignedP2) + ' <span style="font-size:8px;opacity:.85">(brouillon)</span>'
+          : (isConf2 ? '✓ ' : '') + sn(assignedP2) + (isConf2 ? '' : ' <span style="font-size:8px;opacity:.75">(en attente)</span>');
         calHtml += '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.96);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
           + nameLabel + '</div>';
       } else if (hPx >= 28 && namesList) {
@@ -3222,7 +3233,7 @@ function renderExportMsg() {
   const p = (S.people||[]).find(x => x.id === pid);
   if (!p) { txtEl.value = ''; return; }
   const { from, to } = _exportRange(period);
-  const firstName = p.name.split(' ')[0];
+  const firstName = sn(p);
 
   // Shifts assignés à cette personne sur la période (publiés ou pas)
   const shifts = (S.shifts||[]).filter(sh =>
@@ -3726,7 +3737,7 @@ function renderUnassignedAlert() {
       const tf = sh.time_from.slice(0,5), tt = sh.time_to.slice(0,5);
       // Si certains flows ont déclaré dispo → les lister pour rappel
       const dispos = (typeof getDispoFlowsForShift === 'function') ? getDispoFlowsForShift(sh) : [];
-      const dispoLbl = dispos.length ? ' (dispo : ' + dispos.map(p=>p.name.split(' ')[0]).join(', ') + ')' : '';
+      const dispoLbl = dispos.length ? ' (dispo : ' + dispos.map(p=>sn(p)).join(', ') + ')' : '';
       msg += '   • ' + tf + '–' + tt + dispoLbl + '\n';
     });
     msg += '\n';
@@ -4384,7 +4395,7 @@ function renderAssignList() {
         const chips=(arr,isAv)=>arr.map(p=>{
           const isCur=s.flow_id===p.id;
           const cls=`asl-flow-chip ${isAv?'avail':'unavail'}${isCur?' cur':''}`;
-          return `<span class="${cls}" onclick="event.stopPropagation();${isAv||isCur?`quickAssignFlow('${s.id}','${p.id}',${isAv})`:`confirmAssignUnavail('${s.id}','${p.id}')`}" title="${p.name} — ${cnt(p.id)} séance(s) ce mois"> <span style="width:8px;height:8px;border-radius:50%;background:${guideColor(p.id)};display:inline-block"></span> ${p.name.split(' ')[0]}${isCur?' ✓':''} </span>`;
+          return `<span class="${cls}" onclick="event.stopPropagation();${isAv||isCur?`quickAssignFlow('${s.id}','${p.id}',${isAv})`:`confirmAssignUnavail('${s.id}','${p.id}')`}" title="${p.name} — ${cnt(p.id)} séance(s) ce mois"> <span style="width:8px;height:8px;border-radius:50%;background:${guideColor(p.id)};display:inline-block"></span> ${sn(p)}${isCur?' ✓':''} </span>`;
         }).join('');
 
         html+=`<div class="asl-assign-inline" onclick="event.stopPropagation()">`;
@@ -6613,7 +6624,7 @@ function renderCreneauxGrid() {
       const assigned=sh.person_id?(S.people||[]).find(p=>p.id===sh.person_id):null;
       // Fusionne shift_avails + broad_avails pour avoir tous les flows dispo
       const dispoPersons2 = getDispoFlowsForShift(sh);
-      const dispoNames = dispoPersons2.map(p => p.name.split(' ')[0]);
+      const dispoNames = dispoPersons2.map(p => sn(p));
       // Couleurs : confirmé = vert vif · assigné non confirmé = bronze · dispo libre = bleu · rien = bordeaux
       const color = assigned
         ? (sh.status==='confirmed' ? 'rgba(92,122,58,.62)' : 'rgba(184,120,46,.45)')
@@ -6633,19 +6644,19 @@ function renderCreneauxGrid() {
       // Refus = quelqu'un a déclaré "pas dispo" AVEC une note (raison) sur ce shift
       const refus = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false && a.note);
       let innerHtml=`<span style="font-size:9px;opacity:.85;display:block">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span>`;
-      if (assigned) innerHtml+=`<span style="font-size:10px;font-weight:800;display:block">${isShiftConf?'✓':'—'} ${assigned.name.split(' ')[0]}</span>`;
+      if (assigned) innerHtml+=`<span style="font-size:10px;font-weight:800;display:block">${isShiftConf?'✓':'—'} ${sn(assigned)}</span>`;
       else if (dispoNames.length) innerHtml+=`<span style="font-size:8px;opacity:.9;display:block">✓ ${dispoNames.join(', ')}</span>`;
       else innerHtml+=`<span style="font-size:8px;opacity:.6;display:block">Sans assignation</span>`;
       // Note de refus : seulement sur les shifts NON assignés (un membre a dit non + pourquoi)
       if (refus.length && !assigned) {
         const r0 = refus[0];
         const rp = (S.people||[]).find(x => x.id === r0.person_id);
-        const rName = rp ? rp.name.split(' ')[0] : '?';
+        const rName = rp ? sn(rp) : '?';
         const extra = refus.length > 1 ? ' +' + (refus.length-1) : '';
         innerHtml += `<span style="font-size:8px;font-weight:800;color:#8a2a26;background:rgba(138,42,38,.16);border-radius:3px;padding:1px 4px;display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">⚠ ${rName}${extra} : ${r0.note}</span>`;
         bandEl.title = refus.map(a => {
           const p = (S.people||[]).find(x => x.id === a.person_id);
-          return (p ? p.name.split(' ')[0] : '?') + ' : ' + a.note;
+          return (p ? sn(p) : '?') + ' : ' + a.note;
         }).join('  |  ');
       }
       inner.innerHTML=innerHtml;
@@ -6763,14 +6774,14 @@ function renderCreneauxMonth() {
       const assigned = sh.person_id ? (S.people||[]).find(p => p.id === sh.person_id) : null;
       const conf = sh.status === 'confirmed';
       const bg = assigned ? (conf ? 'rgba(92,122,58,.85)' : 'rgba(184,120,46,.85)') : 'rgba(108,20,18,.5)';
-      const who = assigned ? (conf ? '✓ ' : '') + assigned.name.split(' ')[0] : '⚠';
+      const who = assigned ? (conf ? '✓ ' : '') + sn(assigned) : '⚠';
       const hrs = sh.time_from.slice(0,5) + '–' + sh.time_to.slice(0,5);
       const refusM = (S.shiftAvails||[]).filter(a => a.shift_id===sh.id && a.available===false && a.note);
       const showRefus = refusM.length && !assigned;
       const noTag = showRefus ? `<span style="background:rgba(255,255,255,.28);border-radius:3px;padding:0 3px;font-size:8px;font-weight:800">⚠ refus</span>` : '';
       const refusTitle = showRefus ? ' · ' + refusM.map(a => {
         const p = (S.people||[]).find(x => x.id === a.person_id);
-        return (p ? p.name.split(' ')[0] : '?') + ' : ' + a.note;
+        return (p ? sn(p) : '?') + ' : ' + a.note;
       }).join(' | ') : '';
       html += `<div onclick="adminToggleShiftDispo_picker('${sh.id}')" `
         + `style="background:${bg};color:#fff;font-size:9px;padding:3px 5px;`
@@ -7182,16 +7193,16 @@ function renderFlowCal() {
       html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName}${isConf?' ✓':' ⏳'}</div>`;
     } else if (isFree) {
       html+=`<div style="font-size:10px;font-weight:600;opacity:.7;line-height:1.15">Freeflow</div>`;
-      if(guideP) html+=`<div style="font-size:9px;opacity:.8;line-height:1.15;${ellips}">${guideP.name.split(' ')[0]}</div>`;
+      if(guideP) html+=`<div style="font-size:9px;opacity:.8;line-height:1.15;${ellips}">${sn(guideP)}</div>`;
     } else if (isEv2) {
       html+=`<div style="font-size:10px;font-weight:800;line-height:1.15;${ellips}">${eventName(s)}</div>`;
       if (hPx>=38) { const p=[guideP?.name.split(' ')[0],flowP?.name.split(' ')[0]].filter(Boolean).join(' · '); if(p) html+=`<div style="font-size:9px;opacity:.9;line-height:1.15;${ellips}">${p}</div>`; }
     } else if (isMyGuide) {
       html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName} · GUIDE</div>`;
-      if (hPx>=38) html+=`<div style="font-size:10px;opacity:.95;line-height:1.15;${ellips}">${flowP?'Flow · '+flowP.name.split(' ')[0]:'Sans flow'}</div>`;
+      if (hPx>=38) html+=`<div style="font-size:10px;opacity:.95;line-height:1.15;${ellips}">${flowP?'Flow · '+sn(flowP):'Sans flow'}</div>`;
     } else {
       html+=`<div style="font-size:11px;font-weight:800;line-height:1.15;${ellips}">${myName} · FLOW${isConf?' ✓':''}</div>`;
-      if (hPx>=38 && guideP) html+=`<div style="font-size:10px;opacity:.95;line-height:1.15;${ellips}">Guide · ${guideP.name.split(' ')[0]}</div>`;
+      if (hPx>=38 && guideP) html+=`<div style="font-size:10px;opacity:.95;line-height:1.15;${ellips}">Guide · ${sn(guideP)}</div>`;
     }
     ev.innerHTML=html;
     ev.addEventListener('click', ()=>{ markSessionSeen(s.id); openFlowEventModal(s); });
@@ -7322,8 +7333,8 @@ function renderGlobalMonth() {
         const ev = document.createElement('div');
         ev.style.cssText = 'margin-bottom:2px;border-radius:3px;overflow:hidden;font-size:9px;line-height:1.2;background:'+bg+';color:'+col+';padding:1px 4px';
         const meLbl = isMyG ? ' [MOI·G]' : isMyF ? ' [MOI·F]' : '';
-        const gShort = guide ? guide.name.split(' ')[0] : '';
-        const fShort = flow  ? flow.name.split(' ')[0]  : '';
+        const gShort = guide ? sn(guide) : '';
+        const fShort = flow  ? sn(flow)  : '';
         const combo = [gShort, fShort].filter(Boolean).join(' / ');
         ev.innerHTML = '<div style="font-weight:700">'+ft(s.start_time)+meLbl+'</div>'
           + (combo ? '<div style="opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+combo+'</div>' : '');
@@ -8573,11 +8584,11 @@ function renderConfirmStatusBar() {
     const bg=allOk?'rgba(92,122,58,.1)':'rgba(138,42,38,.07)';
     const border=allOk?'rgba(92,122,58,.4)':'rgba(138,42,38,.3)';
     const ico=allOk?'✓':'—';
-    html+=`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${bg};border:1px solid ${border};border-radius:20px;font-size:11px;font-weight:600"> ${ico} ${f.name.split(' ')[0]} <span style="color:var(--muted)">${f.conf}/${total}</span> </span>`;
+    html+=`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${bg};border:1px solid ${border};border-radius:20px;font-size:11px;font-weight:600"> ${ico} ${sn(f)} <span style="color:var(--muted)">${f.conf}/${total}</span> </span>`;
   });
   html+=`</div>`;
   if (pending.length) {
-    html+=`<div style="margin-top:8px;font-size:11px;color:var(--orange)">... En attente : ${pending.map(s=>{const p=S.people.find(x=>x.id===s.flow_id);return (p?p.name.split(' ')[0]:'?')+' '+ft(s.start_time);}).join(' · ')}</div>`;
+    html+=`<div style="margin-top:8px;font-size:11px;color:var(--orange)">... En attente : ${pending.map(s=>{const p=S.people.find(x=>x.id===s.flow_id);return (p?sn(p):'?')+' '+ft(s.start_time);}).join(' · ')}</div>`;
   }
   div.innerHTML=html;
 }
