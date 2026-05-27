@@ -8175,14 +8175,16 @@ function renderFlowMonthCal() {
       const isFree=s.session_type==='freeflow';
       const isEv=isEventSess(s);
       const isMyGuide=s.guide_id===uid;
+      const isMyFlow=s.flow_id===uid;
       const isConf=s.status==='confirmed';
       let bg,col;
-      if (isFree)       { bg='rgba(219,207,181,.9)'; col='#5a4530'; }
-      else if (isEv)    { bg='rgba(139,110,63,.88)'; col='#fff'; }
-      else if (isMyGuide){ bg='rgba(108,20,18,.88)'; col='#fff'; }
-      else              { bg=isConf?'rgba(92,122,58,.90)':'rgba(92,122,58,.62)'; col='#fff'; }
+      if (isMyGuide)            { bg='rgba(108,20,18,.88)'; col='#fff'; }
+      else if (isMyFlow)        { bg=isConf?'rgba(92,122,58,.90)':'rgba(92,122,58,.62)'; col='#fff'; } // freeflow OU guidée où je suis flow → vert
+      else if (isEv)            { bg='rgba(139,110,63,.88)'; col='#fff'; }
+      else if (isFree)          { bg='rgba(219,207,181,.9)'; col='#5a4530'; }
+      else                      { bg='rgba(120,112,104,.55)'; col='#fff'; } // séance d'un collègue
       ev.style.cssText=`margin-bottom:2px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;background:${bg};color:${col};padding:2px 5px`;
-      const role=isFree?'FREEFLOW':isEv?eventName(s):isMyGuide?'GUIDE':('FLOW'+(isConf?' ✓':''));
+      const role=isMyGuide?'GUIDE':isMyFlow?('FLOW'+(isConf?' ✓':'')):(isEv?eventName(s):'FREEFLOW');
       ev.innerHTML=`<div style="font-weight:700">${ft(s.start_time)} ${role}</div>`;
       ev.onclick=()=>openFlowEventModal(s);
       cell.appendChild(ev);
@@ -8241,13 +8243,14 @@ function renderFlowDispoMonth() {
       S.sessions.filter(s=>s.date===isoD&&(s.flow_id===uid||s.guide_id===uid)).forEach(s=>{
         const ev=document.createElement('div');
         const isMyGuide=s.guide_id===uid;
+        const isMyFlow=s.flow_id===uid;
         const isConf=s.status==='confirmed';
         const isEv=isEventSess(s);
         let bg,col;
-        if (s.session_type==='freeflow'){ bg='rgba(219,207,181,.9)'; col='#5a4530'; }
+        if (isMyGuide)  { bg='rgba(108,20,18,.88)'; col='#fff'; }
+        else if (isMyFlow) { bg=isConf?'rgba(92,122,58,.90)':'rgba(92,122,58,.62)'; col='#fff'; }
         else if (isEv)  { bg='rgba(139,110,63,.88)'; col='#fff'; }
-        else if (isMyGuide){ bg='rgba(108,20,18,.88)'; col='#fff'; }
-        else { bg=isConf?'rgba(92,122,58,.90)':'rgba(92,122,58,.62)'; col='#fff'; }
+        else            { bg='rgba(219,207,181,.9)'; col='#5a4530'; }
         ev.style.cssText=`margin-top:2px;cursor:pointer;border-radius:2px;font-size:9px;background:${bg};color:${col};padding:1px 4px`;
         ev.textContent=ft(s.start_time)+' '+(isEv?eventName(s):isMyGuide?'Guide':'Flow');
         ev.onclick=e=>{ e.stopPropagation(); openFlowEventModal(s); };
