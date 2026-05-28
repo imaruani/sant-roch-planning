@@ -792,7 +792,10 @@ function sn(p) {
 
 function guideColor(id) {
   if (!id) return '#888888';
-  // Priorité : couleur personnalisée enregistrée par l'admin
+  // Priorité 1 : colonne `color` en DB (partagée entre devices)
+  const p = (typeof S !== 'undefined' && S.people) ? S.people.find(x => x.id === id) : null;
+  if (p && p.color) return p.color;
+  // Priorité 2 : couleur personnalisée enregistrée localement (ce navigateur)
   const custom = JSON.parse(localStorage.getItem('sr_guide_colors')||'{}');
   if (custom[id]) return custom[id];
   if (!_guideColors[id]) {
@@ -7873,18 +7876,31 @@ function renderGuideColorPickers() {
         oninput="document.querySelector('#gc-prev-${p.id}').style.background=this.value"> <span id="gc-prev-${p.id}" style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${current};border:1px solid rgba(0,0,0,.15)"></span> </div>`;
   }).join('');
 }
-function saveGuideColors() {
+async function saveGuideColors() {
   const guides = S.people.filter(p => p.can_be_guide);
   const custom = {};
   guides.forEach(p => {
     const inp = document.getElementById('gc-' + p.id);
     if (inp) custom[p.id] = inp.value;
   });
-  localStorage.setItem('sr_guide_colors', JSON.stringify(custom));
+  // 1) Local : prend effet immédiatement sur ce navigateur
+  try { localStorage.setItem('sr_guide_colors', JSON.stringify(custom)); } catch(e) {}
   Object.assign(_guideColors, custom);
-  renderGuideColorPickers();
-  renderCal(); // rafraîchir le calendrier avec les nouvelles couleurs
-  toast('Couleurs des guides enregistrées ✓', 'ok');
+  // 2) DB : tente de sauver dans people.color (si la colonne existe) pour partager
+  //    avec tous les devices/membres. Sans la colonne, on reste en local seulement.
+  let dbOk = true;
+  try {
+    await Promise.all(guides.map(p => {
+      const c = custom[p.id]; if (!c) return null;
+      return API.patch('people', p.id, { color: c }).catch(() => { dbOk = false; });
+    }));
+  } catch(e) { dbOk = false; }
+  // 3) Rafraîchir TOUTES les vues qui utilisent guideColor
+  if (typeof renderGuideColorPickers === 'function') renderGuideColorPickers();
+  if (typeof renderCal === 'function') renderCal();
+  if (typeof renderCreneauxGrid === 'function') renderCreneauxGrid();
+  if (typeof renderDisposAdmin === 'function') renderDisposAdmin();
+  toast(dbOk ? 'Couleurs enregistrées ✓' : 'Couleurs enregistrées (ce navigateur uniquement — ajoute une colonne `color` sur people pour partager)', dbOk ? 'ok' : 'info');
 }
 
 // ──────────────────────────────────────────────
