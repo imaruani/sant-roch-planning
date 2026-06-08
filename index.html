@@ -3029,15 +3029,19 @@ function adminToggleShiftDispo_picker(shiftId) {
 
   const el = document.getElementById('ds-sh-'+shiftId); if (!el) return;
   const rect = el.getBoundingClientRect();
-  // Positionne en haut si pas la place en bas (popup peut faire jusqu'à 100vh - 24px de haut)
-  const popTop  = Math.max(12, Math.min(rect.top, window.innerHeight - 200));
+  // Stratégie : popup ouvert à côté du shift, mais on s'assure qu'il tient TOUJOURS dans l'écran
+  // — top = max(12, top du shift) plafonné pour laisser au moins 200px de hauteur
+  // — max-height calculée pour ne pas dépasser le bas de la viewport
+  const popTopRaw = Math.max(12, rect.top);
+  const popTop = Math.min(popTopRaw, Math.max(12, window.innerHeight - 220));
+  const availableHeight = window.innerHeight - popTop - 12;
   const popLeft = rect.right + 8 + 300 > window.innerWidth ? Math.max(8, rect.left - 300) : rect.right + 8;
 
   const pop = document.createElement('div');
   pop.style.cssText = 'position:fixed;z-index:9999;background:#fff;border:1px solid var(--beige-d);'
     + 'border-radius:12px;box-shadow:0 10px 32px rgba(0,0,0,.22);padding:0;min-width:240px;max-width:300px;'
-    + 'display:flex;flex-direction:column;max-height:calc(100vh - 24px);overflow:hidden;'
-    + 'top:'+Math.max(8, popTop)+'px;left:'+popLeft+'px';
+    + 'display:flex;flex-direction:column;max-height:'+availableHeight+'px;overflow:hidden;'
+    + 'top:'+popTop+'px;left:'+popLeft+'px';
 
   // ── Header ──
   const d = new Date(sh.date+'T00:00:00');
