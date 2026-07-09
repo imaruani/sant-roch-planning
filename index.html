@@ -8098,24 +8098,31 @@ function renderFlowSessionsList() {
   const nowStr=iso(new Date());
 
   // ── Séances assignées ──
-  let sessions;
+  let sessions, shifts, shiftsAll;
   if (period==='week') {
     const ws=S.flowCalWeek||monday(new Date());
     const we=iso(addD(ws,6));
     sessions=S.sessions.filter(s=>(s.flow_id===uid||s.guide_id===uid)&&s.date>=iso(ws)&&s.date<=we);
+    shifts=(S.shifts||[]).filter(sh=>sh.person_id===uid&&sh.assignment_published!==false&&sh.date>=iso(ws)&&sh.date<=we);
+    shiftsAll=(S.shifts||[]).filter(sh=>sh.person_id===uid&&sh.date>=iso(ws)&&sh.date<=we);
   } else {
     sessions=S.sessions.filter(s=>(s.flow_id===uid||s.guide_id===uid)&&s.date>=nowStr);
+    shifts=(S.shifts||[]).filter(sh=>sh.person_id===uid&&sh.assignment_published!==false&&sh.date>=nowStr);
+    shiftsAll=(S.shifts||[]).filter(sh=>sh.person_id===uid&&sh.date>=nowStr);
   }
 
-  // ── Shifts assignés (publiés seulement — brouillons non visibles) ──
-  let shifts;
-  if (period==='week') {
-    const ws=S.flowCalWeek||monday(new Date());
-    const we=iso(addD(ws,6));
-    shifts=(S.shifts||[]).filter(sh=>sh.person_id===uid&&sh.assignment_published!==false&&sh.date>=iso(ws)&&sh.date<=we);
-  } else {
-    shifts=(S.shifts||[]).filter(sh=>sh.person_id===uid&&sh.assignment_published!==false&&sh.date>=nowStr);
-  }
+  // Masquer les séances FLOW englobées par un shift (déjà représentées par le bloc SHIFT).
+  // Utilise shiftsAll (y compris brouillons) pour ne rien laisser fuiter avant publication.
+  const _covered = (s) => {
+    if (s.guide_id===uid) return false; // rôle guide → toujours montré
+    if (s.flow_id!==uid) return false;
+    const sd=s.date, sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
+    return shiftsAll.some(sh=>{
+      if (sh.date!==sd) return false;
+      return sm>=t2m(sh.time_from.slice(0,5)) && em<=t2m(sh.time_to.slice(0,5));
+    });
+  };
+  sessions = sessions.filter(s=>!_covered(s));
 
   // ── Fusionner et trier par date + heure ──
   const items=[
@@ -8125,7 +8132,6 @@ function renderFlowSessionsList() {
 
   const div=document.getElementById('flow-sessions-list');
   if (!items.length) {
-    // Empty state plus utile : suggérer d'aller renseigner les dispos
     const hasDispo = (S.shiftAvails||[]).some(a=>a.person_id===uid && a.available);
     div.innerHTML = '<div style="padding:32px 20px;text-align:center;background:var(--white);border-radius:12px;border:1px solid var(--beige);box-shadow:0 2px 8px rgba(0,0,0,.06)">'
       + '<div style="font-size:48px;margin-bottom:10px">' + (hasDispo ? '⏳' : '📋') + '</div>'
@@ -8140,70 +8146,81 @@ function renderFlowSessionsList() {
     return;
   }
 
-  // Grouper par semaine ou mois
+  // Grouper par JOUR (pas par semaine/mois) — plus lisible
   const groups={};
   items.forEach(item=>{
-    const key = period==='week'
-      ? iso(monday(new Date(item.date+'T00:00:00')))
-      : item.date.slice(0,7);
-    if (!groups[key]) groups[key]=[];
-    groups[key].push(item);
+    if (!groups[item.date]) groups[item.date]=[];
+    groups[item.date].push(item);
   });
 
-  div.innerHTML=Object.entries(groups).map(([key,list])=>{
-    let title;
-    if (period==='week') {
-      const m=new Date(key+'T00:00:00');
-      title=`Semaine du ${fmtDateFr(key)} → ${fmtDateFr(iso(addD(m,6)))}`;
-    } else {
-      const [y,mo]=key.split('-');
-      title=`${MONTHS[parseInt(mo)-1]} ${y}`;
-    }
+  const JOURS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const MOIS_S=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  const today=iso(new Date());
+  const dates=Object.keys(groups).sort();
 
-    const rows=list.map(item=>{
+  div.innerHTML = dates.map(d=>{
+    const dt=new Date(d+'T00:00:00');
+    const isToday=d===today;
+    const dayLabel = (isToday?'Aujourd\'hui · ':'') + JOURS[dt.getDay()] + ' ' + dt.getDate() + ' ' + MOIS_S[dt.getMonth()];
+    const rows = groups[d].map(item=>{
       if (item._type==='shift') {
-        // ── Rendu SHIFT ──
         const sh=item.data;
         const isConf=sh.status==='confirmed';
-        const borderColor=isConf?'var(--green)':'#8B6E3F';
-        const bgColor=isConf?'rgba(92,122,58,.06)':'rgba(184,120,46,.06)';
-        const confirmBtn=!isConf
-          ?`<button class="btn btn-sm" style="background:#8B6E3F;color:#fff;padding:12px;font-size:13px;font-weight:800;width:100%;min-height:48px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();confirmShift('${sh.id}')">✓ CONFIRMER CE SHIFT</button>`
-          :`<button class="btn btn-sm" style="background:transparent;border:1px solid var(--beige-d);color:var(--muted);padding:9px;font-size:12px;font-weight:700;width:100%;min-height:40px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();unconfirmShift('${sh.id}')">← Annuler ma confirmation</button>`;
-        const declineBtn=`<button class="btn btn-sm" style="background:rgba(138,42,38,.9);color:#fff;padding:10px;font-size:12px;font-weight:800;width:100%;min-height:42px;margin-top:6px;border-radius:6px" onclick="event.stopPropagation();flowDeclineShift('${sh.id}')">✗ NON DISPO — me retirer</button>`;
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'}" style="cursor:default;border-left:5px solid ${borderColor};background:${bgColor};padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"> <span style="display:inline-block;background:${isConf?'rgba(92,122,58,.15)':'rgba(184,120,46,.15)'};color:${isConf?'var(--green)':'#8B6E3F'};font-size:11px;font-weight:800;padding:3px 9px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em"> SHIFT</span> <span style="font-weight:700;font-size:14px">${fmtDateFr(sh.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</span> <span class="badge ${isConf?'b-ok':'b-wait'}" style="${isConf?'':'color:#8B6E3F;background:rgba(184,120,46,.12)'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span> </div> ${confirmBtn} ${declineBtn} </div>`;
+        const dot = isConf ? '<span style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0"></span>'
+                          : '<span style="width:10px;height:10px;border-radius:50%;background:#8B6E3F;display:inline-block;flex-shrink:0"></span>';
+        const status = isConf ? '<span style="color:var(--green);font-weight:700;font-size:12px">✓ Confirmé</span>' : '<span style="color:#8B6E3F;font-weight:700;font-size:12px">À confirmer</span>';
+        return `<div onclick="openFlowShiftModal_list('${sh.id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:8px;border-left:4px solid ${isConf?'var(--green)':'#8B6E3F'};cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          ${dot}
+          <div style="min-width:100px;font-size:15px;font-weight:800;color:var(--text)">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">SHIFT</div><div style="font-size:11px;color:var(--muted);margin-top:1px">Ta présence sur ce créneau</div></div>
+          ${status}
+        </div>`;
       } else {
-        // ── Rendu SÉANCE ──
         const s=item.data;
         const isConf=s.status==='confirmed';
         const isMyGuide=s.guide_id===uid;
         const guide=S.people.find(p=>p.id===s.guide_id);
         const flow=S.people.find(p=>p.id===s.flow_id);
-        const seenKey='sr_seen_'+s.id;
-        const isSeen=!!localStorage.getItem(seenKey);
-        const roleClass=isMyGuide?'as-guide':'';
-        const roleBadge=isMyGuide
-          ?`<span class="role-badge-guide"> GUIDE</span>`
-          :`<span class="role-badge-flow"> FLOW</span>`;
-        const partnerLine=isMyGuide
-          ?(flow?`<span style="font-size:13px;color:var(--muted)"> Flow : ${flow.name}</span>`:`<span style="font-size:13px;color:#8a2a26">⚠ Pas de flow</span>`)
-          :(guide?`<span style="font-size:13px;color:var(--muted)"> Guide : ${guide.name}</span>`:'');
-        const statusBadge=isMyGuide
-          ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`
-          :`<span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`;
-        // Bouton "Confirmer ma présence" retiré des cartes individuelles : la bannière en haut
-        // (Séances en attente de confirmation) gère déjà cette action de manière groupée.
-        // Seul le bouton "Annuler ma confirmation" reste sur les cartes déjà confirmées.
-        const confirmBtn=(!isMyGuide && isConf)
-          ?`<button class="btn btn-sm" style="background:transparent;border:1px solid var(--beige-d);color:var(--muted);padding:9px;font-size:12px;font-weight:700;width:100%;min-height:40px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();unconfirmSess('${s.id}')">← Annuler ma confirmation</button>`
-          :'';
-        return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'} ${roleClass}" style="cursor:pointer;padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)" onclick="openFlowEventModal_list('${s.id}')"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"> <span class="read-dot ${isSeen?'seen':'unseen'}" title="${isSeen?'Vu':'Nouveau'}"></span> ${roleBadge} <span style="font-weight:700;font-size:14px">${fmtDateFr(s.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${ft(s.start_time)}–${ft(s.end_time)}</span> </div> <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px"> <span class="${s.session_type==='freeflow'?'sess-badge-free':'sess-badge-guidee'}">${sessTypeLabel(s)}</span> ${statusBadge} </div> ${partnerLine?`<div style="margin-top:2px">${partnerLine}</div>`:''}
-          ${confirmBtn} <div style="margin-top:8px"> <button class="btn btn-s btn-sm" style="font-size:11px;padding:6px 12px" onclick="event.stopPropagation();exportSessionToICal('${s.id}')" title="Exporter vers calendrier">Ajouter au calendrier</button> </div> </div>`;
+        const isFree=s.session_type==='freeflow';
+        const isEv=isEventSess(s);
+        // Couleur de bordure = rôle + statut
+        let borderColor, dotColor, roleLabel;
+        if (isMyGuide) { borderColor='var(--bordeaux)'; dotColor='var(--bordeaux)'; roleLabel='Guide'; }
+        else if (isConf) { borderColor='var(--green)'; dotColor='var(--green)'; roleLabel='Flow'; }
+        else { borderColor='#8B6E3F'; dotColor='#8B6E3F'; roleLabel='Flow'; }
+        const partnerTxt=isMyGuide
+          ?(flow?flow.name.split(' ')[0]:'⚠ sans flow')
+          :(guide?'avec '+guide.name.split(' ')[0]:'');
+        const typeTxt = isEv ? (eventName(s)||'Événement') : (isFree ? 'Freeflow' : 'Guidée');
+        const status = isConf ? '<span style="color:var(--green);font-weight:700;font-size:12px">✓ Confirmée</span>'
+                              : (isMyGuide ? '<span style="color:var(--bordeaux);font-weight:700;font-size:12px">Guide</span>'
+                                           : '<span style="color:#8B6E3F;font-weight:700;font-size:12px">À confirmer</span>');
+        return `<div onclick="openFlowEventModal_list('${s.id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#fff;border-radius:8px;border-left:4px solid ${borderColor};cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <span style="width:10px;height:10px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span>
+          <div style="min-width:100px;font-size:15px;font-weight:800;color:var(--text)">${ft(s.start_time)}–${ft(s.end_time)}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">${roleLabel} · ${typeTxt}${isPrivSess(s)?' 🔒':''}</div>${partnerTxt?`<div style="font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${partnerTxt}</div>`:''}</div>
+          ${status}
+        </div>`;
       }
     }).join('');
-
-    return `<div class="flow-week-group"> <div class="flow-week-title">${title} <span class="badge b-flow" style="margin-left:8px">${list.length}</span></div> ${rows} </div>`;
+    return `<div style="margin-bottom:18px">
+      <div style="font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:0 4px 8px;${isToday?'color:var(--bordeaux)':''}">${dayLabel}</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${rows}</div>
+    </div>`;
   }).join('');
+}
+
+// Fallback : ouvre juste un confirm si le modal shift dédié n'existe pas
+function openFlowShiftModal_list(shiftId) {
+  const sh=(S.shifts||[]).find(x=>x.id===shiftId); if(!sh) return;
+  const isConf=sh.status==='confirmed';
+  const range=sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5);
+  const dateLbl=fmtDateFr(sh.date);
+  if (!isConf) {
+    if (confirm('Shift du '+dateLbl+' — '+range+'\n\nConfirmer ta présence sur ce shift ?\n\n(Annule pour revenir sans rien changer. Pour te déclarer indisponible, va sur MES DISPOS.)')) confirmShift(shiftId);
+  } else {
+    if (confirm('Shift du '+dateLbl+' — '+range+' déjà confirmé.\n\nAnnuler la confirmation ?')) unconfirmShift(shiftId);
+  }
 }
 
 // ── VUE MOIS MON PLANNING ──
