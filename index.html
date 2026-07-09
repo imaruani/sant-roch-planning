@@ -8191,11 +8191,12 @@ function renderFlowSessionsList() {
         const statusBadge=isMyGuide
           ?`<span class="badge b-guide" style="background:rgba(108,20,18,.12);color:var(--bordeaux)">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`
           :`<span class="badge ${isConf?'b-ok':'b-wait'}">${isConf?'✓ CONFIRMÉE':'À CONFIRMER'}</span>`;
-        const confirmBtn=isMyGuide
-          ?''
-          :(!isConf
-            ?`<button class="btn btn-green" style="width:100%;padding:13px;font-size:14px;font-weight:900;min-height:50px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();confirmSessAndMark('${s.id}')">✓ CONFIRMER MA PRÉSENCE</button>`
-            :`<button class="btn btn-sm" style="background:transparent;border:1px solid var(--beige-d);color:var(--muted);padding:9px;font-size:12px;font-weight:700;width:100%;min-height:40px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();unconfirmSess('${s.id}')">← Annuler ma confirmation</button>`);
+        // Bouton "Confirmer ma présence" retiré des cartes individuelles : la bannière en haut
+        // (Séances en attente de confirmation) gère déjà cette action de manière groupée.
+        // Seul le bouton "Annuler ma confirmation" reste sur les cartes déjà confirmées.
+        const confirmBtn=(!isMyGuide && isConf)
+          ?`<button class="btn btn-sm" style="background:transparent;border:1px solid var(--beige-d);color:var(--muted);padding:9px;font-size:12px;font-weight:700;width:100%;min-height:40px;margin-top:8px;border-radius:6px" onclick="event.stopPropagation();unconfirmSess('${s.id}')">← Annuler ma confirmation</button>`
+          :'';
         return `<div class="flow-sess-row ${isConf?'confirmed':'proposed'} ${roleClass}" style="cursor:pointer;padding:14px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)" onclick="openFlowEventModal_list('${s.id}')"> <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"> <span class="read-dot ${isSeen?'seen':'unseen'}" title="${isSeen?'Vu':'Nouveau'}"></span> ${roleBadge} <span style="font-weight:700;font-size:14px">${fmtDateFr(s.date)}</span> <span style="color:var(--text);font-size:16px;font-weight:900">${ft(s.start_time)}–${ft(s.end_time)}</span> </div> <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px"> <span class="${s.session_type==='freeflow'?'sess-badge-free':'sess-badge-guidee'}">${sessTypeLabel(s)}</span> ${statusBadge} </div> ${partnerLine?`<div style="margin-top:2px">${partnerLine}</div>`:''}
           ${confirmBtn} <div style="margin-top:8px"> <button class="btn btn-s btn-sm" style="font-size:11px;padding:6px 12px" onclick="event.stopPropagation();exportSessionToICal('${s.id}')" title="Exporter vers calendrier">Ajouter au calendrier</button> </div> </div>`;
       }
