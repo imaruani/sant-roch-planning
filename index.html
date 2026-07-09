@@ -8223,7 +8223,8 @@ function renderFlowMonthCal() {
     const mStart=iso(new Date(d0.getFullYear(),d0.getMonth(),1));
     const mEnd=iso(new Date(d0.getFullYear(),d0.getMonth()+1,0));
     const mySess=S.sessions.filter(s=>s.date>=mStart&&s.date<=mEnd&&(s.flow_id===uid||s.guide_id===uid)).sort((a,b)=>a.date.localeCompare(b.date)||a.start_time.localeCompare(b.start_time));
-    const myShiftsMo=(S.shifts||[]).filter(sh=>sh.date>=mStart&&sh.date<=mEnd&&sh.person_id===uid&&sh.assignment_published!==false).sort((a,b)=>a.date.localeCompare(b.date)||a.time_from.localeCompare(b.time_from));
+    // On inclut aussi les brouillons pour éviter d'afficher séances "orphelines" quand le shift qui les englobe n'est pas encore publié.
+    const myShiftsMo=(S.shifts||[]).filter(sh=>sh.date>=mStart&&sh.date<=mEnd&&sh.person_id===uid).sort((a,b)=>a.date.localeCompare(b.date)||a.time_from.localeCompare(b.time_from));
     const allDates=[...new Set([...mySess.map(s=>s.date),...myShiftsMo.map(sh=>sh.date)])].sort();
     if (!allDates.length) {
       _mmMob.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;font-style:italic">Aucune séance ni shift ce mois.</div>';
@@ -8239,10 +8240,12 @@ function renderFlowMonthCal() {
         const shiftsToday=myShiftsMo.filter(sh=>sh.date===dStr);
         shiftsToday.forEach(sh=>{
           const isConf=sh.status==='confirmed';
+          const isDraft=sh.assignment_published===false;
           const bg=isConf?'rgba(92,122,58,.90)':'rgba(184,120,46,.88)';
-          html+='<div style="background:'+bg+';color:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
-          html+='<div><div style="font-size:16px;font-weight:900">'+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div><div style="font-size:11px;font-weight:700;opacity:.85">SHIFT '+(isConf?'✓ Confirmé':'À confirmer')+'</div></div>';
-          if (!isConf) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#8B6E3F;cursor:pointer;min-height:44px">✓</button>';
+          const suffix = isDraft ? 'Brouillon' : (isConf ? '✓ Confirmé' : 'À confirmer');
+          html+='<div style="background:'+bg+';color:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px'+(isDraft?';opacity:.8':'')+'">';
+          html+='<div><div style="font-size:16px;font-weight:900">'+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+'</div><div style="font-size:11px;font-weight:700;opacity:.85">SHIFT '+suffix+'</div></div>';
+          if (!isConf && !isDraft) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#8B6E3F;cursor:pointer;min-height:44px">✓</button>';
           html+='</div>';
         });
         // Helper : masquer les séances FLOW couvertes par un shift du jour
@@ -8291,16 +8294,20 @@ function renderFlowMonthCal() {
     cell.className='mday'+(cur.getMonth()!==d0.getMonth()?' other-month':'')+(isoD===today?' today':'');
     const num=document.createElement('div'); num.className='mday-num'; num.textContent=cur.getDate(); cell.appendChild(num);
 
-    // Mes shifts assignés ce jour (publiés seulement)
-    const dayShifts = (S.shifts||[]).filter(sh=>sh.date===isoD&&sh.person_id===uid&&sh.assignment_published!==false);
+    // Mes shifts assignés ce jour (tous ceux qui me sont attribués, publiés ou brouillon)
+    // Les brouillons sont inclus pour éviter d'afficher les séances "orphelines" quand
+    // le shift qui les englobe est encore en brouillon côté admin.
+    const dayShifts = (S.shifts||[]).filter(sh=>sh.date===isoD&&sh.person_id===uid);
     dayShifts.forEach(sh=>{
       const isConf=sh.status==='confirmed';
+      const isDraft=sh.assignment_published===false;
       const shEl=document.createElement('div');
       shEl.style.cssText=`margin-bottom:2px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;`
         +`background:${isConf?'rgba(92,122,58,.9)':'rgba(184,120,46,.88)'};color:#fff;padding:3px 5px;`
-        +`border-left:3px solid ${isConf?'#3d5024':'#8B6E3F'}`;
-      shEl.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</div><div style="font-size:9px;font-weight:700;opacity:.9">SHIFT ${isConf?'✓ confirmé':'à confirmer'}</div>`;
-      shEl.onclick=()=>{ if(!isConf && confirm('Confirmer ce shift du '+fmtDateFr(sh.date)+' ('+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+') ?')) confirmShift(sh.id); };
+        +`border-left:3px solid ${isConf?'#3d5024':'#8B6E3F'}${isDraft?';opacity:.75':''}`;
+      const suffix = isDraft ? 'brouillon' : (isConf ? '✓ confirmé' : 'à confirmer');
+      shEl.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</div><div style="font-size:9px;font-weight:700;opacity:.9">SHIFT ${suffix}</div>`;
+      shEl.onclick=()=>{ if(!isConf && !isDraft && confirm('Confirmer ce shift du '+fmtDateFr(sh.date)+' ('+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+') ?')) confirmShift(sh.id); };
       cell.appendChild(shEl);
     });
 
