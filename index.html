@@ -8236,7 +8236,8 @@ function renderFlowMonthCal() {
         html+='<div style="border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.10)">';
         html+='<div style="padding:9px 14px;font-size:14px;font-weight:800;background:'+(isToday?'var(--bordeaux)':'#3d2e26')+';color:#fff">'+dayLabel+'</div>';
         html+='<div style="padding:8px 10px;background:var(--creme);display:flex;flex-direction:column;gap:7px">';
-        myShiftsMo.filter(sh=>sh.date===dStr).forEach(sh=>{
+        const shiftsToday=myShiftsMo.filter(sh=>sh.date===dStr);
+        shiftsToday.forEach(sh=>{
           const isConf=sh.status==='confirmed';
           const bg=isConf?'rgba(92,122,58,.90)':'rgba(184,120,46,.88)';
           html+='<div style="background:'+bg+';color:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
@@ -8244,8 +8245,16 @@ function renderFlowMonthCal() {
           if (!isConf) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#8B6E3F;cursor:pointer;min-height:44px">✓</button>';
           html+='</div>';
         });
+        // Helper : masquer les séances FLOW couvertes par un shift du jour
+        const _coveredMob=(s)=>{
+          if (!shiftsToday.length) return false;
+          const sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
+          return shiftsToday.some(sh=>{const a=t2m(sh.time_from.slice(0,5)), b=t2m(sh.time_to.slice(0,5)); return sm>=a && em<=b;});
+        };
         mySess.filter(s=>s.date===dStr).forEach(s=>{
           const isMyGuide=s.guide_id===uid, isConf=s.status==='confirmed';
+          const isMyFlow=s.flow_id===uid;
+          if (isMyFlow && !isMyGuide && _coveredMob(s)) return; // séance déjà englobée par le shift → skip
           const isFree=s.session_type==='freeflow', isEv=isEventSess(s);
           let gc;
           if (isMyGuide) gc='rgba(108,20,18,.92)';
@@ -8283,24 +8292,37 @@ function renderFlowMonthCal() {
     const num=document.createElement('div'); num.className='mday-num'; num.textContent=cur.getDate(); cell.appendChild(num);
 
     // Mes shifts assignés ce jour (publiés seulement)
-    (S.shifts||[]).filter(sh=>sh.date===isoD&&sh.person_id===uid&&sh.assignment_published!==false).forEach(sh=>{
+    const dayShifts = (S.shifts||[]).filter(sh=>sh.date===isoD&&sh.person_id===uid&&sh.assignment_published!==false);
+    dayShifts.forEach(sh=>{
       const isConf=sh.status==='confirmed';
       const shEl=document.createElement('div');
       shEl.style.cssText=`margin-bottom:2px;cursor:pointer;border-radius:3px;overflow:hidden;font-size:10px;line-height:1.4;`
-        +`background:${isConf?'rgba(92,122,58,.9)':'rgba(184,120,46,.88)'};color:#fff;padding:2px 5px;`
+        +`background:${isConf?'rgba(92,122,58,.9)':'rgba(184,120,46,.88)'};color:#fff;padding:3px 5px;`
         +`border-left:3px solid ${isConf?'#3d5024':'#8B6E3F'}`;
-      shEl.innerHTML=`<div style="font-weight:700">${sh.time_from.slice(0,5)} SHIFT ${isConf?'✓':'—'}</div>`;
+      shEl.innerHTML=`<div style="font-weight:800;letter-spacing:.02em">${sh.time_from.slice(0,5)}–${sh.time_to.slice(0,5)}</div><div style="font-size:9px;font-weight:700;opacity:.9">SHIFT ${isConf?'✓ confirmé':'à confirmer'}</div>`;
       shEl.onclick=()=>{ if(!isConf && confirm('Confirmer ce shift du '+fmtDateFr(sh.date)+' ('+sh.time_from.slice(0,5)+'–'+sh.time_to.slice(0,5)+') ?')) confirmShift(sh.id); };
       cell.appendChild(shEl);
     });
 
-    // Mes séances ce jour
+    // Helper : la séance est-elle englobée par un shift de l'user ?
+    const _covered = (s) => {
+      if (!dayShifts.length) return false;
+      const sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
+      return dayShifts.some(sh=>{
+        const shs=t2m(sh.time_from.slice(0,5)), she=t2m(sh.time_to.slice(0,5));
+        return sm>=shs && em<=she;
+      });
+    };
+
+    // Mes séances ce jour — masque les séances FLOW couvertes par un shift (déjà englobées)
     S.sessions.filter(s=>s.date===isoD&&(s.flow_id===uid||s.guide_id===uid)).forEach(s=>{
+      const isMyGuide=s.guide_id===uid;
+      const isMyFlow=s.flow_id===uid;
+      // Si je suis flow (et pas guide) sur une séance couverte par mon shift → skip pour lisibilité
+      if (isMyFlow && !isMyGuide && _covered(s)) return;
       const ev=document.createElement('div');
       const isFree=s.session_type==='freeflow';
       const isEv=isEventSess(s);
-      const isMyGuide=s.guide_id===uid;
-      const isMyFlow=s.flow_id===uid;
       const isConf=s.status==='confirmed';
       let bg,col;
       if (isMyGuide)            { bg='rgba(108,20,18,.88)'; col='#fff'; }
