@@ -8224,6 +8224,8 @@ function renderFlowMonthCal() {
     const mEnd=iso(new Date(d0.getFullYear(),d0.getMonth()+1,0));
     const mySess=S.sessions.filter(s=>s.date>=mStart&&s.date<=mEnd&&(s.flow_id===uid||s.guide_id===uid)).sort((a,b)=>a.date.localeCompare(b.date)||a.start_time.localeCompare(b.start_time));
     const myShiftsMo=(S.shifts||[]).filter(sh=>sh.date>=mStart&&sh.date<=mEnd&&sh.person_id===uid&&sh.assignment_published!==false).sort((a,b)=>a.date.localeCompare(b.date)||a.time_from.localeCompare(b.time_from));
+    // Tous les shifts (y compris brouillons) pour masquer les séances englobées
+    const myShiftsMoAll=(S.shifts||[]).filter(sh=>sh.date>=mStart&&sh.date<=mEnd&&sh.person_id===uid);
     const allDates=[...new Set([...mySess.map(s=>s.date),...myShiftsMo.map(sh=>sh.date)])].sort();
     if (!allDates.length) {
       _mmMob.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;font-style:italic">Aucune séance ni shift ce mois.</div>';
@@ -8245,11 +8247,12 @@ function renderFlowMonthCal() {
           if (!isConf) html+='<button onclick="confirmShift(\''+sh.id+'\');renderFlowMonthCal()" style="background:rgba(255,255,255,.92);border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:900;color:#8B6E3F;cursor:pointer;min-height:44px">✓</button>';
           html+='</div>';
         });
-        // Helper : masquer les séances FLOW couvertes par un shift du jour
+        // Helper : masquer les séances FLOW couvertes par un shift du jour (brouillons inclus)
+        const shiftsTodayAll=myShiftsMoAll.filter(sh=>sh.date===dStr);
         const _coveredMob=(s)=>{
-          if (!shiftsToday.length) return false;
+          if (!shiftsTodayAll.length) return false;
           const sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
-          return shiftsToday.some(sh=>{const a=t2m(sh.time_from.slice(0,5)), b=t2m(sh.time_to.slice(0,5)); return sm>=a && em<=b;});
+          return shiftsTodayAll.some(sh=>{const a=t2m(sh.time_from.slice(0,5)), b=t2m(sh.time_to.slice(0,5)); return sm>=a && em<=b;});
         };
         mySess.filter(s=>s.date===dStr).forEach(s=>{
           const isMyGuide=s.guide_id===uid, isConf=s.status==='confirmed';
@@ -8291,8 +8294,10 @@ function renderFlowMonthCal() {
     cell.className='mday'+(cur.getMonth()!==d0.getMonth()?' other-month':'')+(isoD===today?' today':'');
     const num=document.createElement('div'); num.className='mday-num'; num.textContent=cur.getDate(); cell.appendChild(num);
 
-    // Mes shifts assignés ET publiés ce jour (les brouillons ne sont jamais montrés au flow)
+    // Mes shifts assignés ce jour, publiés seulement (les brouillons ne sont jamais montrés au flow)
     const dayShifts = (S.shifts||[]).filter(sh=>sh.date===isoD&&sh.person_id===uid&&sh.assignment_published!==false);
+    // TOUS mes shifts du jour (y compris brouillons) — pour masquer les séances englobées
+    const dayShiftsAll = (S.shifts||[]).filter(sh=>sh.date===isoD&&sh.person_id===uid);
     dayShifts.forEach(sh=>{
       const isConf=sh.status==='confirmed';
       const shEl=document.createElement('div');
@@ -8304,11 +8309,13 @@ function renderFlowMonthCal() {
       cell.appendChild(shEl);
     });
 
-    // Helper : la séance est-elle englobée par un shift de l'user ?
+    // Helper : la séance est-elle englobée par un shift de l'user (brouillon inclus) ?
+    // On utilise dayShiftsAll pour aussi masquer les séances lorsque le shift est
+    // encore en brouillon → aucune fuite d'info tant que l'admin n'a pas publié.
     const _covered = (s) => {
-      if (!dayShifts.length) return false;
+      if (!dayShiftsAll.length) return false;
       const sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
-      return dayShifts.some(sh=>{
+      return dayShiftsAll.some(sh=>{
         const shs=t2m(sh.time_from.slice(0,5)), she=t2m(sh.time_to.slice(0,5));
         return sm>=shs && em<=she;
       });
