@@ -7116,8 +7116,11 @@ function renderConfirmBatch() {
   const uid = S.user?.id; if (!uid) return;
   const wrap = document.getElementById('confirm-batch-wrap');
   if (!wrap) return;
-  // Une séance couverte par MON shift (publié ou brouillon) n'a pas besoin
-  // d'être confirmée séparément : confirmer le shift la confirme automatiquement.
+  // Bannière "Séances en attente" masquée : le flow confirme UNIQUEMENT ses shifts.
+  // Confirmer un shift confirme automatiquement toutes les séances englobées.
+  wrap.classList.add('hidden');
+  return;
+  /* eslint-disable no-unreachable */
   const myShifts = (S.shifts||[]).filter(sh => sh.person_id === uid);
   const _covered = (s) => {
     const sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
