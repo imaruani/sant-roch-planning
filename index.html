@@ -5662,10 +5662,19 @@ async function confirmShift(shiftId) {
     if (!sh || sh.person_id !== S.user?.id) { toast('Action non autorisée','err'); return; }
     await API.patch('shifts', shiftId, { status: 'confirmed' });
     sh.status = 'confirmed';
-    toast('Shift confirmé ✓', 'ok');
+    // Auto-confirmer les séances englobées par ce shift (l'user ne confirme QUE ses shifts)
+    const uid = S.user.id;
+    const shs = t2m(sh.time_from.slice(0,5)), she = t2m(sh.time_to.slice(0,5));
+    const covered = (S.sessions||[]).filter(s =>
+      s.date === sh.date && s.flow_id === uid && s.status !== 'confirmed' &&
+      t2m(s.start_time.slice(0,5)) >= shs && t2m(s.end_time.slice(0,5)) <= she
+    );
+    for (const s of covered) {
+      try { await API.patch('sessions', s.id, { status: 'confirmed' }); s.status = 'confirmed'; } catch(e){}
+    }
+    toast(covered.length ? `Shift + ${covered.length} séance(s) confirmée(s) ✓` : 'Shift confirmé ✓', 'ok');
     renderFlowShifts();
     renderFlowNotifs();
-    // Rafraîchir aussi le planning (le badge ✓ doit apparaître)
     if (typeof renderFlowCal === 'function') renderFlowCal();
     if (typeof renderFlowSessionsList === 'function') renderFlowSessionsList();
     if (S._flowDispoView === 'month' && typeof renderFlowShiftsMonth === 'function') renderFlowShiftsMonth();
@@ -7107,7 +7116,15 @@ function renderConfirmBatch() {
   const uid = S.user?.id; if (!uid) return;
   const wrap = document.getElementById('confirm-batch-wrap');
   if (!wrap) return;
-  const allPending = S.sessions.filter(s => s.flow_id===uid && s.status!=='confirmed' && s.date>=iso(new Date()));
+  // Une séance couverte par MON shift (publié ou brouillon) n'a pas besoin
+  // d'être confirmée séparément : confirmer le shift la confirme automatiquement.
+  const myShifts = (S.shifts||[]).filter(sh => sh.person_id === uid);
+  const _covered = (s) => {
+    const sm=t2m(s.start_time.slice(0,5)), em=t2m(s.end_time.slice(0,5));
+    return myShifts.some(sh => sh.date===s.date &&
+      sm >= t2m(sh.time_from.slice(0,5)) && em <= t2m(sh.time_to.slice(0,5)));
+  };
+  const allPending = S.sessions.filter(s => s.flow_id===uid && s.status!=='confirmed' && s.date>=iso(new Date()) && !_covered(s));
   if (!allPending.length) { wrap.classList.add('hidden'); return; }
   wrap.classList.remove('hidden');
   // Layout compact mobile = 1 ligne + bouton "TOUT CONFIRMER" plein écran
